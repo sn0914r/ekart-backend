@@ -4,7 +4,7 @@ const GlobalErrorHandler = require("./middlewares/errorHandler.middleware");
 
 const AdminRoutes = require("./routes/admin.routes");
 const UserRoutes = require("./routes/user.routes");
-const PublicRoutes = require("./routes/product.routes");
+const PublicRoutes = require("./routes/public.routes");
 const app = express();
 
 app.use(cors());
