@@ -12,6 +12,7 @@ const verifyAuth = asyncErrorHandler(async (req, res, next) => {
   try {
     const decodedToken = await auth.verifyIdToken(idToken);
     req["user"] = decodedToken;
+    console.log(decodedToken);
   } catch (error) {
     return next(new AppError(error.message, 401));
   }

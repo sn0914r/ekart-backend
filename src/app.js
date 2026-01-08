@@ -5,6 +5,7 @@ const GlobalErrorHandler = require("./middlewares/errorHandler.middleware");
 const AdminRoutes = require("./routes/admin.routes");
 const UserRoutes = require("./routes/user.routes");
 const PublicRoutes = require("./routes/public.routes");
+const PaymentRoutes = require("./routes/payment.routes");
 const app = express();
 
 app.use(cors());
@@ -18,6 +19,9 @@ app.use(UserRoutes);
 
 // Admin Router
 app.use("/admin", AdminRoutes);
+
+// Payment routes
+app.use("/payments", PaymentRoutes);
 
 // Health Check
 app.use("/health", (req, res) => {
