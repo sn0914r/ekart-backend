@@ -12,8 +12,15 @@ const createProduct = require("../controllers/createProduct.controller");
 
 // VALIDATION SCHEMAS
 const createProductSchema = require("../schemas/createProduct.schema");
+const getOrders = require("../controllers/getOrders.controller");
+const patchOrders = require("../controllers/patchOrders");
+const OrderPATCHSchema = require("../schemas/orderPATCH.schema");
 
 const router = express.Router();
+
+// ROUTES
+
+router.get("/orders", verifyAuth, isAdmin, getOrders);
 
 router.post(
   "/products",
@@ -24,6 +31,14 @@ router.post(
   parseBody,
   validate(createProductSchema),
   createProduct
+);
+
+router.patch(
+  "/orders/:id",
+  verifyAuth,
+  isAdmin,
+  validate(OrderPATCHSchema),
+  patchOrders
 );
 
 module.exports = router;

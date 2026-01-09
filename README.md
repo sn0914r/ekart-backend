@@ -11,4 +11,7 @@
 - **08 Jan 2026**  
   Completed backend-only pricing, Razorpay order creation, secure payment verification, order persistence, and email notifications.
 
-> This log is temporary and will be replaced with finalized documentation after Ekart V1 completion.
+- **09 Jan 2026**  
+  Added public product listing, user order views, and admin order status updates to complete Ekart __V1__ core features.
+
+  > This log is temporary and will be replaced with finalized documentation after Ekart V1 completion.
