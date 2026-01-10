@@ -19,4 +19,4 @@ const calculateCartTotal = async (items) => {
   return totalAmount;
 };
 
-module.exports = calculateCartTotal;
+module.exports = { calculateCartTotal };

@@ -1,27 +1,31 @@
 const express = require("express");
 
-const createPaymentOrder = require("../controllers/createPaymentOrder.controller");
-const verifyPaymentOrder = require("../controllers/verifyPaymentOrder.controller");
+const { orderSchema } = require("../validation/order.schema");
+const { cartItemsSchema } = require("../validation/product.schema");
 
-const validate = require("../middlewares/validate.middleware");
+const { verifyAuth, requireUser } = require("../middlewares/auth.middleware");
+const { validateBody } = require("../middlewares/validation.middleware");
 
-const OrderSchema = require("../schemas/order.schema");
-const ProductItems = require("../schemas/productItems.schema");
-const verifyAuth = require("../middlewares/verifyAuth.middleware");
+const {
+  createPaymentController,
+  paymentSuccessController,
+} = require("../controllers/payment.controller");
 
 const router = express.Router();
 
 router.post(
   "/create-payment",
   verifyAuth,
-  validate(ProductItems),
-  createPaymentOrder
+  requireUser,
+  validateBody(cartItemsSchema),
+  createPaymentController
 );
 router.post(
   "/verify-payment",
   verifyAuth,
-  validate(OrderSchema),
-  verifyPaymentOrder
+  requireUser,
+  validateBody(orderSchema),
+  paymentSuccessController
 );
 
 module.exports = router;

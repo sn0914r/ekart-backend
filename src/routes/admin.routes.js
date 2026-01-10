@@ -1,44 +1,41 @@
 const express = require("express");
 
-// MIDDLEWARES
-const verifyAuth = require("../middlewares/verifyAuth.middleware");
-const isAdmin = require("../middlewares/isAdmin.middleware");
-const validate = require("../middlewares/validate.middleware");
-const upload = require("../middlewares/upload.middleware");
-const checkFile = require("../middlewares/checkFile.middleware");
-const parseBody = require("../middlewares/parseBody.middleware");
-// CONTROLLERS
-const createProduct = require("../controllers/createProduct.controller");
+const { updateOrderSchema } = require("../validation/order.schema");
+const { addProductSchema } = require("../validation/product.schema");
 
-// VALIDATION SCHEMAS
-const createProductSchema = require("../schemas/createProduct.schema");
-const getOrders = require("../controllers/getOrders.controller");
-const patchOrders = require("../controllers/patchOrders");
-const OrderPATCHSchema = require("../schemas/orderPATCH.schema");
+const { verifyAuth, requireAdmin } = require("../middlewares/auth.middleware");
+const upload = require("../middlewares/upload.middleware");
+const {
+  validateFile,
+  validateBody,
+} = require("../middlewares/validation.middleware");
+const parseMultipartJson = require("../middlewares/parseMultipartJSON.middleware");
+
+const { addProductController } = require("../controllers/product.controller");
+const {
+  getOrdersForAdminController,
+  updateOrderController,
+} = require("../controllers/order.controller");
 
 const router = express.Router();
 
-// ROUTES
-
-router.get("/orders", verifyAuth, isAdmin, getOrders);
-
+router.get("/orders", verifyAuth, requireAdmin, getOrdersForAdminController);
 router.post(
   "/products",
   verifyAuth,
-  isAdmin,
+  requireAdmin,
   upload,
-  checkFile,
-  parseBody,
-  validate(createProductSchema),
-  createProduct
+  validateFile,
+  parseMultipartJson,
+  validateBody(addProductSchema),
+  addProductController
 );
-
 router.patch(
   "/orders/:id",
   verifyAuth,
-  isAdmin,
-  validate(OrderPATCHSchema),
-  patchOrders
+  requireAdmin,
+  validateBody(updateOrderSchema),
+  updateOrderController
 );
 
 module.exports = router;

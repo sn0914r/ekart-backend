@@ -1,5 +1,8 @@
 const { db } = require("../configs/firebase.config");
 
+/**
+ * @returns {Object.<string, number>} - id : price
+ */
 const getProductIdToPriceMap = async (productIds) => {
   const dbRef = db.collection("products");
 
@@ -15,4 +18,26 @@ const getProductIdToPriceMap = async (productIds) => {
   return Object.fromEntries(idsByPrices);
 };
 
-module.exports = { getProductIdToPriceMap };
+/**
+ * Retrives all active products
+ */
+const getActiveProducts = async () => {
+  const snapshot = await db
+    .collection("products")
+    .where("isActive", "==", true)
+    .get();
+
+  const products = snapshot.docs.map((doc) => {
+    const { imageUrl, name, price } = doc.data();
+    return {
+      id: doc.id,
+      name,
+      price,
+      imageUrl,
+    };
+  });
+
+  return products;
+};
+
+module.exports = { getProductIdToPriceMap, getActiveProducts };

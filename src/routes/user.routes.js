@@ -1,9 +1,10 @@
 const express = require("express");
-const getOrders = require("../controllers/getOrders.controller");
-const verifyAuth = require("../middlewares/verifyAuth.middleware");
-const isNotAdmin = require("../middlewares/isNotAdmin.middleware");
-const router = express.Router();
+const { verifyAuth, requireUser } = require("../middlewares/auth.middleware");
+const {
+  getOrdersForUserController,
+} = require("../controllers/order.controller");
 
-router.get("/orders", verifyAuth, isNotAdmin, getOrders);
+const router = express.Router();
+router.get("/orders", verifyAuth, requireUser, getOrdersForUserController);
 
 module.exports = router;
