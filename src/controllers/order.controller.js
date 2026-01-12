@@ -18,7 +18,10 @@ const getOrdersForUserController = async (req, res) => {
  */
 const getOrdersForAdminController = async (req, res) => {
   const orders = await getOrders();
-  return orders;
+  res.status(200).json({
+    orders,
+    size: orders.length,
+  });
 };
 
 /**

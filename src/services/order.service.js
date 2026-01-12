@@ -1,9 +1,9 @@
 const { db } = require("../configs/firebase.config");
-const { createDoc, getDocs } = require("../db/db.helpers");
+const { createDoc, getDocs, updateDoc } = require("../db/db.helpers");
 
 const createOrder = async (orderDetails) => {
   const ref = await createDoc("orders", orderDetails);
-  return ref.id;
+  return ref;
 };
 
 /**
@@ -17,10 +17,10 @@ const getUserOrders = async (uid) => {
 
   const orders = snapshot.docs.map((order) => {
     const { items, orderStatus, paymentStatus, totalAmount, shippingStatus } =
-      doc.data();
+      order.data();
 
     return {
-      id: doc.id,
+      id: order.id,
       items,
       orderStatus,
       paymentStatus,

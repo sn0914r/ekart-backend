@@ -13,13 +13,14 @@ const uploadProductImage = async (file) => {
   });
   await fileUpload.makePublic();
 
-  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
   return publicUrl;
 };
 
 const addProduct = async ({ file, name, price, isActive }) => {
   const timestamp = new Date();
   const imageUrl = await uploadProductImage(file);
+
   const productId = await createDoc("products", {
     name,
     price,
@@ -29,7 +30,7 @@ const addProduct = async ({ file, name, price, isActive }) => {
     updatedAt: timestamp,
   });
 
-  const product = await getDoc(productId);
+  const product = await getDoc("products", productId);
   return product;
 };
 

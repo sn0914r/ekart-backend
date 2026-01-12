@@ -11,13 +11,15 @@ const { sendOrderConfirmation } = require("./email.service");
  * Creates an order at razorpay server
  */
 const createPaymentOrder = async (items, uid) => {
-  const totalAmount = calculateCartTotal(items);
+  const totalAmount = await calculateCartTotal(items);
 
   const options = {
     amount: totalAmount * 100,
     currency: "INR",
-    receipt: `receipt_${uid}_${Date.now()}`,
+    receipt: `receipt_${uid.slice(0, 5)}_${Date.now()}`,
   };
+
+  // NOTE: the razorpay receipt must be lessthan 40 chars
   const order = await razorpay.orders.create(options);
   return order;
 };
@@ -25,7 +27,11 @@ const createPaymentOrder = async (items, uid) => {
 /**
  * Verifies the payment using payment signatures
  */
-const verifyPaymentSignatures = async (razorpaySignature) => {
+const verifyPaymentSignatures = async (
+  orderId,
+  paymentId,
+  razorpaySignature
+) => {
   const generatedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_TEST_KEY_SECRET)
     .update(`${orderId}|${paymentId}`)
@@ -48,9 +54,9 @@ const verifyPaymentSignatures = async (razorpaySignature) => {
  * @returns {string} Order Id
  */
 const handlePaymentsAndOrder = async ({
-  razorypaySignature,
+  razorpaySignature,
   razorpayOrderId,
-  razorypayPaymentId,
+  razorpayPaymentId,
 
   userId,
   email,
@@ -59,7 +65,11 @@ const handlePaymentsAndOrder = async ({
 }) => {
   const timestamp = new Date();
 
-  await verifyPaymentSignatures(razorypaySignature);
+  await verifyPaymentSignatures(
+    razorpayOrderId,
+    razorpayPaymentId,
+    razorpaySignature
+  );
 
   const totalAmount = await calculateCartTotal(items);
 
@@ -70,8 +80,8 @@ const handlePaymentsAndOrder = async ({
     totalAmount,
     paymentDetails: {
       razorpayOrderId,
-      razorypaySignature,
-      razorypayPaymentId,
+      razorpaySignature,
+      razorpayPaymentId,
     },
     orderStatus: "created",
     shippingStatus: "pending",
@@ -87,7 +97,6 @@ const handlePaymentsAndOrder = async ({
     timestamp,
     orderId,
   });
-
   return orderId;
 };
 

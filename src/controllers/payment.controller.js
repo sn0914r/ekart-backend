@@ -7,7 +7,7 @@ const {
  * Creates a Razorpay order that the client uses to open checkout
  */
 const createPaymentController = async (req, res) => {
-  const { items } = req.body;
+  const items = req.body;
   const { uid } = req.user;
 
   const order = await createPaymentOrder(items, uid);
@@ -25,7 +25,7 @@ const paymentSuccessController = async (req, res) => {
     paymentDetails: { razorpayPaymentId, razorpaySignature, razorpayOrderId },
   } = req.body;
 
-  const { userId, email } = req.user;
+  const { uid: userId, email } = req.user;
 
   const orderId = await handlePaymentsAndOrder({
     razorpayOrderId,

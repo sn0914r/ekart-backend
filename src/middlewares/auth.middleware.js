@@ -1,4 +1,4 @@
-const { auth } = require("firebase-admin");
+const { auth } = require("../configs/firebase.config");
 const AppError = require("../errors/AppError");
 
 const verifyAuth = async (req, res, next) => {
@@ -23,6 +23,7 @@ const requireUser = async (req, res, next) => {
   if (req.user.role !== "user") {
     throw new AppError("user access only", 403);
   }
+  next();
 };
 
 module.exports = { verifyAuth, requireAdmin, requireUser };

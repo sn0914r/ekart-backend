@@ -6,8 +6,8 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 
 ## Tech Stack
 
-- Node.js
-- Express.js
+- Node.js (`v18+`)
+- Express.js (`v5`)
 - Firebase Auth (authentication & roles)
 - Firestore (database)
 - Firebase Storage (product images)
@@ -24,16 +24,17 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 - Firebase ID token verification
 - Role-based access (public / user / admin )
 - Admin-only protected routes
+- User-only protected routes
 
 ### Products
 
 - Admin can create products with image upload
 - Public product listing (`GET /products`)
-- Only active products are visible to users
+- Only active products are visible to users (`isActive=true`)
 
 ### Orders & Payments
 
-- Backend-only pricing
+- Backend-only pricing (prices are fetched using product IDs and calculated on the backend)
 - Razorpay order creation (at server-side)
 - Secure payment signature verification
 - Orders saved only after successful verification
@@ -46,15 +47,14 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 - Admin can update
   - order status
   - shipping status
-  - tracking ID
 
 ---
 
 ## Payment Flow
 
-1. User initiates checkout
-2. Backend calculates total price and creates Razorpay order
-3. User completes payment via Razorpay
+1. User initiates checkout, frontend sends cart items and firebase id token to backend
+2. Backend calculates total price and creates Razorpay order and sends order ID to frontend
+3. Frontend opens Razorpay checkout and the user completes payment
 4. Backend verifies payment signature
 5. Order is saved in Firestore
 6. Email notifications are sent
@@ -65,17 +65,17 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 
 ### Public
 
-- `GET /products `:- view all active products
+- `GET /products `:- get all active products
 
 ### User
 
-- `GET /orders `:- view orders created by the user (authentication token is required)
+- `GET /orders `:- get orders created by the user (authentication token is required)
 
 ### Payments (User)
 
-- `POST /payments/create-payment" `:- creates a Razorpay order (_backend takes the product ids along with quantity and calculates the total price_)
+- `POST /payments/create-payment `:- creates a Razorpay order
 
-- `POST /payments/verify-payment" `:- verify Razorpay payment and create order record
+- `POST /payments/verify-payment `:- verifies Razorpay payment and create order
 
 ### Admin
 
@@ -83,14 +83,14 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 
 - `GET /admin/orders `:- view all orders
 
-- `PATCH /admin/orders/:id`:- Update order status, shipping status, and tracking ID
+- `PATCH /admin/orders/:id`:- Update orderstatus, and shipping status
 
 ---
 
 ## Security Notes
 
 - Pricing is calculated on the backend
-- Payments are verifies using Razorpay signatures
+- Payments are verified using Razorpay signatures
 - Orders are never created before verification
 - Clients cannot modify sensitive fields
 
@@ -112,12 +112,14 @@ ekart-backend/
 ├── src/
 │   ├── configs/
 │   ├── controllers/
+│   ├── db/
 │   ├── errors/
 │   ├── middlewares/
 │   ├── routes/
 │   ├── schemas/
 │   ├── services/
 │   ├── utils/
+│   ├── validation/
 │   ├── app.js
 │   └── server.js
 │
@@ -148,12 +150,6 @@ RAZORPAY_TEST_KEY_SECRET=
 GMAIL=
 GMAIL_PASSWORD_KEY=
 ```
-
----
-
-## Documentation
-
-Detailed workflows, request/response formats, and schemas are available in the [docs](docs/index.md) directory.
 
 ---
 

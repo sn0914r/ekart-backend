@@ -1,12 +1,12 @@
 const { getProductIdToPriceMap } = require("../db/product.db");
 
 const calculateCartTotal = async (items) => {
-  const productIds = items.map((item) => item.productId);
+  const productIds = items.map((item) => item.id);
 
   const pricesMap = await getProductIdToPriceMap(productIds);
 
   const totalAmount = items.reduce((sum, item) => {
-    const { productId, quantity } = item;
+    const { id: productId, quantity } = item;
 
     const price = pricesMap[productId];
     if (!price) {
