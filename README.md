@@ -66,6 +66,7 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 ### Public
 
 - `GET /products `:- get all active products
+- `POST /auth/register `:- creates user at backend & returns custom token (single sign-in) (not an ID token)
 
 ### User
 
