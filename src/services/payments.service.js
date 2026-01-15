@@ -6,11 +6,14 @@ const { calculateCartTotal } = require("./pricing.service");
 const AppError = require("../errors/AppError");
 const { createOrder } = require("./order.service");
 const { sendOrderConfirmation } = require("./email.service");
+const { checkStock } = require("./product.service");
+const { admin, db } = require("../configs/firebase.config");
 
 /**
  * Creates an order at razorpay server
  */
 const createPaymentOrder = async (items, uid) => {
+  await checkStock(items);
   const totalAmount = await calculateCartTotal(items);
 
   const options = {
@@ -22,24 +25,6 @@ const createPaymentOrder = async (items, uid) => {
   // NOTE: the razorpay receipt must be lessthan 40 chars
   const order = await razorpay.orders.create(options);
   return order;
-};
-
-/**
- * Verifies the payment using payment signatures
- */
-const verifyPaymentSignatures = async (
-  orderId,
-  paymentId,
-  razorpaySignature
-) => {
-  const generatedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_TEST_KEY_SECRET)
-    .update(`${orderId}|${paymentId}`)
-    .digest("hex");
-
-  if (generatedSignature !== razorpaySignature) {
-    throw new AppError("Invalid payment", 400);
-  }
 };
 
 /**
@@ -63,38 +48,73 @@ const handlePaymentsAndOrder = async ({
 
   items,
 }) => {
-  const timestamp = new Date();
+  const generatedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_TEST_KEY_SECRET)
+    .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+    .digest("hex");
 
-  await verifyPaymentSignatures(
-    razorpayOrderId,
-    razorpayPaymentId,
-    razorpaySignature
-  );
+  if (generatedSignature !== razorpaySignature) {
+    throw new AppError("Invalid payment", 400);
+  }
 
   const totalAmount = await calculateCartTotal(items);
 
-  const orderId = await createOrder({
-    userId,
-    email,
-    items,
-    totalAmount,
-    paymentDetails: {
-      razorpayOrderId,
-      razorpaySignature,
-      razorpayPaymentId,
-    },
-    orderStatus: "created",
-    shippingStatus: "pending",
-    currency: "INR",
-    paymentStatus: "paid",
-    createdAt: timestamp,
-    updatedAt: timestamp,
+  /**
+   * Firestore Transaction Rule:
+   * Do all reads (transaction.get) first,
+   * then do all writes (transaction.update/set/delete).
+   */
+  const orderId = await db.runTransaction(async (transaction) => {
+    const productSnaps = [];
+    // READS
+    for (const item of items) {
+      const productRef = db.collection("products").doc(item.id);
+      const snap = await transaction.get(productRef);
+
+      if (!snap.exists) {
+        throw new AppError(`Product (${item.id}) not found`, 404);
+      }
+
+      const product = snap.data();
+      if (product.stock < item.quantity) {
+        throw new AppError(`Product (${product.name}) out of stock`, 400);
+      }
+
+      productSnaps.push({ productRef, item, product });
+    }
+    // WRITES
+    for (const { productRef, item, product } of productSnaps) {
+      transaction.update(productRef, {
+        stock: product.stock - item.quantity,
+      });
+    }
+
+    const orderRef = db.collection("orders").doc();
+    transaction.set(orderRef, {
+      userId,
+      email,
+      items,
+      totalAmount,
+      paymentDetails: {
+        razorpayOrderId,
+        razorpaySignature,
+        razorpayPaymentId,
+      },
+      orderStatus: "created",
+      shippingStatus: "pending",
+      currency: "INR",
+      paymentStatus: "paid",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return orderRef.id;
   });
 
   await sendOrderConfirmation({
     email,
     totalAmount,
-    timestamp,
+    timestamp: new Date().toString(),
     orderId,
   });
   return orderId;

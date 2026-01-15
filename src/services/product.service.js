@@ -1,6 +1,13 @@
-const { bucket } = require("../configs/firebase.config");
-const { createDoc, getDoc, getDocs } = require("../db/db.helpers");
+const { bucket, admin, db } = require("../configs/firebase.config");
+const {
+  createDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  getDocsByList,
+} = require("../db/db.helpers");
 const { getActiveProducts } = require("../db/product.db");
+const AppError = require("../errors/AppError");
 const generateRandomString = require("../utils/randomStringGenerator");
 
 const uploadProductImage = async (file) => {
@@ -17,8 +24,7 @@ const uploadProductImage = async (file) => {
   return publicUrl;
 };
 
-const addProduct = async ({ file, name, price, isActive }) => {
-  const timestamp = new Date();
+const addProduct = async ({ file, name, price, isActive, stock }) => {
   const imageUrl = await uploadProductImage(file);
 
   const productId = await createDoc("products", {
@@ -26,8 +32,9 @@ const addProduct = async ({ file, name, price, isActive }) => {
     price,
     isActive,
     imageUrl,
-    createdAt: timestamp,
-    updatedAt: timestamp,
+    stock,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
   const product = await getDoc("products", productId);
@@ -38,4 +45,43 @@ const getProducts = async () => {
   const products = await getActiveProducts();
   return products;
 };
-module.exports = { addProduct, getProducts };
+
+const updateProduct = async (id, updates) => {
+  await updateDoc("products", id, {
+    ...updates,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  const product = await getDoc("products", id);
+  return product;
+};
+
+const checkStock = async (cartItems) => {
+  if (cartItems.length === 0) {
+    throw new AppError("Cart is empty", 400);
+  }
+
+  for (item of cartItems) {
+    if (item.quantity <= 0) {
+      throw new AppError("Invalid quantity", 400);
+    }
+
+    const productSnap = await db.collection("products").doc(item.id).get();
+
+    if (!productSnap.exists) {
+      throw new AppError(`Product (${item.id}) not found`, 400);
+    }
+
+    const product = productSnap.data();
+
+    if (product.stock < item.quantity) {
+      throw new AppError(
+        `Item (${item.id}) out of stock, available: ${product.stock}`,
+        400
+      );
+    }
+  }
+
+  return true;
+};
+
+module.exports = { addProduct, getProducts, updateProduct, checkStock };

@@ -30,4 +30,13 @@ const getDocs = async (collection) => {
   return docs;
 };
 
-module.exports = { createDoc, updateDoc, getDoc, getDocs };
+const getDocsByList = async (list) => {
+  const snap = await db.getAll(...list);
+  const docs = snap.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  return docs;
+};
+module.exports = { createDoc, updateDoc, getDoc, getDocs, getDocsByList };

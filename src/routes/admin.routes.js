@@ -1,7 +1,10 @@
 const express = require("express");
 
 const { updateOrderSchema } = require("../validation/order.schema");
-const { addProductSchema } = require("../validation/product.schema");
+const {
+  addProductSchema,
+  updateProductSchema,
+} = require("../validation/product.schema");
 
 const { verifyAuth, requireAdmin } = require("../middlewares/auth.middleware");
 const upload = require("../middlewares/upload.middleware");
@@ -11,7 +14,10 @@ const {
 } = require("../middlewares/validation.middleware");
 const parseMultipartJson = require("../middlewares/parseMultipartJSON.middleware");
 
-const { addProductController } = require("../controllers/product.controller");
+const {
+  addProductController,
+  updateProductController,
+} = require("../controllers/product.controller");
 const {
   getOrdersForAdminController,
   updateOrderController,
@@ -36,6 +42,13 @@ router.patch(
   requireAdmin,
   validateBody(updateOrderSchema),
   updateOrderController
+);
+router.patch(
+  "/products/:id",
+  verifyAuth,
+  requireAdmin,
+  validateBody(updateProductSchema),
+  updateProductController
 );
 
 module.exports = router;
