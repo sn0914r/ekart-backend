@@ -66,6 +66,7 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 ### Public
 
 - `GET /products `:- get all active products
+
 - `POST /auth/register `:- creates user at backend & returns custom token (single sign-in) (not an ID token)
 
 ### User
@@ -85,6 +86,8 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 - `GET /admin/orders `:- view all orders
 
 - `PATCH /admin/orders/:id`:- Update orderstatus, and shipping status
+
+- `PATCH /admin/products/:id`:- Update product details
 
 ---
 
