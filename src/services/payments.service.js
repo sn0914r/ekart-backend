@@ -2,7 +2,7 @@ const crypto = require("crypto");
 
 const razorpay = require("../configs/razorpay.config");
 
-const { calculateCartTotal } = require("./pricing.service");
+const { calculateCartTotal, getPriceSnapShot } = require("./pricing.service");
 const AppError = require("../errors/AppError");
 
 const { sendOrderConfirmation } = require("./email.service");
@@ -10,11 +10,20 @@ const { checkStock } = require("./product.service");
 const { admin, db } = require("../configs/firebase.config");
 
 /**
- * Creates an order at razorpay server
+ * Creates a Razorpay order that the client uses to open checkout
+ *
+ * Flow:
+ *  - Checks stock
+ *  - Gets the price snapshot
+ *  - Creates the razorpay order
+ *  - Saves the snapshot in db (expires in 15 minutes)
+ *
+ * @returns {object} - Razorpay Order
  */
-const createPaymentOrder = async (items, uid) => {
+const createPaymentOrder = async (items, uid, email) => {
   await checkStock(items);
-  const totalAmount = await calculateCartTotal(items);
+
+  const { totalAmount, items: itemsSnapshot } = await getPriceSnapShot(items);
 
   const options = {
     amount: totalAmount * 100,
@@ -24,6 +33,21 @@ const createPaymentOrder = async (items, uid) => {
 
   // NOTE: the razorpay receipt must be lessthan 40 chars
   const order = await razorpay.orders.create(options);
+
+  await db
+    .collection("checkoutSnapshot")
+    .doc(order.id)
+    .set({
+      userId: uid,
+      email,
+
+      razorpayOrderId: order.id,
+
+      items: itemsSnapshot,
+      subtotal: totalAmount,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+    });
   return order;
 };
 
@@ -40,7 +64,7 @@ const createPaymentOrder = async (items, uid) => {
  *  - Creates Payment Record
  *  - Notifies the customer
  *
- * @returns {string} - Order Id
+ * @returns {Object} - {Order Id, Payment Id}
  */
 const handlePaymentsAndOrder = async ({
   razorpaySignature,
@@ -58,8 +82,6 @@ const handlePaymentsAndOrder = async ({
     throw new AppError(`Payment already processed: ${snap.id}`, 400);
   }
 
-  console.log("didnt exist");
-
   const generatedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_TEST_KEY_SECRET)
     .update(`${razorpayOrderId}|${razorpayPaymentId}`)
@@ -68,7 +90,16 @@ const handlePaymentsAndOrder = async ({
     throw new AppError("Invalid payment", 400);
   }
 
-  const totalAmount = await calculateCartTotal(items);
+  // TODO: check snapshot exists or not and calculate totalAmount
+
+  const orderSnapshot = await db
+    .collection("checkoutSnapshot")
+    .doc(razorpayOrderId)
+    .get();
+  const orderSnapshotData = orderSnapshot.data();
+  const { items: itemsSnapshot, subtotal } = orderSnapshotData;
+
+  // TODO: keep expiresAt + cleanup + refund handling in V3
 
   /**
    * Firestore Transaction Rule:
@@ -80,12 +111,12 @@ const handlePaymentsAndOrder = async ({
       const productSnaps = [];
 
       // READS
-      for (const item of items) {
-        const productRef = db.collection("products").doc(item.id);
+      for (const item of itemsSnapshot) {
+        const productRef = db.collection("products").doc(item.productId);
         const snap = await transaction.get(productRef);
 
         if (!snap.exists) {
-          throw new AppError(`Product (${item.id}) not found`, 404);
+          throw new AppError(`Product (${item.productId}) not found`, 404);
         }
 
         const product = snap.data();
@@ -109,7 +140,7 @@ const handlePaymentsAndOrder = async ({
         userId,
         email,
         items,
-        totalAmount,
+        orderSnapshot: orderSnapshotData,
         paymentDetails: {
           razorpayOrderId,
           razorpaySignature,
@@ -126,13 +157,17 @@ const handlePaymentsAndOrder = async ({
       const paymentRef = db.collection("payments").doc(razorpayPaymentId);
       transaction.set(paymentRef, {
         userId,
-        amount: totalAmount,
+        amount: subtotal, // FIX: null value
         orderId: orderRef.id,
         razorpayOrderId,
         razorpaySignature,
         razorpayPaymentId,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
+
+      transaction.delete(
+        db.collection("checkoutSnapshot").doc(razorpayOrderId)
+      );
 
       return {
         orderId: orderRef.id,
@@ -143,7 +178,7 @@ const handlePaymentsAndOrder = async ({
 
   await sendOrderConfirmation({
     email,
-    totalAmount,
+    totalAmount: subtotal,
     timestamp: new Date().toString(),
     orderId,
     paymentId,

@@ -8,9 +8,9 @@ const {
  */
 const createPaymentController = async (req, res) => {
   const items = req.body;
-  const { uid } = req.user;
+  const { uid, email } = req.user;
 
-  const order = await createPaymentOrder(items, uid);
+  const order = await createPaymentOrder(items, uid, email);
   res.status(200).json(order);
 };
 
