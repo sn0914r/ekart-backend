@@ -29,9 +29,12 @@ const getOrdersForAdminController = async (req, res) => {
  */
 const updateOrderController = async (req, res) => {
   const { id } = req.params;
-  const updates = req.body;
+  const { orderStatus } = req.body;
+  const { uid } = req.user;
 
-  const updatedOrder = await updateOrder(id, updates);
+  const updatedOrder = await updateOrder(id, uid, {
+    orderStatus,
+  });
 
   res.status(200).json(updatedOrder);
 };

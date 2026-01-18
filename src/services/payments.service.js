@@ -90,8 +90,6 @@ const handlePaymentsAndOrder = async ({
     throw new AppError("Invalid payment", 400);
   }
 
-  // TODO: check snapshot exists or not and calculate totalAmount
-
   const orderSnapshot = await db
     .collection("checkoutSnapshot")
     .doc(razorpayOrderId)
@@ -146,10 +144,9 @@ const handlePaymentsAndOrder = async ({
           razorpaySignature,
           razorpayPaymentId,
         },
-        orderStatus: "created",
-        shippingStatus: "pending",
+        orderStatus: "CREATED",
         currency: "INR",
-        paymentStatus: "paid",
+        paymentStatus: "PAID",
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -166,14 +163,14 @@ const handlePaymentsAndOrder = async ({
       });
 
       transaction.delete(
-        db.collection("checkoutSnapshot").doc(razorpayOrderId)
+        db.collection("checkoutSnapshot").doc(razorpayOrderId),
       );
 
       return {
         orderId: orderRef.id,
         paymentId: razorpayPaymentId,
       };
-    }
+    },
   );
 
   await sendOrderConfirmation({

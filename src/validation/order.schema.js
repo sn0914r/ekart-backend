@@ -5,7 +5,7 @@ const orderSchema = joi.object({
     joi.object({
       id: joi.string(),
       quantity: joi.number().positive().min(1),
-    })
+    }),
   ),
 
   paymentDetails: {
@@ -18,12 +18,8 @@ const orderSchema = joi.object({
 const updateOrderSchema = joi.object({
   orderStatus: joi
     .string()
-    .valid("created", "confirmed", "cancelled")
-    .optional(),
-
-  shippingStatus: joi
-    .string()
-    .valid("pending", "shipped", "delivered", "cancelled")
+    .uppercase()
+    .valid("CREATED", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED")
     .optional(),
 });
 

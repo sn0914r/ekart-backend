@@ -1,5 +1,6 @@
-const { db } = require("../configs/firebase.config");
-const { createDoc, getDocs, updateDoc } = require("../db/db.helpers");
+const { db, admin } = require("../configs/firebase.config");
+const { createDoc, getDocs, updateDoc, getDoc } = require("../db/db.helpers");
+const validateOrderStatusTransistion = require("../utils/validateOrderTransistion");
 
 const createOrder = async (orderDetails) => {
   const ref = await createDoc("orders", orderDetails);
@@ -44,7 +45,21 @@ const getOrders = async () => {
  * Updates an order
  */
 
-const updateOrder = async (id, updates) => {
+const updateOrder = async (id, adminUID, { orderStatus }) => {
+  let currentStatus = await getDoc("orders", id);
+  currentStatus = currentStatus.orderStatus;
+
+  validateOrderStatusTransistion(currentStatus, orderStatus);
+
+  const updates = {
+    orderStatus,
+    orderStatusHistory: admin.firestore.FieldValue.arrayUnion({
+      status: orderStatus,
+      at: new Date(),
+      by: adminUID,
+    }),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
   const order = await updateDoc("orders", id, updates);
   return order;
 };
