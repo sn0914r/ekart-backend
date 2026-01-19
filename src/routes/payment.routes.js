@@ -10,22 +10,28 @@ const {
   createPaymentController,
   paymentSuccessController,
 } = require("../controllers/payment.controller");
+const {
+  createPaymentLimiter,
+  verifyPaymentLimiter,
+} = require("../middlewares/rateLimiter.middleware");
 
 const router = express.Router();
 
 router.post(
   "/create-payment",
+  createPaymentLimiter,
   verifyAuth,
   requireUser,
   validateBody(cartItemsSchema),
-  createPaymentController
+  createPaymentController,
 );
 router.post(
   "/verify-payment",
+  verifyPaymentLimiter,
   verifyAuth,
   requireUser,
   validateBody(orderSchema),
-  paymentSuccessController
+  paymentSuccessController,
 );
 
 module.exports = router;
