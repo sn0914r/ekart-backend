@@ -1,11 +1,5 @@
 const { bucket, admin, db } = require("../configs/firebase.config");
-const {
-  createDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  getDocsByList,
-} = require("../db/db.helpers");
+const { createDoc, getDoc, updateDoc } = require("../db/db.helpers");
 const { getActiveProducts } = require("../db/product.db");
 const AppError = require("../errors/AppError");
 const generateRandomString = require("../utils/randomStringGenerator");
@@ -60,7 +54,7 @@ const checkStock = async (cartItems) => {
     throw new AppError("Cart is empty", 400);
   }
 
-  for (item of cartItems) {
+  for (let item of cartItems) {
     if (item.quantity <= 0) {
       throw new AppError("Invalid quantity", 400);
     }
@@ -76,7 +70,7 @@ const checkStock = async (cartItems) => {
     if (product.stock < item.quantity) {
       throw new AppError(
         `Item (${item.id}) out of stock, available: ${product.stock}`,
-        400
+        400,
       );
     }
   }

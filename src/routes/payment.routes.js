@@ -18,7 +18,7 @@ const {
 const router = express.Router();
 
 router.post(
-  "/create-payment",
+  "/orders",
   createPaymentLimiter,
   verifyAuth,
   requireUser,
@@ -26,7 +26,7 @@ router.post(
   createPaymentController,
 );
 router.post(
-  "/verify-payment",
+  "/verify",
   verifyPaymentLimiter,
   verifyAuth,
   requireUser,

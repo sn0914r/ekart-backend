@@ -2,7 +2,7 @@ const crypto = require("crypto");
 
 const razorpay = require("../configs/razorpay.config");
 
-const { calculateCartTotal, getPriceSnapShot } = require("./pricing.service");
+const { getPriceSnapShot } = require("./pricing.service");
 const AppError = require("../errors/AppError");
 
 const { sendOrderConfirmation } = require("./email.service");

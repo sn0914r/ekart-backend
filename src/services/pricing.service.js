@@ -1,25 +1,5 @@
 const { getProductIdToPriceMap } = require("../db/product.db");
 
-// TODO: to be removed
-const calculateCartTotal = async (items) => {
-  const productIds = items.map((item) => item.id);
-
-  const pricesMap = await getProductIdToPriceMap(productIds);
-
-  const totalAmount = items.reduce((sum, item) => {
-    const { id: productId, quantity } = item;
-
-    const price = pricesMap[productId];
-    if (!price) {
-      throw new Error(`Price not found for product ${productId}`);
-    }
-
-    return sum + pricesMap[productId] * quantity;
-  }, 0);
-
-  return totalAmount;
-};
-
 const getPriceSnapShot = async (items) => {
   /**
   items: [
@@ -51,7 +31,7 @@ const getPriceSnapShot = async (items) => {
 
   const totalAmount = itemsSnapshot.reduce(
     (sum, item) => sum + item.lineTotal,
-    0
+    0,
   );
 
   return {
@@ -60,4 +40,4 @@ const getPriceSnapShot = async (items) => {
   };
 };
 
-module.exports = { calculateCartTotal, getPriceSnapShot };
+module.exports = { getPriceSnapShot };
