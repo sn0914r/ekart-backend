@@ -18,7 +18,7 @@ const {
 const router = express.Router();
 
 router.post(
-  "/orders",
+  "/create",
   createPaymentLimiter,
   verifyAuth,
   requireUser,

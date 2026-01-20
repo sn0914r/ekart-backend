@@ -1,5 +1,5 @@
 {
-  "name": "sves",
+  "name": "ekart",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "lint": "eslint ."
   },
   "keywords": [],
-  "author": "",
+  "author": "Sivananda Reddy (https://github.com/sn0914r)",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
