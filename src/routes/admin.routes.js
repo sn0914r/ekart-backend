@@ -12,7 +12,7 @@ const {
   validateFile,
   validateBody,
 } = require("../middlewares/validation.middleware");
-const parseMultipartJson = require("../middlewares/parseMultipartJSON.middleware");
+const parseMultipartJson = require("../middlewares/parseMultipartJson.middleware");
 
 const {
   addProductController,
