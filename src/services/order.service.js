@@ -17,16 +17,23 @@ const getUserOrders = async (uid) => {
     .get();
 
   const orders = snapshot.docs.map((order) => {
-    const { items, orderStatus, paymentStatus, totalAmount, shippingStatus } =
-      order.data();
+    const {
+      items,
+      orderSnapshot,
+      orderStatus,
+      paymentStatus,
+      paymentDetails,
+      createdAt,
+    } = order.data();
 
     return {
       id: order.id,
+      createdAt,
       items,
       orderStatus,
       paymentStatus,
-      totalAmount,
-      shippingStatus,
+      paymentId: paymentDetails.razorpayPaymentId,
+      totalAmount: orderSnapshot.subtotal,
     };
   });
 
@@ -64,4 +71,9 @@ const updateOrder = async (id, adminUID, { orderStatus }) => {
   return order;
 };
 
-module.exports = { createOrder, getUserOrders, getOrders, updateOrder };
+module.exports = {
+  createOrder,
+  getUserOrders,
+  getOrders,
+  updateOrder,
+};

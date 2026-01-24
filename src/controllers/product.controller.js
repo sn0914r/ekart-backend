@@ -2,6 +2,7 @@ const {
   addProduct,
   getProducts,
   updateProduct,
+  getProductsForAdmin,
 } = require("../services/product.service");
 
 /**
@@ -35,8 +36,17 @@ const updateProductController = async (req, res) => {
   res.status(200).json(updatedProduct);
 };
 
+/**
+ * Retrives all products for admin
+ */
+const getProductsForAdminController = async (req, res) => {
+  const products = await getProductsForAdmin();
+  res.status(200).json(products);
+};
+
 module.exports = {
   addProductController,
   getProductsController,
   updateProductController,
+  getProductsForAdminController,
 };

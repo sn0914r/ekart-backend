@@ -28,12 +28,13 @@ const getActiveProducts = async () => {
     .get();
 
   const products = snapshot.docs.map((doc) => {
-    const { imageUrl, name, price } = doc.data();
+    const { imageUrl, name, price, stock } = doc.data();
     return {
       id: doc.id,
       name,
       price,
       imageUrl,
+      stock,
     };
   });
 

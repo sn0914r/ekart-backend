@@ -17,6 +17,7 @@ const parseMultipartJson = require("../middlewares/parseMultipartJSON.middleware
 const {
   addProductController,
   updateProductController,
+  getProductsForAdminController,
 } = require("../controllers/product.controller");
 const {
   getOrdersForAdminController,
@@ -34,21 +35,29 @@ router.post(
   validateFile,
   parseMultipartJson,
   validateBody(addProductSchema),
-  addProductController
+  addProductController,
 );
 router.patch(
   "/orders/:id",
   verifyAuth,
   requireAdmin,
   validateBody(updateOrderSchema),
-  updateOrderController
+  updateOrderController,
 );
 router.patch(
   "/products/:id",
   verifyAuth,
   requireAdmin,
   validateBody(updateProductSchema),
-  updateProductController
+  updateProductController,
+);
+router.get(
+  "/products",
+  verifyAuth,
+  requireAdmin,
+  getProductsForAdminController,
 );
 
+// TODO: impletement get All orders
+// TODO: implement get Delete order
 module.exports = router;

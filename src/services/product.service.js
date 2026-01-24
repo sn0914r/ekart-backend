@@ -78,4 +78,18 @@ const checkStock = async (cartItems) => {
   return true;
 };
 
-module.exports = { addProduct, getProducts, updateProduct, checkStock };
+/**
+ * get all products
+ */
+
+const getProductsForAdmin = async () => {
+  const productsSnap = await db.collection("products").get();
+  const products = productsSnap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  }));
+
+  return products;
+};
+
+module.exports = { addProduct, getProducts, updateProduct, checkStock, getProductsForAdmin };
