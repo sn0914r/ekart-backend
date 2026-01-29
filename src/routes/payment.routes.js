@@ -27,10 +27,10 @@ router.post(
 );
 router.post(
   "/verify",
-  verifyPaymentLimiter,
+  // verifyPaymentLimiter,
   verifyAuth,
   requireUser,
-  validateBody(orderSchema),
+  // validateBody(orderSchema),
   paymentSuccessController,
 );
 
