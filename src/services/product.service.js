@@ -3,6 +3,7 @@ const { createDoc, getDoc, updateDoc } = require("../db/db.helpers");
 const { getActiveProducts } = require("../db/product.db");
 const AppError = require("../errors/AppError");
 const generateRandomString = require("../utils/randomStringGenerator");
+const ProductModel = require("../models/Product.model");
 
 const uploadProductImage = async (file) => {
   const filename = generateRandomString();
@@ -21,31 +22,52 @@ const uploadProductImage = async (file) => {
 const addProduct = async ({ file, name, price, isActive, stock }) => {
   const imageUrl = await uploadProductImage(file);
 
-  const productId = await createDoc("products", {
+  const product = await ProductModel.create({
     name,
     price,
     isActive,
     imageUrl,
     stock,
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  const product = await getDoc("products", productId);
+  // TODO: to be removed
+  // const productId = await createDoc("products", {
+  //   name,
+  //   price,
+  //   isActive,
+  //   imageUrl,
+  //   stock,
+  //   createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  //   updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  // });
+
+  // const product = await getDoc("products", productId);
   return product;
 };
 
 const getProducts = async () => {
-  const products = await getActiveProducts();
+  // TODO: to be removed
+  // const products = await getActiveProducts();
+  const products = await ProductModel.find({ isActive: true });
   return products;
 };
 
 const updateProduct = async (id, updates) => {
-  await updateDoc("products", id, {
-    ...updates,
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
-  const product = await getDoc("products", id);
+  // TODO: to be removed
+  // await updateDoc("products", id, {
+  //   ...updates,
+  //   updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  // });
+  // const product = await getDoc("products", id);
+  const product = await ProductModel.findOneAndUpdate(
+    { _id: id },
+    { $set: updates },
+    { runValidators: true, new: true },
+  );
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
   return product;
 };
 
@@ -83,13 +105,21 @@ const checkStock = async (cartItems) => {
  */
 
 const getProductsForAdmin = async () => {
-  const productsSnap = await db.collection("products").get();
-  const products = productsSnap.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  }));
+  // TODO: to be removed
+  // const productsSnap = await db.collection("products").get();
+  // const products = productsSnap.docs.map((d) => ({
+  //   id: d.id,
+  //   ...d.data(),
+  // }));
 
+  const products = await ProductModel.find({});
   return products;
 };
 
-module.exports = { addProduct, getProducts, updateProduct, checkStock, getProductsForAdmin };
+module.exports = {
+  addProduct,
+  getProducts,
+  updateProduct,
+  checkStock,
+  getProductsForAdmin,
+};
