@@ -1,6 +1,5 @@
-const { bucket, admin, db } = require("../configs/firebase.config");
-const { createDoc, getDoc, updateDoc } = require("../db/db.helpers");
-const { getActiveProducts } = require("../db/product.db");
+const { bucket, db } = require("../configs/firebase.config");
+
 const AppError = require("../errors/AppError");
 const generateRandomString = require("../utils/randomStringGenerator");
 const ProductModel = require("../models/Product.model");
@@ -30,35 +29,15 @@ const addProduct = async ({ file, name, price, isActive, stock }) => {
     stock,
   });
 
-  // TODO: to be removed
-  // const productId = await createDoc("products", {
-  //   name,
-  //   price,
-  //   isActive,
-  //   imageUrl,
-  //   stock,
-  //   createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  //   updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  // });
-
-  // const product = await getDoc("products", productId);
   return product;
 };
 
 const getProducts = async () => {
-  // TODO: to be removed
-  // const products = await getActiveProducts();
   const products = await ProductModel.find({ isActive: true });
   return products;
 };
 
 const updateProduct = async (id, updates) => {
-  // TODO: to be removed
-  // await updateDoc("products", id, {
-  //   ...updates,
-  //   updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  // });
-  // const product = await getDoc("products", id);
   const product = await ProductModel.findOneAndUpdate(
     { _id: id },
     { $set: updates },
@@ -105,13 +84,6 @@ const checkStock = async (cartItems) => {
  */
 
 const getProductsForAdmin = async () => {
-  // TODO: to be removed
-  // const productsSnap = await db.collection("products").get();
-  // const products = productsSnap.docs.map((d) => ({
-  //   id: d.id,
-  //   ...d.data(),
-  // }));
-
   const products = await ProductModel.find({});
   return products;
 };

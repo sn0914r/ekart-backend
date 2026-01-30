@@ -38,21 +38,6 @@ const createPaymentOrder = async (items, uid, email) => {
 
   // NOTE: the razorpay receipt must be lessthan 40 chars
   const order = await razorpay.orders.create(options);
-  // TODO: to be removed
-  // await db
-  //   .collection("checkoutSnapshot")
-  //   .doc(order.id)
-  //   .set({
-  //     userId: uid,
-  //     email,
-
-  //     razorpayOrderId: order.id,
-
-  //     items: itemsSnapshot,
-  //     subtotal: totalAmount,
-  //     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  //     expiresAt: new Date(Date.now() + 15 * 60 * 1000),
-  //   });
 
   await OrderSnapshotModel.create({
     userId: uid,
@@ -91,12 +76,6 @@ const handlePaymentsAndOrder = async ({
 
   items,
 }) => {
-  // TODO: to be removed
-  // const orderRef = db.collection("payments").doc(razorpayPaymentId);
-  // const snap = await orderRef.get();
-  // if (snap.exists) {
-  //   throw new AppError(`Payment already processed: ${snap.id}`, 400);
-  // }
   let order;
   order = await OrderModel.findOne({
     "paymentDetails.razorpayPaymentId": razorpayPaymentId,
@@ -114,16 +93,6 @@ const handlePaymentsAndOrder = async ({
     throw new AppError("Invalid payment", 400);
   }
 
-  // TODO: to be removed
-  // const orderSnapshot = await db
-  //   .collection("checkoutSnapshot")
-  //   .doc(razorpayOrderId)
-  //   .get();
-  // const orderSnapshotData = orderSnapshot.data();
-  // const { items: itemsSnapshot, subtotal } = orderSnapshotData;
-
-  // TODO: keep expiresAt + cleanup + refund handling in V3
-
   const orderSnapshot = await OrderSnapshotModel.findOne({
     razorpayOrderId,
   });
@@ -132,81 +101,6 @@ const handlePaymentsAndOrder = async ({
     throw new AppError("Order not found", 404);
   }
 
-  /**
-   * Firestore Transaction Rule:
-   * Do all reads (transaction.get) first,
-   * then do all writes (transaction.update/set/delete).
-   */
-
-  // TODO: to be removed
-  // const { orderId, paymentId } = await db.runTransaction(
-  //   async (transaction) => {
-  //     const productSnaps = [];
-
-  //     // READS
-  //     for (const item of itemsSnapshot) {
-  //       const productRef = db.collection("products").doc(item.productId);
-  //       const snap = await transaction.get(productRef);
-
-  //       if (!snap.exists) {
-  //         throw new AppError(`Product (${item.productId}) not found`, 404);
-  //       }
-
-  //       const product = snap.data();
-  //       if (product.stock < item.quantity) {
-  //         throw new AppError(`Product (${product.name}) out of stock`, 400);
-  //       }
-
-  //       productSnaps.push({ productRef, item, product });
-  //     }
-
-  //     // WRITES
-
-  //     for (const { productRef, item, product } of productSnaps) {
-  //       transaction.update(productRef, {
-  //         stock: product.stock - item.quantity,
-  //       });
-  //     }
-
-  //     const orderRef = db.collection("orders").doc();
-  //     transaction.set(orderRef, {
-  //       userId,
-  //       email,
-  //       items,
-  //       orderSnapshot: orderSnapshotData,
-  //       paymentDetails: {
-  //         razorpayOrderId,
-  //         razorpaySignature,
-  //         razorpayPaymentId,
-  //       },
-  //       orderStatus: "CREATED",
-  //       currency: "INR",
-  //       paymentStatus: "PAID",
-  //       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  //       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  //     });
-
-  //     const paymentRef = db.collection("payments").doc(razorpayPaymentId);
-  //     transaction.set(paymentRef, {
-  //       userId,
-  //       amount: subtotal, // FIX: null value
-  //       orderId: orderRef.id,
-  //       razorpayOrderId,
-  //       razorpaySignature,
-  //       razorpayPaymentId,
-  //       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  //     });
-
-  //     transaction.delete(
-  //       db.collection("checkoutSnapshot").doc(razorpayOrderId),
-  //     );
-
-  //     return {
-  //       orderId: orderRef.id,
-  //       paymentId: razorpayPaymentId,
-  //     };
-  //   },
-  // );
   const itemsSnapshot = orderSnapshot.items;
   const subtotal = orderSnapshot.subtotal;
   const session = await mongoose.startSession();

@@ -7,8 +7,7 @@ const OrderSchema = new Schema(
       default: "INR",
     },
     userId: {
-      // TODO: make the datatype as Object Id
-      //   type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       type: String,
       required: true,
     },

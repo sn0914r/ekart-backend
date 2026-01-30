@@ -2,8 +2,7 @@ const { Schema, model } = require("mongoose");
 const OrderSnapshotSchema = new Schema(
   {
     userId: {
-      // TODO: make the datatype as Object Id
-      //   type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       type: String,
       required: true,
     },
