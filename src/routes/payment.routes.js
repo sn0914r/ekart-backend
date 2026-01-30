@@ -1,7 +1,7 @@
 const express = require("express");
 
-const { orderSchema } = require("../validation/order.schema");
-const { cartItemsSchema } = require("../validation/product.schema");
+const { paymentSchema } = require("../validation/order.schema");
+const { OrderIdSchema } = require("../validation/product.schema");
 
 const { verifyAuth, requireUser } = require("../middlewares/auth.middleware");
 const { validateBody } = require("../middlewares/validation.middleware");
@@ -22,15 +22,15 @@ router.post(
   createPaymentLimiter,
   verifyAuth,
   requireUser,
-  validateBody(cartItemsSchema),
+  validateBody(OrderIdSchema),
   createPaymentController,
 );
 router.post(
   "/verify",
-  // verifyPaymentLimiter,
+  verifyPaymentLimiter,
   verifyAuth,
   requireUser,
-  // validateBody(orderSchema),
+  validateBody(paymentSchema),
   paymentSuccessController,
 );
 

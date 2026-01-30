@@ -9,7 +9,6 @@ const ORDER_TRANSISTIONS = {
 };
 
 const validateOrderStatusTransistion = (from, to) => {
-  console.log(from, "to", to);
   if (from === "DELIVERED" || from === "CANCELLED") {
     throw new AppError(`Order cannot be updated after ${from}`, 400);
   }

@@ -1,18 +1,9 @@
 const joi = require("joi");
 
-const orderSchema = joi.object({
-  items: joi.array().items(
-    joi.object({
-      id: joi.string(),
-      quantity: joi.number().positive().min(1),
-    }),
-  ),
-
-  paymentDetails: {
-    razorpayOrderId: joi.string(),
-    razorpayPaymentId: joi.string(),
-    razorpaySignature: joi.string(),
-  },
+const paymentSchema = joi.object({
+  razorpayOrderId: joi.string(),
+  razorpayPaymentId: joi.string(),
+  razorpaySignature: joi.string(),
 });
 
 const updateOrderSchema = joi.object({
@@ -23,4 +14,4 @@ const updateOrderSchema = joi.object({
     .optional(),
 });
 
-module.exports = { orderSchema, updateOrderSchema };
+module.exports = { paymentSchema, updateOrderSchema };

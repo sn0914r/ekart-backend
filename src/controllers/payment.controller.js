@@ -7,11 +7,15 @@ const {
  * Creates a Razorpay order that the client uses to open checkout
  */
 const createPaymentController = async (req, res) => {
-  const items = req.body;
-  const { uid, email } = req.user;
+  const { orderId } = req.body;
+  const { uid: userId, email } = req.user;
 
-  const order = await createPaymentOrder(items, uid, email);
-  res.status(200).json(order);
+  const paymentDetails = await createPaymentOrder({
+    userId,
+    email,
+    orderId,
+  });
+  res.status(200).json({ ...paymentDetails });
 };
 
 /**
@@ -20,20 +24,15 @@ const createPaymentController = async (req, res) => {
  * Sends mail to the customer
  */
 const paymentSuccessController = async (req, res) => {
-  const {
-    items,
-    paymentDetails: { razorpayPaymentId, razorpaySignature, razorpayOrderId },
-  } = req.body;
+  const { razorpayPaymentId, razorpaySignature, razorpayOrderId } = req.body;
 
-  const { uid: userId, email } = req.user;
+  const { uid: userId } = req.user;
 
   const orderId = await handlePaymentsAndOrder({
     razorpayOrderId,
     razorpaySignature,
     razorpayPaymentId,
     userId,
-    email,
-    items,
   });
 
   res.status(200).json(orderId);

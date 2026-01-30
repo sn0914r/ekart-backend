@@ -5,7 +5,6 @@ const sendOrderConfirmation = async ({
   orderId,
   totalAmount,
   timestamp,
-  payementId,
 }) => {
   const subject = "Order has been placed successfully";
   const msg = `<div>
@@ -20,13 +19,9 @@ const sendOrderConfirmation = async ({
           <td>Order ID</td>
           <td>${orderId}</td>
         </tr>
-                <tr>
-          <td>Payment ID</td>
-          <td>${payementId}</td>
-        </tr>
         <tr>
           <td>Total Payment</td>
-          <td>${totalAmount}</td>
+          <td>Rs ${totalAmount}</td>
         </tr>
       </table>
 

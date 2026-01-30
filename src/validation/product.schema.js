@@ -18,7 +18,16 @@ const cartItemsSchema = joi.array().items(
   joi.object({
     id: joi.string(),
     quantity: joi.number().positive().min(1),
-  })
+  }),
 );
 
-module.exports = { addProductSchema, cartItemsSchema, updateProductSchema };
+const OrderIdSchema = joi.object({
+  orderId: joi.string().required(),
+});
+
+module.exports = {
+  addProductSchema,
+  cartItemsSchema,
+  updateProductSchema,
+  OrderIdSchema,
+};

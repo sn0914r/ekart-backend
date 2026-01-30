@@ -37,12 +37,17 @@ const OrderSchema = new Schema(
           },
           quantity: Number,
           unitPrice: Number,
+          name: String,
           lineTotal: Number,
         },
         { _id: false },
       ),
     ],
-
+    subTotal: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
     orderStatus: {
       type: String,
       required: true,
@@ -56,9 +61,18 @@ const OrderSchema = new Schema(
       default: "PENDING",
     },
     paymentDetails: {
-      razorpayOrderId: String,
-      razorpayPaymentId: String,
-      razorpaySignature: String,
+      razorpayOrderId: {
+        type: String,
+        default: null,
+      },
+      razorpayPaymentId: {
+        type: String,
+        default: null,
+      },
+      razorpaySignature: {
+        type: String,
+        default: null,
+      },
     },
     orderStatusHistory: [
       {

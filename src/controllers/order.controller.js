@@ -2,7 +2,16 @@ const {
   getUserOrders,
   getOrders,
   updateOrder,
+  createOrder,
 } = require("../services/order.service");
+
+const createOrderController = async (req, res) => {
+  const { uid: userId, email } = req.user;
+  const { items } = req.body; // [{id, quantity}]
+
+  const order = await createOrder({ userId, email, items });
+  return res.status(200).json({ orderId: order._id, subTotal: order.subTotal });
+};
 
 /**
  * Only retrieves the user orders
@@ -43,4 +52,5 @@ module.exports = {
   getOrdersForUserController,
   getOrdersForAdminController,
   updateOrderController,
+  createOrderController,
 };

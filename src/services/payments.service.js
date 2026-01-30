@@ -25,30 +25,25 @@ const OrderModel = require("../models/Order.model");
  *
  * @returns {object} - Razorpay Order
  */
-const createPaymentOrder = async (items, uid, email) => {
-  // await checkStock(items);
+const createPaymentOrder = async ({ userId, orderId }) => {
+  const order = await OrderModel.findById(orderId);
+  if (!order) throw new AppError("Order not found", 404);
 
-  const { totalAmount, items: itemsSnapshot } = await getPriceSnapShot(items);
-
-  const options = {
-    amount: totalAmount * 100,
-    currency: "INR",
-    receipt: `receipt_${uid.slice(0, 5)}_${Date.now()}`,
+  const RAZORPAY_OPTIONS = {
+    amount: order.subTotal * 100,
+    currency: order.currency || "INR",
+    receipt: `receipt_${userId.slice(0, 4)}_${Date.now()}`, // NOTE: the razorpay receipt must be lessthan 40 chars
   };
 
-  // NOTE: the razorpay receipt must be lessthan 40 chars
-  const order = await razorpay.orders.create(options);
+  const razorpayOrder = await razorpay.orders.create(RAZORPAY_OPTIONS);
+  order.paymentDetails.razorpayOrderId = razorpayOrder.id;
+  await order.save();
 
-  await OrderSnapshotModel.create({
-    userId: uid,
-    email,
-    razorpayOrderId: order.id,
-
-    items: itemsSnapshot,
-    subtotal: totalAmount,
-    createdAt: new Date(),
-  });
-  return order;
+  return {
+    razorpayOrderId: razorpayOrder.id,
+    amount: razorpayOrder.amount,
+    currency: razorpayOrder.currency,
+  };
 };
 
 /**
@@ -70,49 +65,47 @@ const handlePaymentsAndOrder = async ({
   razorpaySignature,
   razorpayOrderId,
   razorpayPaymentId,
-
   userId,
-  email,
-
-  items,
 }) => {
   let order;
+  // Idempotency check
   order = await OrderModel.findOne({
     "paymentDetails.razorpayPaymentId": razorpayPaymentId,
   });
+  if (order) throw new AppError(`Payment already processed: ${order._id}`, 400);
 
-  if (order) {
-    throw new AppError(`Payment already processed: ${order._id}`, 400);
-  }
+  order = await OrderModel.findOne({
+    "paymentDetails.razorpayOrderId": razorpayOrderId,
+  });
+
 
   const generatedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_TEST_KEY_SECRET)
     .update(`${razorpayOrderId}|${razorpayPaymentId}`)
     .digest("hex");
-  if (generatedSignature !== razorpaySignature) {
+  if (generatedSignature !== razorpaySignature)
     throw new AppError("Invalid payment", 400);
-  }
 
-  const orderSnapshot = await OrderSnapshotModel.findOne({
-    razorpayOrderId,
-  });
+  order.paymentStatus = "PAID";
+  order.paymentDetails.razorpayPaymentId = razorpayPaymentId;
+  order.paymentDetails.razorpaySignature = razorpaySignature;
+  await order.save();
 
-  if (!orderSnapshot) {
-    throw new AppError("Order not found", 404);
-  }
+  const orderSnapshot = order.orderSnapshot;
+  if (!orderSnapshot) throw new AppError("Order not found", 404);
 
-  const itemsSnapshot = orderSnapshot.items;
-  const subtotal = orderSnapshot.subtotal;
   const session = await mongoose.startSession();
 
   await session.withTransaction(async () => {
-    for (const item of itemsSnapshot) {
+    for (const item of orderSnapshot) {
       // read the product
       const targetProduct = await ProductModel.findOne({ _id: item.productId });
 
       if (!targetProduct) {
-        throw new AppError(`Product (${item.productId}) not found`, 404);
+        throw new AppError(`Product (${item.name}) not found`, 404);
       }
+      if (!targetProduct.isActive)
+        throw new AppError("Product is not available", 400);
       if (targetProduct.stock < item.quantity) {
         throw new AppError(`Product (${targetProduct.name}) out of stock`, 400);
       }
@@ -123,37 +116,23 @@ const handlePaymentsAndOrder = async ({
     }
 
     // save the order
-    order = await OrderModel.create({
-      userId,
-      email,
-      orderSnapshot: itemsSnapshot,
-      subtotal,
-      orderStatus: "CREATED",
-      paymentStatus: "PAID",
-      paymentDetails: {
-        razorpayOrderId,
-        razorpayPaymentId,
-        razorpaySignature,
-      },
-    });
+    ((order.orderStatus = "CONFIRMED"),
+      order.orderStatusHistory.push({
+        status: "CONFIRMED",
+        at: new Date(),
+        by: userId,
+      }));
+    await order.save();
   });
-
-  // delete order snapshot
-  await OrderSnapshotModel.deleteOne({ razorpayOrderId });
-
   await session.endSession();
 
-  if (!order) {
-    throw new AppError("Failed to create the order", 500);
-  }
-
   await sendOrderConfirmation({
-    email,
-    totalAmount: subtotal,
+    email: order.email,
+    totalAmount: order.subTotal,
     timestamp: new Date().toString(),
     orderId: order._id,
-    paymentId: razorpayPaymentId,
   });
+
   return { orderId: order._id, paymentId: razorpayPaymentId };
 };
 
