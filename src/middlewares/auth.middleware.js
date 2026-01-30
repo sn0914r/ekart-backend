@@ -2,14 +2,13 @@ const { auth } = require("../configs/firebase.config");
 const AppError = require("../errors/AppError");
 
 const verifyAuth = async (req, res, next) => {
-    if (!req.headers?.authorization?.startsWith("Bearer ")) {
-      throw new AppError("token missing", 401);
-    }
+  if (!req.headers?.authorization?.startsWith("Bearer ")) {
+    throw new AppError("token missing", 401);
+  }
 
-    const idToken = req.headers.authorization.split(" ")[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-    req.user = decodedToken;
-    next();
+  const idToken = req.headers.authorization.split(" ")[1];
+  const decodedToken = await auth.verifyIdToken(idToken);
+  req.user = decodedToken;
   next();
 };
 

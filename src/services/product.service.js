@@ -1,21 +1,24 @@
-const { bucket, db } = require("../configs/firebase.config");
+const { db } = require("../configs/firebase.config");
 
 const AppError = require("../errors/AppError");
 const generateRandomString = require("../utils/randomStringGenerator");
 const ProductModel = require("../models/Product.model");
+const cloudinary = require("../configs/cloudinary.config");
 
-const uploadProductImage = async (file) => {
-  const filename = generateRandomString();
-  const fileUpload = bucket.file(filename);
-  await fileUpload.save(file.buffer, {
-    metadata: {
-      contentType: file.mimetype,
-    },
+const uploadProductImage = (file) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "eKart", public_id: generateRandomString() },
+      (err, result) => {
+        if (err) {
+          return reject(new AppError(err.message, 400));
+        }
+        resolve(result.secure_url);
+      },
+    );
+
+    stream.end(file.buffer);
   });
-  await fileUpload.makePublic();
-
-  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
-  return publicUrl;
 };
 
 const addProduct = async ({ file, name, price, isActive, stock }) => {
