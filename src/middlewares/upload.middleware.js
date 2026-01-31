@@ -1,6 +1,18 @@
 const multer = require("multer");
 const AppError = require("../errors/AppError");
 
+/**
+ * @desc Uploads a single file
+ *
+ * Preconditions:
+ *  - Request is multipart/form-data
+ *
+ * Blocks when:
+ *  - No file is provided
+ *  - File is not an image
+ *  - File size exceeds 5MB
+ */
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -11,7 +23,7 @@ const upload = multer({
     if (!file.mimetype.startsWith("image/")) {
       return cb(
         new AppError("Invalid file format: Only images are allowed", 400),
-        false
+        false,
       );
     }
 

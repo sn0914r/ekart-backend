@@ -1,52 +1,70 @@
-const {
-  addProduct,
-  getProducts,
-  updateProduct,
-  getProductsForAdmin,
-} = require("../services/product.service");
+const productService = require("../services/product.service");
 
 /**
- * Add product in the database
+ * @desc Add Product
+ *
+ * Preconditions:
+ *  - Request is authenticated
+ *  - req.body contains valid name, price, isActive, stock
+ *  - req.file is a valid image
+ *
+ * @route POST /admin/products
+ * @access Private
  */
 const addProductController = async (req, res) => {
   const { file } = req;
   const { name, price, isActive, stock } = req.body;
 
-  const product = await addProduct({ file, name, price, isActive, stock });
+  const product = await productService.addProduct({
+    file,
+    name,
+    price,
+    isActive,
+    stock,
+  });
 
   res.status(200).json(product);
 };
 
 /**
- * Retrive Products from the database
+ * @desc Retrives all products
+ 
+ * Preconditions:
+ *  - Request is authenticated
+ *  - req.user.role is either "user" or "admin"
+ *
+ * @route GET /products
+ * @route GET /admin/products
+ * @access Private
  */
 const getProductsController = async (req, res) => {
-  const products = await getProducts();
+  const { uid: userId, role } = req.user;
+  const products = await productService.getProducts({ userId, role });
   res.status(200).json(products);
 };
 
 /**
- * Update a specific Product in the database
+ * @desc Update Product
+ *
+ * Preconditions:
+ *  - Request is authenticated
+ *  - req.user.role is "admin"
+ *  - req.params.id is valid
+ *  - req.body contains valid updates
+ *
+ * @route PATCH /admin/products/:id
+ * @access Private
  */
 const updateProductController = async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
-  const updatedProduct = await updateProduct(id, updates);
+  const updatedProduct = await productService.updateProduct(id, updates);
   res.status(200).json(updatedProduct);
-};
-
-/**
- * Retrives all products for admin
- */
-const getProductsForAdminController = async (req, res) => {
-  const products = await getProductsForAdmin();
-  res.status(200).json(products);
 };
 
 module.exports = {
   addProductController,
   getProductsController,
   updateProductController,
-  getProductsForAdminController,
 };

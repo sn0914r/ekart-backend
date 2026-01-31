@@ -2,10 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 
-const AdminRoutes = require("./routes/admin.routes");
-const UserRoutes = require("./routes/user.routes");
-const PublicRoutes = require("./routes/public.routes");
-const PaymentRoutes = require("./routes/payment.routes");
+const authRoutes = require("./routes/auth.routes");
+const orderRoutes = require("./routes/orders.router");
+const paymentRoutes = require("./routes/payment.routes");
+const productRoutes = require("./routes/products.routes");
 
 const app = express();
 
@@ -15,17 +15,10 @@ app.use(cors());
 app.use(express.json({ limit: "10kb" }));
 app.use(helmet());
 
-// Public Router
-app.use(PublicRoutes);
-
-// User Router
-app.use(UserRoutes);
-
-// Admin Router
-app.use("/admin", AdminRoutes);
-
-// Payment routes
-app.use("/payments", PaymentRoutes);
+app.use(authRoutes);
+app.use(orderRoutes);
+app.use(paymentRoutes);
+app.use(productRoutes);
 
 // Health Check
 app.use("/health", (req, res) => {

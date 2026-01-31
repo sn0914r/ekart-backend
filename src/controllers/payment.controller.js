@@ -1,16 +1,20 @@
-const {
-  createPaymentOrder,
-  handlePaymentsAndOrder,
-} = require("../services/payments.service");
+const paymentService = require("../services/payments.service");
 
 /**
- * Creates a Razorpay order that the client uses to open checkout
+ * @desc Creates a razorpay payment order
+ *
+ * Preconditions:
+ *  - Request is authenticated
+ *  - req.body.orderId is valid
+ *
+ * @route POST /payments/create
+ * @access Private
  */
 const createPaymentController = async (req, res) => {
   const { orderId } = req.body;
   const { uid: userId, email } = req.user;
 
-  const paymentDetails = await createPaymentOrder({
+  const paymentDetails = await paymentService.createPaymentOrder({
     userId,
     email,
     orderId,
@@ -19,16 +23,21 @@ const createPaymentController = async (req, res) => {
 };
 
 /**
- * Verifies the payment signatures
- * Creates Order if verification is successful
- * Sends mail to the customer
+ * @desc Verifies the payment and confirms the order
+ *
+ * Preconditions:
+ *  - Request is authenticated
+ *  - req.body contains valid razorpayPaymentId, razorpayOrderId, and razorpaySignature
+ *
+ * @route POST /payments/success
+ * @access Private
  */
 const paymentSuccessController = async (req, res) => {
   const { razorpayPaymentId, razorpaySignature, razorpayOrderId } = req.body;
 
   const { uid: userId } = req.user;
 
-  const orderId = await handlePaymentsAndOrder({
+  const orderId = await paymentService.handlePaymentSuccess({
     razorpayOrderId,
     razorpaySignature,
     razorpayPaymentId,

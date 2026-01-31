@@ -1,29 +1,24 @@
 const crypto = require("crypto");
-
 const razorpay = require("../configs/razorpay.config");
 
-const { getPriceSnapShot } = require("./pricing.service");
 const AppError = require("../errors/AppError");
 
-const { sendOrderConfirmation } = require("./email.service");
-const { checkStock } = require("./product.service");
-const { admin, db } = require("../configs/firebase.config");
-const PaymentModel = require("../models/Payment.model");
-const OrderSnapshotModel = require("../models/OrderSnapshot");
+const nodemailerIntegration = require("../integrations/nodemailer.integration");
+const orderConfirmationTemplate = require("../templates/email/orderConfirmation.template");
+
 const mongoose = require("mongoose");
 const ProductModel = require("../models/Product.model");
 const OrderModel = require("../models/Order.model");
 
 /**
- * Creates a Razorpay order that the client uses to open checkout
+ * @desc Creates a razorpay payment order
  *
- * Flow:
- *  - Checks stock
- *  - Gets the price snapshot
- *  - Creates the razorpay order
- *  - Saves the snapshot in db (expires in 15 minutes)
+ * Side Effects:
+ *  - Creates a payment order via Razorpay API
+ *  - Stores the razorpayOrderId in the order record
  *
- * @returns {object} - Razorpay Order
+ * @returns {<Promise { razorpayOrderId: string, amount: number, currency: string}>} Payment order details
+ * @throws {AppError} If order not found
  */
 const createPaymentOrder = async ({ userId, orderId }) => {
   const order = await OrderModel.findById(orderId);
@@ -47,21 +42,21 @@ const createPaymentOrder = async ({ userId, orderId }) => {
 };
 
 /**
- * Service Entry point for VerifyPaymentController
+ * @desc Verifies the payment and confirms the order
  *
- * Flow:
- *  - Check payment already processed or not
- *  - Verifies the signatures
- *  - Calculates total Amount
- *  - Checks stock
- *  - Reduces stock
- *  - Creates Order
- *  - Creates Payment Record
- *  - Notifies the customer
+ * Side Effects:
+ *  - Updates stock,  order status history, order and payment statuses
+ *  - Sends order confirmation email
  *
- * @returns {Object} - {Order Id, Payment Id}
+ * Fails when:
+ *  - payment is already processed
+ *  - payment signatures doesn't match
+ *  - product not found
+ *  - product is inactive
+ *
+ * @returns {<Promsie {orderId: string, razorpayPaymentId: string}>} (orderId, paymentId)
  */
-const handlePaymentsAndOrder = async ({
+const handlePaymentSuccess = async ({
   razorpaySignature,
   razorpayOrderId,
   razorpayPaymentId,
@@ -77,7 +72,6 @@ const handlePaymentsAndOrder = async ({
   order = await OrderModel.findOne({
     "paymentDetails.razorpayOrderId": razorpayOrderId,
   });
-
 
   const generatedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_TEST_KEY_SECRET)
@@ -126,14 +120,14 @@ const handlePaymentsAndOrder = async ({
   });
   await session.endSession();
 
-  await sendOrderConfirmation({
-    email: order.email,
-    totalAmount: order.subTotal,
-    timestamp: new Date().toString(),
-    orderId: order._id,
+  // Sends email
+  nodemailerIntegration.sendMail({
+    to: order.email,
+    subject: "Order has been placed successfully",
+    template: orderConfirmationTemplate(order.email, order._id, order.subTotal),
   });
-
-  return { orderId: order._id, paymentId: razorpayPaymentId };
+  
+  return { orderId: order._id, razorpayPaymentId };
 };
 
-module.exports = { createPaymentOrder, handlePaymentsAndOrder };
+module.exports = { createPaymentOrder, handlePaymentSuccess };

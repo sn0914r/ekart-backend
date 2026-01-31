@@ -1,18 +1,18 @@
 const AppError = require("../errors/AppError");
+
 const OrderModel = require("../models/Order.model");
 const ProductModel = require("../models/Product.model");
+
 const validateOrderStatusTransistion = require("../utils/validateOrderTransistion");
 
 /**
- * Creates an Order
+ * @desc Creates an Order
  *
- * Flow:-
- *  1. fetches the target products
- *  2. checks the stock
- *  3. creates a snapshot
- *  4. calculates total Amount
- *  5. Creates an order with Orderstatus: "CREATED" & paymentStatus: "PENDING"
- * 
+ * Side Effects:
+ *  - Creates a new order record
+ *
+ * @returns {<Promise Order>} The created order
+ * @throws {AppError} If item is out of stock
  */
 const createOrder = async ({ userId, email, items }) => {
   const idsToQtyMap = Object.fromEntries(
@@ -66,59 +66,50 @@ const createOrder = async ({ userId, email, items }) => {
 };
 
 /**
- * Retrives the user's orders based on UID
+ * @desc Retrieves orders for the authenticated user or admin
+ *
+ * Behaviour:
+ *  - Admin users can see all orders
+ *  - Non-admin users can only see their orders
+ * 
+ * @returns {<Promise Order[]>} Orders
  */
-const getUserOrders = async (uid) => {
-  const orders = await OrderModel.find(
-    { userId: uid },
-    {
-      createdAt: 1,
-      orderStatus: 1,
-      paymentStatus: 1,
-      "paymentDetails.razorpayPaymentId": 1,
-      "paymentDetails.razorpayOrderId": 1,
-      orderSnapshot: 1,
-    },
-  );
-
+const getOrders = async ({ uid, role }) => {
+  const orders = await (role === "admin"
+    ? OrderModel.find({})
+    : OrderModel.find({ userId: uid }));
   return orders;
 };
 
 /**
- * Retrives all orders
+ * @desc Updates order status
+ *
+ * Side Effects:
+ *  - Updates order status and order status history
+ *
+ * @returns {<Promise Order>} updated order
+ * @throws {AppError} If order not found or status transition is invalid
  */
-const getOrders = async () => {
-  const orders = await OrderModel.find({});
-  return orders;
-};
-
-/**
- * Updates an order
- */
-
-const updateOrder = async (id, adminUID, { orderStatus }) => {
+const updateOrder = async ({ id, adminId, orderStatus }) => {
   const order = await OrderModel.findById(id);
 
-  if (!order) {
-    throw new AppError("Order not found", 404);
-  }
+  if (!order) throw new AppError("Order not found", 404);
 
   const currentStatus = order.orderStatus;
   validateOrderStatusTransistion(currentStatus, orderStatus);
+
   order.orderStatus = orderStatus;
   order.orderStatusHistory.push({
     status: orderStatus,
     at: new Date(),
-    by: adminUID,
+    by: adminId,
   });
-
   await order.save();
 
   return order;
 };
 
 module.exports = {
-  getUserOrders,
   getOrders,
   updateOrder,
   createOrder,

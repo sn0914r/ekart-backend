@@ -1,13 +1,15 @@
-const transporter = require("../configs/nodemailer.config");
-
-const sendOrderConfirmation = async ({
-  email,
-  orderId,
-  totalAmount,
-  timestamp,
-}) => {
-  const subject = "Order has been placed successfully";
-  const msg = `<div>
+/**
+ * @desc Returns the HTML template for the order confirmation email
+ *
+ * @param {string} email - The email address of the user
+ * @param {string} orderId - The ID of the order
+ * @param {number} totalAmount - The total amount of the order
+ *
+ * @returns {string} HTML template
+ */
+const orderConfirmation = (email, orderId, totalAmount) => {
+  const timestamp = new Date().toString();
+  return `<div>
       <h3>
         Hello <strong>${email}</strong>
       </h3>
@@ -28,13 +30,6 @@ const sendOrderConfirmation = async ({
       <p style="font-size:smaller">${timestamp}</p>
       <p style="color: gray"> Thanks for shopping with us</p>
     </div>`;
-
-  await transporter.sendMail({
-    from: process.env.GMAIL,
-    to: email,
-    subject,
-    html: msg,
-  });
 };
 
-module.exports = { sendOrderConfirmation };
+module.exports = orderConfirmation;

@@ -1,37 +1,13 @@
-const express = require("express");
+const router = require("express").Router();
 
-const { paymentSchema } = require("../validation/order.schema");
-const { OrderIdSchema } = require("../validation/product.schema");
-
+const { paymentVerificationSchema, orderIdSchema } = require("../validation/payment.schema");
+const { createPaymentLimiter, verifyPaymentLimiter } = require("../middlewares/rateLimiter.middleware");
 const { verifyAuth, requireUser } = require("../middlewares/auth.middleware");
 const { validateBody } = require("../middlewares/validation.middleware");
+const { createPaymentController, paymentSuccessController } = require("../controllers/payment.controller");
 
-const {
-  createPaymentController,
-  paymentSuccessController,
-} = require("../controllers/payment.controller");
-const {
-  createPaymentLimiter,
-  verifyPaymentLimiter,
-} = require("../middlewares/rateLimiter.middleware");
-
-const router = express.Router();
-
-router.post(
-  "/create",
-  createPaymentLimiter,
-  verifyAuth,
-  requireUser,
-  validateBody(OrderIdSchema),
-  createPaymentController,
-);
-router.post(
-  "/verify",
-  verifyPaymentLimiter,
-  verifyAuth,
-  requireUser,
-  validateBody(paymentSchema),
-  paymentSuccessController,
-);
+// User
+router.post("/payments/create", createPaymentLimiter, verifyAuth, requireUser, validateBody(orderIdSchema), createPaymentController);
+router.post("/payments/verify", verifyPaymentLimiter, verifyAuth, requireUser, validateBody(paymentVerificationSchema), paymentSuccessController);
 
 module.exports = router;

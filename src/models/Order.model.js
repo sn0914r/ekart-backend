@@ -15,19 +15,6 @@ const OrderSchema = new Schema(
       type: String,
       required: true,
     },
-    // items: [
-    //   {
-    //     id: {
-    //       type: Schema.Types.ObjectId,
-    //       required: true,
-    //     },
-    //     quantity: {
-    //       type: Number,
-    //       required: true,
-    //     },
-    //     name: String,
-    //   },
-    // ],
     orderSnapshot: [
       new Schema(
         {
