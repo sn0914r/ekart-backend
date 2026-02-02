@@ -40,8 +40,9 @@ const addProductController = async (req, res) => {
 const getProductsController = async (req, res) => {
   const userId = req.user?.uid;
   const role = req.user?.role;
+  const query = req.query;
   
-  const products = await productService.getProducts({ userId, role });
+  const products = await productService.getProducts({ userId, role, query });
   res.status(200).json(products);
 };
 

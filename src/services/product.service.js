@@ -36,15 +36,19 @@ const addProduct = async ({ file, name, price, isActive, stock }) => {
  *
  * @returns {Promise<Product[]>} List of products
  */
-const getProducts = async ({ userId, role }) => {
-  if (userId) {
+const getProducts = async ({ userId, role, query }) => {
+  const { filter, sortOrder } = formatMongoQuery(query);
+
+  if (userId && role === "admin") {
     const user = await UserModel.findOne({ uid: userId });
     if (user.role === "admin") {
-      const products = await ProductModel.find({});
+      const products = await ProductModel.find(filter).sort(sortOrder);
       return products;
     }
   }
-  const products = await ProductModel.find({ isActive: true });
+  const products = await ProductModel.find({ isActive: true, ...filter }).sort(
+    sortOrder,
+  );
   return products;
 };
 
@@ -74,4 +78,32 @@ module.exports = {
   addProduct,
   getProducts,
   updateProduct,
+};
+
+// Supporting functions
+/**
+ * @desc Formats the request query into a MongoDB query
+ *
+ * @returns {Object} MongoDB query
+ */
+const formatMongoQuery = (query) => {
+  const { search, minPrice, maxPrice, sort } = query;
+  let filter = {};
+  let sortOrder = {};
+
+  if (search) {
+    filter.name = { $regex: search, $options: "i" };
+  }
+
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice) filter.price.$gte = minPrice;
+    if (maxPrice) filter.price.$lte = maxPrice;
+  }
+
+  sort === "price_asc" && (sortOrder.price = 1);
+  sort === "price_desc" && (sortOrder.price = -1);
+  sortOrder.createdAt = -1;
+  
+  return { filter, sortOrder };
 };
