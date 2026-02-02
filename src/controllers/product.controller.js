@@ -35,10 +35,12 @@ const addProductController = async (req, res) => {
  *
  * @route GET /products
  * @route GET /admin/products
- * @access Private
+ * @access Public
  */
 const getProductsController = async (req, res) => {
-  const { uid: userId, role } = req.user;
+  const userId = req.user?.uid;
+  const role = req.user?.role;
+  
   const products = await productService.getProducts({ userId, role });
   res.status(200).json(products);
 };
