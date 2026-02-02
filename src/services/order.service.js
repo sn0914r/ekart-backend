@@ -4,6 +4,7 @@ const OrderModel = require("../models/Order.model");
 const ProductModel = require("../models/Product.model");
 
 const validateOrderStatusTransistion = require("../utils/validateOrderTransistion");
+const validateShippingStatusTransition = require("../utils/validateShippingTransistion");
 
 /**
  * @desc Creates an Order
@@ -14,7 +15,7 @@ const validateOrderStatusTransistion = require("../utils/validateOrderTransistio
  * @returns {<Promise Order>} The created order
  * @throws {AppError} If item is out of stock
  */
-const createOrder = async ({ userId, email, items }) => {
+const createOrder = async ({ userId, email, items, shippingAddress }) => {
   const idsToQtyMap = Object.fromEntries(
     items.map(({ id, quantity }) => [id, quantity]),
   );
@@ -54,13 +55,23 @@ const createOrder = async ({ userId, email, items }) => {
     },
   ];
 
+  // Shipping History
+  const shippingStatusHistory = [
+    {
+      status: "PENDING",
+      at: new Date(),
+      by: userId,
+    },
+  ];
+
   const order = await OrderModel.create({
     userId,
     email,
     orderSnapshot,
     subTotal,
-    orderStatus: "CREATED",
     orderStatusHistory,
+    shippingStatusHistory,
+    shippingAddress,
   });
   return order;
 };
@@ -71,7 +82,7 @@ const createOrder = async ({ userId, email, items }) => {
  * Behaviour:
  *  - Admin users can see all orders
  *  - Non-admin users can only see their orders
- * 
+ *
  * @returns {<Promise Order[]>} Orders
  */
 const getOrders = async ({ uid, role }) => {
@@ -82,28 +93,72 @@ const getOrders = async ({ uid, role }) => {
 };
 
 /**
- * @desc Updates order status
+ * @desc Updates order
+ *
+ * Behaviour:
+ *  Admin:
+ *    - Can update shipping status
+ *  User:
+ *    - Can update order status (cancel only, before shippingF)
+ *    - Can update shipping address
  *
  * Side Effects:
- *  - Updates order status and order status history
+ *  - Updates order document
+ *  - Appends order and shipping status history
  *
- * @returns {<Promise Order>} updated order
- * @throws {AppError} If order not found or status transition is invalid
+ * Fails when:
+ *  - Order not found
+ *  - Order status transition is invalid
+ *  - Shipping status transition is invalid
+ *
+ * @returns {Promise<Order>} updated order
  */
-const updateOrder = async ({ id, adminId, orderStatus }) => {
+const updateOrder = async ({
+  id,
+  orderStatus,
+  shippingAddress,
+  shippingStatus,
+  uid,
+  role,
+}) => {
   const order = await OrderModel.findById(id);
 
   if (!order) throw new AppError("Order not found", 404);
 
-  const currentStatus = order.orderStatus;
-  validateOrderStatusTransistion(currentStatus, orderStatus);
+  if (role === "admin") {
+    if (!shippingStatus) {
+      throw new AppError("Shipping status is required", 400);
+    }
 
-  order.orderStatus = orderStatus;
-  order.orderStatusHistory.push({
-    status: orderStatus,
-    at: new Date(),
-    by: adminId,
-  });
+    if (orderStatus) {
+      throw new AppError("Order status cannot be changed by admin", 400);
+    }
+
+    validateShippingStatusTransition(order.shippingStatus, shippingStatus);
+    order.shippingStatus = shippingStatus;
+    order.shippingStatusHistory.push({
+      status: shippingStatus,
+      at: new Date(),
+      by: uid,
+    });
+    await order.save();
+    return order;
+  }
+
+  if (orderStatus) {
+    validateOrderStatusTransistion(order.orderStatus, orderStatus);
+    order.orderStatus = orderStatus;
+    order.orderStatusHistory.push({
+      status: orderStatus,
+      at: new Date(),
+      by: uid,
+    });
+  }
+
+  if (shippingAddress) {
+    order.shippingAddress = shippingAddress;
+  }
+
   await order.save();
 
   return order;

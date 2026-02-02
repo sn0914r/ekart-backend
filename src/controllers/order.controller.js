@@ -12,9 +12,9 @@ const orderService = require("../services/order.service");
  */
 const createOrderController = async (req, res) => {
   const { uid: userId, email } = req.user;
-  const { items } = req.body;
+  const { items, shippingAddress } = req.body;
 
-  const order = await orderService.createOrder({ userId, email, items });
+  const order = await orderService.createOrder({ userId, email, items, shippingAddress });
   return res.status(201).json({ orderId: order._id, subTotal: order.subTotal });
 };
 
@@ -49,13 +49,22 @@ const getOrdersController = async (req, res) => {
  */
 const updateOrderController = async (req, res) => {
   const { id } = req.params;
-  const { orderStatus } = req.body;
-  const { uid: adminId } = req.user;
+
+  const orderStatus = req.body.orderStatus;
+  const shippingAddress = req.body.shippingAddress;
+
+  const shippingStatus = req.body.shippingStatus;
+
+  const uid = req.user.uid;
+  const role = req.user.role;
 
   const updatedOrder = await orderService.updateOrder({
     id,
     orderStatus,
-    adminId,
+    shippingAddress,
+    shippingStatus,
+    uid,
+    role,
   });
 
   res.status(200).json(updatedOrder);

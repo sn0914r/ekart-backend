@@ -37,7 +37,7 @@ const addProduct = async ({ file, name, price, isActive, stock }) => {
  * @returns {Promise<Product[]>} List of products
  */
 const getProducts = async ({ userId, role }) => {
-  if (userId) {
+  if (userId && role === "admin") {
     const user = await UserModel.findOne({ uid: userId });
     if (user.role === "admin") {
       const products = await ProductModel.find({});

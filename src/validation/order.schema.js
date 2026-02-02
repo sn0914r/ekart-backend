@@ -11,15 +11,46 @@ const createOrderSchema = joi.object({
     )
     .min(1)
     .required(),
+  shippingAddress: joi.object({
+    name: joi.string().required(),
+    address: joi.string().min(25).required(),
+    phone: joi
+      .string()
+      .pattern(/^\+91\d{10}$/)
+      .required(),
+    city: joi.string().required(),
+    state: joi.string().required(),
+    country: joi.string().optional(),
+    pincode: joi.string().required(),
+  }),
 });
 
-const updateOrderStatusSchema = joi.object({
-  orderStatus: joi
+const updateOrderSchema = joi.object({
+  orderStatus: joi.string().uppercase().valid("CANCELLED").optional(),
+  shippingAddress: joi.object({
+    name: joi.string().required(),
+    address: joi.string().min(25).required(),
+    phone: joi
+      .string()
+      .pattern(/^\+91\d{10}$/)
+      .required(),
+    city: joi.string().required(),
+    state: joi.string().required(),
+    country: joi.string().optional(),
+    pincode: joi.string().required(),
+  }),
+});
+
+const updateShippingStatusSchema = joi.object({
+  shippingStatus: joi
     .string()
     .uppercase()
-    .valid("CREATED", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED")
+    .valid("PENDING", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED")
     .optional(),
 });
 
-const orderIdSchema = joi.string().required();
-module.exports = { createOrderSchema, updateOrderStatusSchema };
+module.exports = {
+  createOrderSchema,
+  updateOrderSchema,
+  updateShippingStatusSchema,
+};
