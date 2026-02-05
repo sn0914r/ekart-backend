@@ -7,7 +7,7 @@ const OrderSchema = new Schema(
       default: "INR",
     },
     userId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       required: true,
     },
     email: {
