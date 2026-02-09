@@ -41,7 +41,7 @@ const getProductsController = async (req, res) => {
   const userId = req.user?.uid;
   const role = req.user?.role;
   const query = req.query;
-  
+
   const products = await productService.getProducts({ userId, role, query });
   res.status(200).json(products);
 };
@@ -66,8 +66,22 @@ const updateProductController = async (req, res) => {
   res.status(200).json(updatedProduct);
 };
 
+const deleteProductController = async (req, res) => {
+  const { id } = req.params;
+  const deleteProduct = await productService.deleteProduct(id);
+  res.status(200).json(deleteProduct);
+};
+
+const getProductController = async (req, res) => {
+  const { id } = req.params;
+  const product = await productService.getProduct(id);
+  res.status(200).json(product);
+};
+
 module.exports = {
   addProductController,
   getProductsController,
   updateProductController,
+  deleteProductController,
+  getProductController,
 };

@@ -1,4 +1,5 @@
 const { auth } = require("../configs/firebase.config");
+const AppError = require("../errors/AppError");
 
 const UserModel = require("../models/User.model");
 
@@ -17,6 +18,11 @@ const createUser = async ({ name, email, password }) => {
     email: email,
     password: password,
   });
+
+  const user = await UserModel.findOne({ email });
+  if (user) {
+    throw new AppError("User already exists", 400);
+  }
 
   await auth.setCustomUserClaims(userRecord.uid, { role: "user" });
 

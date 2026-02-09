@@ -75,10 +75,29 @@ const updateProduct = async (id, updates) => {
   return product;
 };
 
+const deleteProduct = async (id) => {
+  const product = await ProductModel.findOneAndDelete({ _id: id });
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+  return product;
+};
+
+const getProduct = async (id) => {
+  const product = await ProductModel.findOne({ _id: id });
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+  return product;
+};
+
 module.exports = {
   addProduct,
   getProducts,
   updateProduct,
+  deleteProduct,
+  getProduct,
 };
 
 // Supporting functions
@@ -105,6 +124,6 @@ const formatMongoQuery = (query) => {
   sort === "price_asc" && (sortOrder.price = 1);
   sort === "price_desc" && (sortOrder.price = -1);
   sortOrder.createdAt = -1;
-  
+
   return { filter, sortOrder };
 };
