@@ -14,7 +14,12 @@ const createOrderController = async (req, res) => {
   const { uid: userId, email } = req.user;
   const { items, shippingAddress } = req.body;
 
-  const order = await orderService.createOrder({ userId, email, items, shippingAddress });
+  const order = await orderService.createOrder({
+    userId,
+    email,
+    items,
+    shippingAddress,
+  });
   return res.status(201).json({ orderId: order._id, subTotal: order.subTotal });
 };
 
@@ -70,8 +75,15 @@ const updateOrderController = async (req, res) => {
   res.status(200).json(updatedOrder);
 };
 
+const getOrderController = async (req, res) => {
+  const { id } = req.params;
+  const order = await orderService.getOrder(id);
+  res.status(200).json(order);
+};
+
 module.exports = {
   createOrderController,
   updateOrderController,
   getOrdersController,
+  getOrderController,
 };

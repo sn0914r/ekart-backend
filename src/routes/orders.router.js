@@ -2,6 +2,7 @@ const {
   getOrdersController,
   createOrderController,
   updateOrderController,
+  getOrderController,
 } = require("../controllers/order.controller");
 const {
   verifyAuth,
@@ -43,5 +44,6 @@ router.patch(
   validateBody(updateShippingStatusSchema),
   updateOrderController,
 );
+router.get("/admin/orders/:id", verifyAuth, requireAdmin, getOrderController);
 
 module.exports = router;

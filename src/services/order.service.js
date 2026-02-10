@@ -164,8 +164,15 @@ const updateOrder = async ({
   return order;
 };
 
+const getOrder = async (id) => {
+  const order = await OrderModel.findById(id);
+  if (!order) throw new AppError("Order not found", 404);
+  return order;
+};
+
 module.exports = {
   getOrders,
   updateOrder,
   createOrder,
+  getOrder,
 };
