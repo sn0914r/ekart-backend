@@ -12,7 +12,11 @@ const authService = require("../services/auth.service");
 const createUserController = async (req, res) => {
   const { name, email, password } = req.body;
   const token = await authService.createUser({ name, email, password });
-  res.status(201).json(token);
+  res.status(201).json({
+    success: true,
+    message: "User created successfully",
+    data: token,
+  });
 };
 
 module.exports = { createUserController };

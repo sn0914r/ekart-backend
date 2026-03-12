@@ -20,7 +20,11 @@ const createOrderController = async (req, res) => {
     items,
     shippingAddress,
   });
-  return res.status(201).json({ orderId: order._id, subTotal: order.subTotal });
+  return res.status(201).json({
+    success: true,
+    message: "Order created successfully",
+    data: { orderId: order._id, subTotal: order.subTotal },
+  });
 };
 
 /**
@@ -37,7 +41,11 @@ const createOrderController = async (req, res) => {
 const getOrdersController = async (req, res) => {
   const { uid, role } = req.user;
   const orders = await orderService.getOrders({ uid, role });
-  return res.status(200).json(orders);
+  return res.status(200).json({
+    success: true,
+    message: "Orders fetched successfully",
+    data: orders,
+  });
 };
 
 /**
@@ -72,13 +80,21 @@ const updateOrderController = async (req, res) => {
     role,
   });
 
-  res.status(200).json(updatedOrder);
+  res.status(200).json({
+    success: true,
+    message: "Order updated successfully",
+    data: updatedOrder,
+  });
 };
 
 const getOrderController = async (req, res) => {
   const { id } = req.params;
   const order = await orderService.getOrder(id);
-  res.status(200).json(order);
+  res.status(200).json({
+    success: true,
+    message: "Order fetched successfully",
+    data: order,
+  });
 };
 
 module.exports = {

@@ -23,7 +23,11 @@ const addProductController = async (req, res) => {
     stock,
   });
 
-  res.status(200).json(product);
+  res.status(200).json({
+    success: true,
+    message: "Product added successfully",
+    data: product,
+  });
 };
 
 /**
@@ -43,7 +47,11 @@ const getProductsController = async (req, res) => {
   const query = req.query;
 
   const products = await productService.getProducts({ userId, role, query });
-  res.status(200).json(products);
+  res.status(200).json({
+    success: true,
+    message: "Products fetched successfully",
+    data: products,
+  });
 };
 
 /**
@@ -63,19 +71,31 @@ const updateProductController = async (req, res) => {
   const updates = req.body;
 
   const updatedProduct = await productService.updateProduct(id, updates);
-  res.status(200).json(updatedProduct);
+  res.status(200).json({
+    success: true,
+    message: "Product updated successfully",
+    data: updatedProduct,
+  });
 };
 
 const deleteProductController = async (req, res) => {
   const { id } = req.params;
   const deleteProduct = await productService.deleteProduct(id);
-  res.status(200).json(deleteProduct);
+  res.status(200).json({
+    success: true,
+    message: "Product deleted successfully",
+    data: deleteProduct,
+  });
 };
 
 const getProductController = async (req, res) => {
   const { id } = req.params;
   const product = await productService.getProduct(id);
-  res.status(200).json(product);
+  res.status(200).json({
+    success: true,
+    message: "Product fetched successfully",
+    data: product,
+  });
 };
 
 module.exports = {

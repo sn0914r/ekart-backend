@@ -19,7 +19,11 @@ const createPaymentController = async (req, res) => {
     email,
     orderId,
   });
-  res.status(200).json({ ...paymentDetails });
+  res.status(200).json({
+    success: true,
+    message: "Payment order created successfully",
+    data: paymentDetails,
+  });
 };
 
 /**
@@ -44,6 +48,10 @@ const paymentSuccessController = async (req, res) => {
     userId,
   });
 
-  res.status(200).json(orderId);
+  res.status(200).json({
+    success: true,
+    message: "Payment verified successfully",
+    data: orderId,
+  });
 };
 module.exports = { createPaymentController, paymentSuccessController };

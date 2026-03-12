@@ -1,21 +1,25 @@
-const AppError = require("../errors/AppError");
-
 const errorHandler = (err, _req, res, _next) => {
-  const isProduction = process.env.NODE_ENV === "production";
-  const status = err.status || 500;
+  const statusCode = err.statusCode || 500;
+  const isProd = process.env.NODE_ENV === "production";
 
-  if (!isProduction) {
-    return res.status(status).json({
-      message: err.message,
-      stack: err.stack,
-    });
+  const message =
+    statusCode === 500 && isProd ? "Something went wrong" : err.message;
+
+  const errorResponse = {
+    success: false,
+    message,
+    errorCode: err.errorCode || "INTERNAL_SERVER_ERROR",
+  };
+
+  if (err.errorCode === "VALIDATION_ERROR") {
+    errorResponse.errors = err.errors;
   }
 
-  if (err instanceof AppError) {
-    return res.status(status).json({ message: err.message, stack: err.stack });
+  if (!isProd) {
+    console.error(err);
   }
 
-  return res.status(500).json({ message: "Internal server error" });
+  return res.status(statusCode).json(errorResponse);
 };
 
 module.exports = errorHandler;

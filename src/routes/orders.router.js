@@ -9,7 +9,7 @@ const {
   requireUser,
   requireAdmin,
 } = require("../middlewares/auth.middleware");
-const { validateBody } = require("../middlewares/validation.middleware");
+const { validate } = require("../middlewares/validation.middleware");
 const {
   createOrderSchema,
   updateOrderSchema,
@@ -24,14 +24,14 @@ router.post(
   "/orders",
   verifyAuth,
   requireUser,
-  validateBody(createOrderSchema),
+  validate(createOrderSchema),
   createOrderController,
 );
 router.patch(
   "/orders/:id",
   verifyAuth,
   requireUser,
-  validateBody(updateOrderSchema),
+  validate(updateOrderSchema),
   updateOrderController,
 );
 
@@ -41,7 +41,7 @@ router.patch(
   "/admin/orders/:id",
   verifyAuth,
   requireAdmin,
-  validateBody(updateShippingStatusSchema),
+  validate(updateShippingStatusSchema),
   updateOrderController,
 );
 router.get("/admin/orders/:id", verifyAuth, requireAdmin, getOrderController);

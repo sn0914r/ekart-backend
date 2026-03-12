@@ -1,38 +1,24 @@
 const AppError = require("../errors/AppError");
 
-/**
- * @desc Validates request body
- *
- * Preconditions:
- *  - req.body is valid
- *
- * Blocks when:
- *  - req.body is invalid
- */
-const validateBody = (schema) => (req, res, next) => {
-  const { error, value } = schema.validate(req.body, {
-    abortEarly: false,
-    convert: true,
-  });
+const validate =
+  (schema, segment = "body") =>
+  (req, _res, next) => {
+    const dataToValiate = req[segment];
 
-  if (error) {
-    const errors = error.details.map((e) => e.message).toString();
-    throw new AppError(errors, 400);
-  }
+    const { error, value } = schema.validate(dataToValiate, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
 
-  req.body = value;
-  next();
-};
+    if (error) {
+      const errors = error.details.map((detail) => detail.message);
 
-/**
- * @desc Validates request file
- *
- * Preconditions:
- *  - req.file is valid
- *
- * Blocks when:
- *  - req.file is invalid
- */
+      throw new AppError("Validation failed", 400, "VALIDATION_ERROR", errors);
+    }
+
+    req[segment] = value;
+    next();
+  };
 
 const validateFile = (req, res, next) => {
   if (!req.file) {
@@ -41,4 +27,4 @@ const validateFile = (req, res, next) => {
   next();
 };
 
-module.exports = { validateBody, validateFile };
+module.exports = { validate, validateFile };
