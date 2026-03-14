@@ -1,4 +1,4 @@
-const productService = require("../services/product.service");
+const productService = require("./product.service");
 
 /**
  * @desc Add Product

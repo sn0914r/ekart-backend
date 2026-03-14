@@ -1,4 +1,4 @@
-const AppError = require("../errors/AppError");
+const AppError = require("../../errors/AppError");
 
 const ORDER_TRANSITIONS = {
   CREATED: ["CONFIRMED", "CANCELLED"],

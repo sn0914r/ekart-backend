@@ -4,10 +4,10 @@ const generateRandomString = require("../utils/randomStringGenerator");
 
 /**
  * @desc Uploads an image to Cloudinary
- * 
+ *
  * Side Effects:
  *  - Uploads the image to Cloudinary
- * 
+ *
  * @param {Buffer} buffer - The image buffer
  * @returns {<Promise<string>} The public URL of the uploaded image
  */

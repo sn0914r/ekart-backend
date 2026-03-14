@@ -1,4 +1,4 @@
-const orderService = require("../services/order.service");
+const orderService = require("./order.service");
 
 /**
  * @desc Creates a new order for the authenticated user

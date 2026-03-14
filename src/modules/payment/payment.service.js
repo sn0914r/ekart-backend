@@ -1,14 +1,14 @@
 const crypto = require("crypto");
-const razorpay = require("../configs/razorpay.config");
+const razorpay = require("../../configs/razorpay.config");
 
-const AppError = require("../errors/AppError");
+const AppError = require("../../errors/AppError");
 
-const nodemailerIntegration = require("../integrations/nodemailer.integration");
-const orderConfirmationTemplate = require("../templates/email/orderConfirmation.template");
+const nodemailerIntegration = require("../../integrations/nodemailer.integration");
+const orderConfirmationTemplate = require("../../templates/email/orderConfirmation.template");
 
 const mongoose = require("mongoose");
-const ProductModel = require("../models/Product.model");
-const OrderModel = require("../models/Order.model");
+const ProductModel = require("../../models/Product.model");
+const OrderModel = require("../../models/Order.model");
 
 /**
  * @desc Creates a razorpay payment order
@@ -126,7 +126,7 @@ const handlePaymentSuccess = async ({
     subject: "Order has been placed successfully",
     template: orderConfirmationTemplate(order.email, order._id, order.subTotal),
   });
-  
+
   return { orderId: order._id, razorpayPaymentId };
 };
 

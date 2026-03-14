@@ -3,18 +3,18 @@ const {
   createOrderController,
   updateOrderController,
   getOrderController,
-} = require("../controllers/order.controller");
+} = require("./order.controller");
 const {
   verifyAuth,
   requireUser,
   requireAdmin,
-} = require("../middlewares/auth.middleware");
-const { validate } = require("../middlewares/validation.middleware");
+} = require("../../middlewares/auth.middleware");
+const { validate } = require("../../middlewares/validation.middleware");
 const {
   createOrderSchema,
   updateOrderSchema,
   updateShippingStatusSchema,
-} = require("../validation/order.schema");
+} = require("./order.schema");
 
 const router = require("express").Router();
 

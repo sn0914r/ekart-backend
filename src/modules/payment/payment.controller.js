@@ -1,4 +1,4 @@
-const paymentService = require("../services/payments.service");
+const paymentService = require("./payment.service");
 
 /**
  * @desc Creates a razorpay payment order

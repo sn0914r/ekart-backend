@@ -1,10 +1,10 @@
-const AppError = require("../errors/AppError");
+const AppError = require("../../errors/AppError");
 
-const OrderModel = require("../models/Order.model");
-const ProductModel = require("../models/Product.model");
+const OrderModel = require("../../models/Order.model");
+const ProductModel = require("../../models/Product.model");
 
-const validateOrderStatusTransistion = require("../utils/validateOrderTransistion");
-const validateShippingStatusTransition = require("../utils/validateShippingTransistion");
+const validateOrderStatusTransistion = require("./validateOrderTransistion");
+const validateShippingStatusTransition = require("./validateShippingTransistion");
 
 /**
  * @desc Creates an Order

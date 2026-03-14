@@ -2,10 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 
-const authRoutes = require("./routes/auth.routes");
-const orderRoutes = require("./routes/orders.router");
-const paymentRoutes = require("./routes/payment.routes");
-const productRoutes = require("./routes/products.routes");
+const authRoutes = require("./modules/auth/auth.routes");
+const orderRoutes = require("./modules/order/order.routes");
+const paymentRoutes = require("./modules/payment/payment.routes");
+const productRoutes = require("./modules/product/product.routes");
 
 const app = express();
 

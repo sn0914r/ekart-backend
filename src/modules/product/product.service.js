@@ -1,7 +1,7 @@
-const AppError = require("../errors/AppError");
-const ProductModel = require("../models/Product.model");
-const UserModel = require("../models/User.model");
-const cloudinaryIntegration = require("../integrations/cloudinary.integration");
+const AppError = require("../../errors/AppError");
+const ProductModel = require("../../models/Product.model");
+const UserModel = require("../../models/User.model");
+const cloudinaryIntegration = require("../../integrations/cloudinary.integration");
 
 /**
  * @desc Add Product

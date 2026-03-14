@@ -1,23 +1,23 @@
 const router = require("express").Router();
 
+const { addProductSchema, updateProductSchema } = require("./product.schema");
 const {
-  addProductSchema,
-  updateProductSchema,
-} = require("../validation/product.schema");
-const { verifyAuth, requireAdmin } = require("../middlewares/auth.middleware");
-const upload = require("../middlewares/upload.middleware");
+  verifyAuth,
+  requireAdmin,
+} = require("../../middlewares/auth.middleware");
+const upload = require("../../middlewares/upload.middleware");
 const {
   validateFile,
   validate,
-} = require("../middlewares/validation.middleware");
-const parseMultipartJson = require("../middlewares/parseMultipartJson.middleware");
+} = require("../../middlewares/validation.middleware");
+const parseMultipartJson = require("../../middlewares/parseMultipartJson.middleware");
 const {
   getProductsController,
   addProductController,
   updateProductController,
   deleteProductController,
   getProductController,
-} = require("../controllers/product.controller");
+} = require("./product.controller");
 
 // Public
 router.get("/products", getProductsController);

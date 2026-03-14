@@ -1,7 +1,7 @@
-const { auth } = require("../configs/firebase.config");
-const AppError = require("../errors/AppError");
+const { auth } = require("../../configs/firebase.config");
+const AppError = require("../../errors/AppError");
 
-const UserModel = require("../models/User.model");
+const UserModel = require("../../models/User.model");
 
 /**
  * @desc Creates a new user

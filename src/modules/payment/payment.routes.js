@@ -3,17 +3,20 @@ const router = require("express").Router();
 const {
   paymentVerificationSchema,
   orderIdSchema,
-} = require("../validation/payment.schema");
+} = require("./payment.schema");
 const {
   createPaymentLimiter,
   verifyPaymentLimiter,
-} = require("../middlewares/rateLimiter.middleware");
-const { verifyAuth, requireUser } = require("../middlewares/auth.middleware");
-const { validate } = require("../middlewares/validation.middleware");
+} = require("../../middlewares/rateLimiter.middleware");
+const {
+  verifyAuth,
+  requireUser,
+} = require("../../middlewares/auth.middleware");
+const { validate } = require("../../middlewares/validation.middleware");
 const {
   createPaymentController,
   paymentSuccessController,
-} = require("../controllers/payment.controller");
+} = require("./payment.controller");
 
 // User
 router.post(
