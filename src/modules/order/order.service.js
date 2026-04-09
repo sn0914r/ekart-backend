@@ -17,7 +17,7 @@ const validateShippingStatusTransition = require("./validateShippingTransistion"
  */
 const createOrder = async ({ userId, email, items, shippingAddress }) => {
   const idsToQtyMap = Object.fromEntries(
-    items.map(({ id, quantity }) => [id, quantity]),
+    items.map(({ productId, quantity }) => [productId, quantity]),
   );
   const productIds = Object.keys(idsToQtyMap);
 
