@@ -1,16 +1,19 @@
-const { verifyAuth } = require("../../middlewares/auth.middleware");
-const { validate } = require("../../middlewares/validation.middleware");
-const CartController = require("./cart.controller");
-const CartSchema = require("./cart.schema");
-
 const router = require("express").Router();
+const { validate } = require("../../middlewares/validation.middleware");
+const { verifyAuth } = require("../../middlewares/auth.middleware");
+const { CartSchema } = require("./cart.schema");
+const {
+  getCartController,
+  updateCartController,
+} = require("./cart.controller");
 
+// User routes
+router.get("/cart", verifyAuth, getCartController);
 router.put(
   "/cart",
   verifyAuth,
   validate(CartSchema, "body"),
-  CartController.updateCartController,
+  updateCartController,
 );
 
-router.get("/cart", verifyAuth, CartController.getCartController);
 module.exports = router;

@@ -1,27 +1,18 @@
 const { Schema, model } = require("mongoose");
+const { ROLES } = require("../constants/roles");
 
 const UserSchema = new Schema(
   {
-    uid: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
+    uid: String,
+    name: String,
+    email: String,
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: Object.values(ROLES),
+      default: ROLES.USER,
     },
   },
-  { timestamps: true },
+  { timestamps: true, versionKey: false },
 );
 
 const UserModel = model("users", UserSchema);

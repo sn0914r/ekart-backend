@@ -1,5 +1,5 @@
 const router = require("express").Router();
-
+const { validate } = require("../../middlewares/validation.middleware");
 const {
   paymentVerificationSchema,
   orderIdSchema,
@@ -12,13 +12,12 @@ const {
   verifyAuth,
   requireUser,
 } = require("../../middlewares/auth.middleware");
-const { validate } = require("../../middlewares/validation.middleware");
 const {
   createPaymentController,
   paymentSuccessController,
 } = require("./payment.controller");
 
-// User
+// User routes
 router.post(
   "/payments/create",
   createPaymentLimiter,

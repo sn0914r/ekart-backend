@@ -1,67 +1,72 @@
 const AppError = require("../../errors/AppError");
-
-const OrderModel = require("../../models/Order.model");
+const OrderModel = require("../../models/Order/Order.model");
 const ProductModel = require("../../models/Product.model");
-
-const validateOrderStatusTransistion = require("./validateOrderTransistion");
-const validateShippingStatusTransition = require("./validateShippingTransistion");
+const UserModel = require("../../models/User.model");
+const CartModel = require("../../models/Cart.model");
+const { ORDER_STATUS, SHIPPING_STATUS } = require("../../constants/order");
+const { ROLES } = require("../../constants/roles");
+const { ERROR_CODES } = require("../../constants/errorCodes");
+const {
+  validateOrderStatusTransition,
+  validateShippingStatusTransition,
+} = require("./validators/order.validator");
+const {
+  validateCart,
+  validateProductsExists,
+  validateStock,
+} = require("./validators/order.validator");
+const {
+  buildProductQtyMap,
+  calculateSubtotal,
+} = require("./helpers/order.helpers");
+const { logger } = require("../../utils/logger");
 
 /**
- * @desc Creates an Order
+ * Creates an order
  *
- * Side Effects:
- *  - Creates a new order record
- *
- * @returns {<Promise Order>} The created order
- * @throws {AppError} If item is out of stock
+ * @param {string} userId - user id
+ * @param {string} email - user email
+ * @param {object} shippingAddress - shipping address
+ * @returns {object} created order
  */
-const createOrder = async ({ userId, email, items, shippingAddress }) => {
-  const idsToQtyMap = Object.fromEntries(
-    items.map(({ productId, quantity }) => [productId, quantity]),
-  );
-  const productIds = Object.keys(idsToQtyMap);
+const createOrder = async ({ userId, email, shippingAddress }) => {
+  logger.info("Creating Order");
+  logger.info("userId: " + userId);
 
-  const requiredItems = await ProductModel.find(
-    { _id: { $in: productIds } },
-    { isActive: 1, stock: 1, name: 1, price: 1 },
-  );
+  const cart = await CartModel.findOne({ uid: userId });
+  logger.info("cart: " + JSON.stringify(cart));
+  validateCart(cart);
 
-  // Checking the stock
-  requiredItems.forEach((item) => {
-    if (item.stock < idsToQtyMap[item._id]) {
-      throw new AppError(
-        `Item (${item.name}) out of stock, available: ${item.stock}`,
-        400,
-      );
-    }
+  const productIds = cart.items.map((i) => i.productId);
+  const targetProducts = await ProductModel.find({ _id: { $in: productIds } });
+  validateProductsExists(targetProducts, productIds);
+
+  const productQtyMap = buildProductQtyMap(cart);
+  validateStock(targetProducts, productQtyMap);
+
+  const orderSnapshot = targetProducts.map((product) => {
+    const qty = productQtyMap.get(product._id.toString());
+
+    return {
+      productId: product._id,
+      quantity: qty,
+      name: product.name,
+      unitPrice: product.price,
+      imageUrl: product.imageUrl,
+      linePrice: product.price * qty,
+    };
   });
 
-  const orderSnapshot = requiredItems.map((item) => ({
-    productId: item._id,
-    quantity: idsToQtyMap[item._id],
-    name: item.name,
-    unitPrice: item.price,
-    lineTotal: item.price * idsToQtyMap[item._id],
-  }));
+  logger.info("Order snapshot: " + orderSnapshot);
 
-  const subTotal = orderSnapshot.reduce((acc, item) => acc + item.lineTotal, 0);
+  const subTotal = calculateSubtotal(orderSnapshot);
 
-  // Order History
   const orderStatusHistory = [
-    {
-      status: "CREATED",
-      at: new Date(),
-      by: userId,
-    },
+    { status: ORDER_STATUS.CREATED, at: new Date(), by: userId },
   ];
 
-  // Shipping History
   const shippingStatusHistory = [
-    {
-      status: "PENDING",
-      at: new Date(),
-      by: userId,
-    },
+    { status: SHIPPING_STATUS.PENDING, at: new Date(), by: userId },
   ];
 
   const order = await OrderModel.create({
@@ -73,80 +78,52 @@ const createOrder = async ({ userId, email, items, shippingAddress }) => {
     shippingStatusHistory,
     shippingAddress,
   });
-  return order;
+
+  await CartModel.deleteOne({ uid: userId });
+
+  logger.info("Order created successfully");
+  return { orderId: order._id, subTotal: order.subTotal };
 };
 
 /**
- * @desc Retrieves orders for the authenticated user or admin
+ * Gets the User's Order
  *
- * Behaviour:
- *  - Admin users can see all orders
- *  - Non-admin users can only see their orders
- *
- * @returns {<Promise Order[]>} Orders
+ * @param {string} uid - user id
+ * @returns {object[]} Array of orders
  */
-const getOrders = async ({ uid, role }) => {
-  const orders = await (role === "admin"
-    ? OrderModel.find({})
-    : OrderModel.find({ userId: uid }));
+const getOrders = async ({ uid }) => {
+  const orders = await OrderModel.find(
+    { userId: uid },
+    {
+      orderSnapshot: 1,
+      shippingAddress: 1,
+      orderStatus: 1,
+      paymentStatus: 1,
+      shippingStatus: 1,
+      subTotal: 1,
+      createdAt: 1,
+    },
+  );
   return orders;
 };
 
 /**
- * @desc Updates order
+ * Updates the User's Order Status
  *
- * Behaviour:
- *  Admin:
- *    - Can update shipping status
- *  User:
- *    - Can update order status (cancel only, before shippingF)
- *    - Can update shipping address
- *
- * Side Effects:
- *  - Updates order document
- *  - Appends order and shipping status history
- *
- * Fails when:
- *  - Order not found
- *  - Order status transition is invalid
- *  - Shipping status transition is invalid
- *
- * @returns {Promise<Order>} updated order
+ * @param {string} id - order id
+ * @param {string} uid - user id
+ * @param {string} orderStatus - order status
+ * @param {object} shippingAddress - shipping address
+ * @returns {object} updated order
  */
-const updateOrder = async ({
-  id,
-  orderStatus,
-  shippingAddress,
-  shippingStatus,
-  uid,
-  role,
-}) => {
+const updateOrder = async ({ id, uid, orderStatus, shippingAddress }) => {
   const order = await OrderModel.findById(id);
 
-  if (!order) throw new AppError("Order not found", 404);
-
-  if (role === "admin") {
-    if (!shippingStatus) {
-      throw new AppError("Shipping status is required", 400);
-    }
-
-    if (orderStatus) {
-      throw new AppError("Order status cannot be changed by admin", 400);
-    }
-
-    validateShippingStatusTransition(order.shippingStatus, shippingStatus);
-    order.shippingStatus = shippingStatus;
-    order.shippingStatusHistory.push({
-      status: shippingStatus,
-      at: new Date(),
-      by: uid,
-    });
-    await order.save();
-    return order;
-  }
+  if (!order)
+    throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
   if (orderStatus) {
-    validateOrderStatusTransistion(order.orderStatus, orderStatus);
+    validateOrderStatusTransition(order.orderStatus, orderStatus);
     order.orderStatus = orderStatus;
     order.orderStatusHistory.push({
       status: orderStatus,
@@ -154,25 +131,76 @@ const updateOrder = async ({
       by: uid,
     });
   }
-
   if (shippingAddress) {
     order.shippingAddress = shippingAddress;
   }
 
   await order.save();
+  return order;
+};
+
+// ======================================== ADMIN ========================================
+
+/**
+ * Gets all the orders for admin
+ *
+ * @param {string} uid - user id
+ * @returns {object[]} Array of orders
+ */
+const getOrdersForAdmin = async (uid) => {
+  const user = await UserModel.findOne({ uid }, { role: 1, _id: 0 });
+  if (user.role === ROLES.ADMIN)
+    return await OrderModel.find({}).sort({ createdAt: -1 });
+  throw new AppError("Unauthorized", 401, ERROR_CODES.UNAUTHORIZED_ERROR);
+};
+
+/**
+ * Gets the Single Order for admin
+ *
+ * @param {string} id - order id
+ * @returns {object} order
+ */
+const getOrderForAdmin = async (id) => {
+  const order = await OrderModel.findOne({ _id: id });
+  if (!order)
+    throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
   return order;
 };
 
-const getOrder = async (id) => {
+/**
+ * Updates the Shipping Status of the Order
+ *
+ * @param {string} id - order id
+ * @param {string} uid - user id
+ * @param {string} shippingStatus - shipping status
+ * @returns {object} updated order
+ */
+
+const updateOrderByAdmin = async ({ id, uid, shippingStatus }) => {
   const order = await OrderModel.findById(id);
-  if (!order) throw new AppError("Order not found", 404);
-  return order;
+
+  if (!order)
+    throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
+
+  validateShippingStatusTransition(order.shippingStatus, shippingStatus);
+  order.shippingStatus = shippingStatus;
+  order.shippingStatusHistory.push({
+    status: shippingStatus,
+    at: new Date(),
+    by: uid,
+  });
+
+  await order.save();
+  return { shippingStatus: order.shippingStatus };
 };
 
 module.exports = {
-  getOrders,
-  updateOrder,
   createOrder,
-  getOrder,
+  updateOrder,
+  getOrders,
+
+  getOrdersForAdmin,
+  getOrderForAdmin,
+  updateOrderByAdmin,
 };

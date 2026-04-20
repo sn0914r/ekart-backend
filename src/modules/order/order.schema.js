@@ -1,4 +1,5 @@
 const joi = require("joi");
+const { SHIPPING_STATUS } = require("../../constants/order");
 
 const createOrderSchema = joi.object({
   items: joi
@@ -45,7 +46,7 @@ const updateShippingStatusSchema = joi.object({
   shippingStatus: joi
     .string()
     .uppercase()
-    .valid("PENDING", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED")
+    .valid(...Object.values(SHIPPING_STATUS))
     .optional(),
 });
 

@@ -1,21 +1,38 @@
-const productService = require("./product.service");
+const {
+  addProductByAdmin,
+  getProductsForAdmin,
+  getProductForAdmin,
+  updateProductByAdmin,
+  deleteProductByAdmin,
+  getActiveProducts,
+} = require("./product.service");
 
 /**
- * @desc Add Product
- *
- * Preconditions:
- *  - Request is authenticated
- *  - req.body contains valid name, price, isActive, stock
- *  - req.file is a valid image
- *
+ * @route GET /products
+ * @access Public
+ */
+const getActiveProductsController = async (req, res) => {
+  const query = req.query;
+  const products = await getActiveProducts(query);
+
+  res.status(200).json({
+    success: true,
+    message: "Products fetched successfully",
+    data: products,
+  });
+};
+
+// ================================ Admin ================================
+
+/**
  * @route POST /admin/products
  * @access Private
  */
-const addProductController = async (req, res) => {
+const addProductByAdminController = async (req, res) => {
   const { file } = req;
   const { name, price, isActive, stock } = req.body;
 
-  const product = await productService.addProduct({
+  const product = await addProductByAdmin({
     file,
     name,
     price,
@@ -31,22 +48,15 @@ const addProductController = async (req, res) => {
 };
 
 /**
- * @desc Retrives all products
- 
- * Preconditions:
- *  - Request is authenticated
- *  - req.user.role is either "user" or "admin"
- *
- * @route GET /products
  * @route GET /admin/products
- * @access Public
+ * @access Private
  */
-const getProductsController = async (req, res) => {
-  const userId = req.user?.uid;
-  const role = req.user?.role;
+const getProductsForAdminController = async (req, res) => {
+  const { uid } = req.user;
   const query = req.query;
 
-  const products = await productService.getProducts({ userId, role, query });
+  const products = await getProductsForAdmin({ uid, query });
+
   res.status(200).json({
     success: true,
     message: "Products fetched successfully",
@@ -55,42 +65,13 @@ const getProductsController = async (req, res) => {
 };
 
 /**
- * @desc Update Product
- *
- * Preconditions:
- *  - Request is authenticated
- *  - req.user.role is "admin"
- *  - req.params.id is valid
- *  - req.body contains valid updates
- *
- * @route PATCH /admin/products/:id
+ * @route GET /admin/product
  * @access Private
+ * @desc Get single product
  */
-const updateProductController = async (req, res) => {
+const getProductForAdminController = async (req, res) => {
   const { id } = req.params;
-  const updates = req.body;
-
-  const updatedProduct = await productService.updateProduct(id, updates);
-  res.status(200).json({
-    success: true,
-    message: "Product updated successfully",
-    data: updatedProduct,
-  });
-};
-
-const deleteProductController = async (req, res) => {
-  const { id } = req.params;
-  const deleteProduct = await productService.deleteProduct(id);
-  res.status(200).json({
-    success: true,
-    message: "Product deleted successfully",
-    data: deleteProduct,
-  });
-};
-
-const getProductController = async (req, res) => {
-  const { id } = req.params;
-  const product = await productService.getProduct(id);
+  const product = await getProductForAdmin(id);
   res.status(200).json({
     success: true,
     message: "Product fetched successfully",
@@ -98,10 +79,42 @@ const getProductController = async (req, res) => {
   });
 };
 
+/**
+ * @route PATCH /admin/products/:id
+ * @access Private
+ */
+const updateProductByAdminController = async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  const updatedProduct = await updateProductByAdmin(id, updates);
+  res.status(200).json({
+    success: true,
+    message: "Product updated successfully",
+    data: updatedProduct,
+  });
+};
+
+/**
+ * @route DELETE /admin/products/:id
+ * @access Private
+ */
+const deleteProductByAdminController = async (req, res) => {
+  const { id } = req.params;
+  const deleteProduct = await deleteProductByAdmin(id);
+  res.status(200).json({
+    success: true,
+    message: "Product deleted successfully",
+    data: deleteProduct,
+  });
+};
+
 module.exports = {
-  addProductController,
-  getProductsController,
-  updateProductController,
-  deleteProductController,
-  getProductController,
+  getActiveProductsController,
+
+  addProductByAdminController,
+  getProductForAdminController,
+  getProductsForAdminController,
+  updateProductByAdminController,
+  deleteProductByAdminController,
 };

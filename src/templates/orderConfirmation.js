@@ -1,12 +1,3 @@
-/**
- * @desc Returns the HTML template for the order confirmation email
- *
- * @param {string} email - The email address of the user
- * @param {string} orderId - The ID of the order
- * @param {number} totalAmount - The total amount of the order
- *
- * @returns {string} HTML template
- */
 const orderConfirmation = (email, orderId, totalAmount) => {
   const timestamp = new Date().toString();
   return `<div>

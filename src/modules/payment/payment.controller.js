@@ -1,22 +1,23 @@
-const paymentService = require("./payment.service");
+const { logger } = require("../../utils/logger");
+const {
+  createPaymentOrder,
+  handlePaymentSuccess,
+} = require("./payment.service");
 
 /**
- * @desc Creates a razorpay payment order
- *
- * Preconditions:
- *  - Request is authenticated
- *  - req.body.orderId is valid
- *
  * @route POST /payments/create
  * @access Private
+ * @desc Creates a razorpay payment order
  */
 const createPaymentController = async (req, res) => {
   const { orderId } = req.body;
-  const { uid: userId, email } = req.user;
+  const { uid } = req.user;
 
-  const paymentDetails = await paymentService.createPaymentOrder({
-    userId,
-    email,
+  logger.info("uid: " + uid);
+  logger.info("orderId: " + orderId);
+
+  const paymentDetails = await createPaymentOrder({
+    uid,
     orderId,
   });
   res.status(200).json({
@@ -27,25 +28,24 @@ const createPaymentController = async (req, res) => {
 };
 
 /**
- * @desc Verifies the payment and confirms the order
- *
- * Preconditions:
- *  - Request is authenticated
- *  - req.body contains valid razorpayPaymentId, razorpayOrderId, and razorpaySignature
- *
  * @route POST /payments/success
  * @access Private
+ * @desc Verifies the payment and confirms the order
  */
 const paymentSuccessController = async (req, res) => {
   const { razorpayPaymentId, razorpaySignature, razorpayOrderId } = req.body;
 
-  const { uid: userId } = req.user;
+  const { uid } = req.user;
 
-  const orderId = await paymentService.handlePaymentSuccess({
+  logger.info(`[RAZORPAY PAYMENT ID]: ${razorpayPaymentId}`);
+  logger.info(`[RAZORPAY ORDER ID]: ${razorpayOrderId}`);
+  logger.info(`[RAZORPAY SIGNATURE]: ${razorpaySignature}`);
+
+  const orderId = await handlePaymentSuccess({
     razorpayOrderId,
     razorpaySignature,
     razorpayPaymentId,
-    userId,
+    uid,
   });
 
   res.status(200).json({
@@ -54,4 +54,5 @@ const paymentSuccessController = async (req, res) => {
     data: orderId,
   });
 };
+
 module.exports = { createPaymentController, paymentSuccessController };

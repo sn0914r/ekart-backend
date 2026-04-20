@@ -1,17 +1,14 @@
-const authService = require("./auth.service");
+const { createUser } = require("./auth.service");
 
 /**
- * @desc Creates a new user in Firebase
- *
- * Preconditions:
- *  - req.body contains valid name, email, and password
- *
  * @route POST /auth/register
  * @access Public
+ * @desc Creates a new user in Firebase and returns a single signin token
  */
 const createUserController = async (req, res) => {
   const { name, email, password } = req.body;
-  const token = await authService.createUser({ name, email, password });
+  const token = await createUser({ name, email, password });
+
   res.status(201).json({
     success: true,
     message: "User created successfully",

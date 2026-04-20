@@ -1,9 +1,12 @@
-const CartService = require("./cart.service");
+const { getCart, updateCart } = require("./cart.service");
 
+/**
+ * @route GET /cart
+ * @access Private
+ */
 const getCartController = async (req, res) => {
   const { uid } = req.user;
-
-  const cart = await CartService.getCart({ uid });
+  const cart = await getCart(uid);
 
   res.status(200).json({
     success: true,
@@ -12,12 +15,15 @@ const getCartController = async (req, res) => {
   });
 };
 
+/**
+ * @route PUT /cart
+ * @access Private
+ */
 const updateCartController = async (req, res) => {
   const { uid } = req.user;
   const { items } = req.body;
 
-  const cart = await CartService.updateCart({ uid, items });
-
+  const cart = await updateCart({ uid, items });
   res.status(200).json({
     success: true,
     message: "Cart updated successfully",

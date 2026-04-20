@@ -1,59 +1,43 @@
-const { auth } = require("../configs/firebase.config");
+const { auth } = require("../lib/firebase");
 const AppError = require("../errors/AppError");
+const { ROLES } = require("../constants/roles");
+const { logger } = require("../utils/logger");
+const { ERROR_CODES } = require("../constants/errorCodes");
 
 /**
- * @desc Verify user authentication
- *
- * Preconditions:
- *  - req.headers.authorization is a valid Bearer token
- *
- * Effects:
- *  - Attaches authenticated user to req.user
- *
- * Blocks when:
- *  - Token is missing or Invalid
+ * Verifies the user authentication and attaches the user to the req.user
+ * 
+ * @throws {401, ERROR_CODES.UNAUTHORIZED_ERROR} if the token is missing or invalid
  */
-
 const verifyAuth = async (req, res, next) => {
   if (!req.headers?.authorization?.startsWith("Bearer ")) {
-    throw new AppError("Bearer token is missing", 401);
+    throw new AppError(
+      "Bearer token is missing",
+      401,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
+    );
   }
 
   const idToken = req.headers.authorization.split(" ")[1];
   const decodedToken = await auth.verifyIdToken(idToken);
   req.user = decodedToken;
+  logger.info("User verified");
   next();
 };
 
-/**
- * @desc Allow access to admin routes
- *
- * Preconditions:
- *  - Request is authenticated
- *
- * Blocks when:
- *  - req.user.role is not "admin"
- */
 const requireAdmin = async (req, res, next) => {
-  if (req.user.role !== "admin") {
-    throw new AppError("admin access only", 403);
+  if (req.user.role !== ROLES.ADMIN) {
+    throw new AppError("Admin access only", 403, ERROR_CODES.FORBIDDEN_ERROR);
   }
+  logger.info("User is Admin");
   next();
 };
 
-/**
- * @desc Allow access to user routes
- *
- * Preconditions:
- *  - Request is authenticated
- *
- * Blocks when:
- *  - req.user.role is "admin"
- */
 const requireUser = async (req, res, next) => {
-  if (req.user.role === "admin") {
-    throw new AppError("user access only", 403);
+  if (req.user.role === ROLES.ADMIN) {
+    throw new AppError("User access only", 403, ERROR_CODES.FORBIDDEN_ERROR);
   }
+  logger.info("User is Not Admin");
   next();
 };
 

@@ -1,8 +1,10 @@
+const router = require("express").Router();
 const {
   getOrdersController,
   createOrderController,
   updateOrderController,
-  getOrderController,
+  getOrdersForAdminController,
+  getOrderForAdminController,
 } = require("./order.controller");
 const {
   verifyAuth,
@@ -16,9 +18,7 @@ const {
   updateShippingStatusSchema,
 } = require("./order.schema");
 
-const router = require("express").Router();
-
-// User
+// User routes
 router.get("/orders", verifyAuth, requireUser, getOrdersController);
 router.post(
   "/orders",
@@ -35,8 +35,13 @@ router.patch(
   updateOrderController,
 );
 
-// Admin
-router.get("/admin/orders", verifyAuth, requireAdmin, getOrdersController);
+// Admin routes
+router.get(
+  "/admin/orders",
+  verifyAuth,
+  requireAdmin,
+  getOrdersForAdminController,
+);
 router.patch(
   "/admin/orders/:id",
   verifyAuth,
@@ -44,6 +49,11 @@ router.patch(
   validate(updateShippingStatusSchema),
   updateOrderController,
 );
-router.get("/admin/orders/:id", verifyAuth, requireAdmin, getOrderController);
+router.get(
+  "/admin/orders/:id",
+  verifyAuth,
+  requireAdmin,
+  getOrderForAdminController,
+);
 
 module.exports = router;

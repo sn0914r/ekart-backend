@@ -8,4 +8,5 @@ const CartSchema = joi.object({
     }),
   ),
 });
-module.exports = CartSchema;
+
+module.exports = { CartSchema };

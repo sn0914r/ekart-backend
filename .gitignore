@@ -1,10 +1,6 @@
-v1-checklist.md
 node_modules
 .env
 .DS_Store
-test-script
-test-frontend
-TODOs.md
 docs
-src/routes/old
-ai
+.agent
+.vscode

@@ -1,19 +1,42 @@
 const AppError = require("../../errors/AppError");
 const ProductModel = require("../../models/Product.model");
-const UserModel = require("../../models/User.model");
-const cloudinaryIntegration = require("../../integrations/cloudinary.integration");
+const cloudinaryIntegration = require("../../integrations/cloudinary");
+const { ERROR_CODES } = require("../../constants/errorCodes");
+const { logger } = require("../../utils/logger");
+const { formatMongoQuery } = require("./helpers/product.helper");
 
 /**
- * @desc Add Product
+ * Fetches Active products
  *
- * Side Effects:
- *  - Uploads image to Cloudinary
- *  - Creates a new product
- *
- * @returns {Promise<Product>} The created product
- * @throws {AppError} If image upload fails
+ * @param {object} query - queries for filters
+ * @returns {object[]} - products
  */
-const addProduct = async ({ file, name, price, isActive, stock }) => {
+const getActiveProducts = async (query) => {
+  const { filter, sortOrder } = formatMongoQuery(query);
+  filter.isActive = true;
+
+  const products = await ProductModel.find(filter, {
+    name: 1,
+    price: 1,
+    stock: 1,
+    imageUrl: 1,
+  }).sort(sortOrder);
+
+  logger.info("Active Products fetched");
+  return products;
+};
+
+// ================================ Admin ================================
+
+/**
+ * @param {object} file - multer file object (req.file)
+ * @param {string} name - product name
+ * @param {number} price - in rupees
+ * @param {boolean} isActive
+ * @param {number} stock
+ * @returns {object} added product details
+ */
+const addProductByAdmin = async ({ file, name, price, isActive, stock }) => {
   const imageUrl = await cloudinaryIntegration.uploadImage(file.buffer);
 
   const product = await ProductModel.create({
@@ -24,45 +47,58 @@ const addProduct = async ({ file, name, price, isActive, stock }) => {
     stock,
   });
 
+  logger.info(`New Product Added: ${product}`);
   return product;
 };
 
 /**
- * @desc Retrive active products
+ * Fetches all products
  *
- * Behaviour:
- *  - Admin users can see all products
- *  - Non-admin users can only see active products
- *
- * @returns {Promise<Product[]>} List of products
+ * @param {string} uid - user id
+ * @param {object} query - queries for filters
+ * @returns {object[]} - products
  */
-
-const getProducts = async ({ userId, role, query }) => {
+const getProductsForAdmin = async (query) => {
   const { filter, sortOrder } = formatMongoQuery(query);
 
-  if (userId && role === "admin") {
-    const user = await UserModel.findOne({ uid: userId });
-    if (user.role === "admin") {
-      const products = await ProductModel.find(filter).sort(sortOrder);
-      return products;
-    }
-  }
-  const products = await ProductModel.find({ isActive: true, ...filter }).sort(
-    sortOrder,
-  );
+  const products = await ProductModel.find(filter, {
+    name: 1,
+    price: 1,
+    stock: 1,
+    isActive: 1,
+    imageUrl: 1,
+    createdAt: 1,
+    updatedAt: 1,
+  }).sort(sortOrder);
+
   return products;
 };
 
 /**
- * @desc Update Product
+ * Fetches a single product
  *
- * Side Effects:
- *  - Updates product
- *
- * @returns {Promise<Product>} The updated product
+ * @param {string} id - product id
+ * @returns {object} product
  * @throws {AppError} If product not found
  */
-const updateProduct = async (id, updates) => {
+const getProductForAdmin = async (id) => {
+  const product = await ProductModel.findOne({ _id: id });
+  if (!product) {
+    throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
+  }
+  logger.info(`Product is Fetched: ${product}`);
+  return product;
+};
+
+/**
+ * Updates the product
+ *
+ * @param {string} id - product id
+ * @param {object} updates - updates to be applied
+ * @returns {object} updated product
+ * @throws {AppError} If product not found
+ */
+const updateProductByAdmin = async (id, updates) => {
   const product = await ProductModel.findOneAndUpdate(
     { _id: id },
     { $set: updates },
@@ -70,60 +106,35 @@ const updateProduct = async (id, updates) => {
   );
 
   if (!product) {
-    throw new AppError("Product not found", 404);
+    throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
+  logger.info(`Product is Updated: ${product}`);
   return product;
 };
 
-const deleteProduct = async (id) => {
+/**
+ * Deletes the product
+ *
+ * @param {string} id - product id
+ * @returns {object} deleted product
+ * @throws {AppError} If product not found
+ */
+const deleteProductByAdmin = async (id) => {
   const product = await ProductModel.findOneAndDelete({ _id: id });
 
   if (!product) {
-    throw new AppError("Product not found", 404);
+    throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
-  return product;
-};
-
-const getProduct = async (id) => {
-  const product = await ProductModel.findOne({ _id: id });
-  if (!product) {
-    throw new AppError("Product not found", 404);
-  }
+  logger.info(`Product is Deleted: ${product}`);
   return product;
 };
 
 module.exports = {
-  addProduct,
-  getProducts,
-  updateProduct,
-  deleteProduct,
-  getProduct,
-};
+  getActiveProducts,
 
-// Supporting functions
-/**
- * @desc Formats the request query into a MongoDB query
- *
- * @returns {Object} MongoDB query
- */
-const formatMongoQuery = (query) => {
-  const { search, minPrice, maxPrice, sort } = query;
-  let filter = {};
-  let sortOrder = {};
-
-  if (search) {
-    filter.name = { $regex: search, $options: "i" };
-  }
-
-  if (minPrice || maxPrice) {
-    filter.price = {};
-    if (minPrice) filter.price.$gte = minPrice;
-    if (maxPrice) filter.price.$lte = maxPrice;
-  }
-
-  sort === "price_asc" && (sortOrder.price = 1);
-  sort === "price_desc" && (sortOrder.price = -1);
-  sortOrder.createdAt = -1;
-
-  return { filter, sortOrder };
+  addProductByAdmin,
+  getProductsForAdmin,
+  updateProductByAdmin,
+  deleteProductByAdmin,
+  getProductForAdmin,
 };

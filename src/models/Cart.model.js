@@ -11,9 +11,15 @@ const CartItemSchema = new Schema(
   },
 );
 
-const CartSchema = new Schema({
-  items: [CartItemSchema],
-  uid: String,
-});
+const CartSchema = new Schema(
+  {
+    items: [CartItemSchema],
+    uid: String,
+  },
+  {
+    versionKey: false,
+    timestamps: false,
+  },
+);
 
-module.exports = model("Cart", CartSchema);
+module.exports = model("cart", CartSchema);

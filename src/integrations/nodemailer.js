@@ -1,4 +1,4 @@
-const transporter = require("../configs/nodemailer.config");
+const transporter = require("../lib/nodemailer");
 
 /**
  * @desc Sends an email

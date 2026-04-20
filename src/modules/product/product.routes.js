@@ -1,6 +1,4 @@
 const router = require("express").Router();
-
-const { addProductSchema, updateProductSchema } = require("./product.schema");
 const {
   verifyAuth,
   requireAdmin,
@@ -10,48 +8,55 @@ const {
   validateFile,
   validate,
 } = require("../../middlewares/validation.middleware");
-const parseMultipartJson = require("../../middlewares/parseMultipartJson.middleware");
+const parseJsonFields = require("../../middlewares/parseJsonFields.middleware");
 const {
-  getProductsController,
-  addProductController,
-  updateProductController,
-  deleteProductController,
-  getProductController,
+  getProductsForAdminController,
+  addProductByAdminController,
+  updateProductByAdminController,
+  deleteProductByAdminController,
+  getProductForAdminController,
+  getActiveProductsController,
 } = require("./product.controller");
+const { addProductSchema, updateProductSchema } = require("./product.schema");
 
-// Public
-router.get("/products", getProductsController);
+// Public routes
+router.get("/products", getActiveProductsController);
 
-// Admin
-router.get("/admin/products", verifyAuth, requireAdmin, getProductsController);
+// Admin routes
+router.get(
+  "/admin/products",
+  verifyAuth,
+  requireAdmin,
+  getProductsForAdminController,
+);
 router.post(
   "/admin/products",
   verifyAuth,
   requireAdmin,
   upload,
   validateFile,
-  parseMultipartJson,
+  parseJsonFields("data"),
   validate(addProductSchema),
-  addProductController,
+  addProductByAdminController,
 );
 router.patch(
   "/admin/products/:id",
   verifyAuth,
   requireAdmin,
   validate(updateProductSchema),
-  updateProductController,
+  updateProductByAdminController,
 );
 router.delete(
   "/admin/products/:id",
   verifyAuth,
   requireAdmin,
-  deleteProductController,
+  deleteProductByAdminController,
 );
 router.get(
   "/admin/products/:id",
   verifyAuth,
   requireAdmin,
-  getProductController,
+  getProductForAdminController,
 );
 
 module.exports = router;
