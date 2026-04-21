@@ -8,8 +8,10 @@ const { ROLES } = require("../../constants/roles");
 const { ERROR_CODES } = require("../../constants/errorCodes");
 const {
   validateOrderStatusTransition,
-  validateShippingStatusTransition,
 } = require("./validators/order.validator");
+const {
+  validateShippingStatusTransition,
+} = require("./validators/shipping.validator");
 const {
   validateCart,
   validateProductsExists,
@@ -53,7 +55,7 @@ const createOrder = async ({ userId, email, shippingAddress }) => {
       name: product.name,
       unitPrice: product.price,
       imageUrl: product.imageUrl,
-      linePrice: product.price * qty,
+      lineTotal: product.price * qty,
     };
   });
 
@@ -147,11 +149,18 @@ const updateOrder = async ({ id, uid, orderStatus, shippingAddress }) => {
  * @param {string} uid - user id
  * @returns {object[]} Array of orders
  */
-const getOrdersForAdmin = async (uid) => {
-  const user = await UserModel.findOne({ uid }, { role: 1, _id: 0 });
-  if (user.role === ROLES.ADMIN)
-    return await OrderModel.find({}).sort({ createdAt: -1 });
-  throw new AppError("Unauthorized", 401, ERROR_CODES.UNAUTHORIZED_ERROR);
+const getOrdersForAdmin = async () => {
+  return await OrderModel.find(
+    {},
+    {
+      email: 1,
+      subTotal: 1,
+      paymentStatus: 1,
+      shippingStatus: 1,
+      orderStatus: 1,
+      createdAt: 1,
+    },
+  ).sort({ createdAt: -1 });
 };
 
 /**
@@ -192,6 +201,8 @@ const updateOrderByAdmin = async ({ id, uid, shippingStatus }) => {
   });
 
   await order.save();
+  logger.info("Shipping status updated successfully");
+  logger.info("New Shipping status: " + shippingStatus);
   return { shippingStatus: order.shippingStatus };
 };
 

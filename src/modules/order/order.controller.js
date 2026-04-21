@@ -1,3 +1,4 @@
+const { logger } = require("../../utils/logger");
 const {
   createOrder,
   getOrders,
@@ -75,8 +76,7 @@ const updateOrderController = async (req, res) => {
  * @access Private
  */
 const getOrdersForAdminController = async (req, res) => {
-  const { uid } = req.user;
-  const orders = await getOrdersForAdmin(uid);
+  const orders = await getOrdersForAdmin();
 
   return res.status(200).json({
     success: true,

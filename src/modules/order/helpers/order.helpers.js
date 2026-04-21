@@ -5,6 +5,6 @@ const buildProductQtyMap = (cart) => {
 };
 
 const calculateSubtotal = (orderSnapshot) =>
-  orderSnapshot.reduce((acc, cur) => acc + cur.linePrice, 0);
+  orderSnapshot.reduce((acc, cur) => acc + cur.lineTotal, 0);
 
 module.exports = { buildProductQtyMap, calculateSubtotal };

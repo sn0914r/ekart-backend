@@ -6,7 +6,7 @@ const OrderItemSchema = new Schema(
     quantity: Number,
     unitPrice: Number,
     name: String,
-    imageURL: String,
+    imageUrl: String,
     lineTotal: Number,
   },
   { _id: false },
