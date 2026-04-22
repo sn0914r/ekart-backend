@@ -88,7 +88,7 @@ const createOrder = async ({ userId, email, shippingAddress }) => {
 };
 
 /**
- * Gets the User's Order
+ * Gets all the User's Orders
  *
  * @param {string} uid - user id
  * @returns {object[]} Array of orders
@@ -110,6 +110,47 @@ const getOrders = async ({ uid }) => {
 };
 
 /**
+ * Get a specific order of a User
+ *
+ * @param {string} uid - user id
+ * @param {string} id - order id
+ * @returns {object} order details
+ */
+const getOrder = async ({ uid, id }) => {
+  const order = await OrderModel.findById(id, {
+    userId: 1,
+    email: 1,
+    orderSnapshot: 1,
+    subTotal: 1,
+    orderStatus: 1,
+    paymentStatus: 1,
+    shippingStatus: 1,
+    orderStatusHistory: 1,
+    shippingStatusHistory: 1,
+    shippingAddress: 1,
+    createdAt: 1,
+    "paymentDetails.razorpayPaymentId": 1,
+  });
+
+  if (!order)
+    throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
+
+  logger.info("uid: " + uid);
+  logger.info("order.userId: " + order.userId);
+
+  if (order.userId !== uid)
+    throw new AppError(
+      "You are not authorized to access this order",
+      403,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
+    );
+
+  logger.info("Order Fetched: " + order);
+
+  return order;
+};
+
+/**
  * Updates the User's Order Status
  *
  * @param {string} id - order id
@@ -125,13 +166,26 @@ const updateOrder = async ({ id, uid, orderStatus, shippingAddress }) => {
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
   if (orderStatus) {
-    validateOrderStatusTransition(order.orderStatus, orderStatus);
-    order.orderStatus = orderStatus;
-    order.orderStatusHistory.push({
-      status: orderStatus,
-      at: new Date(),
-      by: uid,
-    });
+    // validateOrderStatusTransition(order.orderStatus, orderStatus); 
+    logger.info("orderStatus: " + orderStatus);
+    logger.info("order.orderStatus: " + order.orderStatus);
+    logger.info("order.shippingStatus: " + order.shippingStatus);
+    if (order.orderStatus === ORDER_STATUS.CREATED || (order.orderStatus === ORDER_STATUS.CONFIRMED && order.shippingStatus === SHIPPING_STATUS.PENDING)) {
+      order.orderStatus = orderStatus;
+      order.orderStatusHistory.push({
+        status: orderStatus,
+        at: new Date(),
+        by: uid,
+      });
+      order.shippingStatus = SHIPPING_STATUS.CANCELLED;
+      
+    } else {
+      throw new AppError(
+        "Invalid order status transition",
+        400,
+        ERROR_CODES.BAD_REQUEST_ERROR,
+      );
+    }
   }
   if (shippingAddress) {
     order.shippingAddress = shippingAddress;
@@ -210,6 +264,7 @@ module.exports = {
   createOrder,
   updateOrder,
   getOrders,
+  getOrder,
 
   getOrdersForAdmin,
   getOrderForAdmin,

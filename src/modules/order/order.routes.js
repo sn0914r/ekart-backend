@@ -6,6 +6,7 @@ const {
   getOrdersForAdminController,
   getOrderForAdminController,
   updateOrderByAdminController,
+  getOrderController,
 } = require("./order.controller");
 const {
   verifyAuth,
@@ -35,6 +36,7 @@ router.patch(
   validate(updateOrderSchema),
   updateOrderController,
 );
+router.get("/orders/:id", verifyAuth, requireUser, getOrderController);
 
 // Admin routes
 router.get(

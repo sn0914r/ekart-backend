@@ -6,6 +6,7 @@ const {
   getOrdersForAdmin,
   getOrderForAdmin,
   updateOrderByAdmin,
+  getOrder,
 } = require("./order.service");
 
 /**
@@ -69,6 +70,23 @@ const updateOrderController = async (req, res) => {
   });
 };
 
+/**
+ * @route GET /orders/:id
+ * @access Private
+ */
+const getOrderController = async (req, res) => {
+  const { id } = req.params;
+  const { uid } = req.user;
+
+  const order = await getOrder({ uid, id });
+
+  return res.status(200).json({
+    success: true,
+    message: "Order fetched successfully",
+    data: order,
+  });
+};
+
 // ======================================== ADMIN ========================================
 
 /**
@@ -126,6 +144,7 @@ module.exports = {
   createOrderController,
   updateOrderController,
   getOrdersController,
+  getOrderController,
 
   getOrderForAdminController,
   getOrdersForAdminController,

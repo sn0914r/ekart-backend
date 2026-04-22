@@ -4,7 +4,7 @@ const { ERROR_CODES } = require("../../../constants/errorCodes");
 
 const ORDER_TRANSITIONS = {
   CREATED: ["CONFIRMED", "CANCELLED"],
-  CONFIRMED: [],
+  CONFIRMED: ["CANCELLED"],
   CANCELLED: [],
 };
 
