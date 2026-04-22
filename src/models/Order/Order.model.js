@@ -19,6 +19,8 @@ const OrderSchema = new Schema(
 
     subTotal: { type: Number, min: 0 },
 
+    isStockReverted: { type: Boolean, default: false },
+
     orderStatus: {
       type: String,
       enum: Object.values(ORDER_STATUS),

@@ -22,6 +22,9 @@ const {
   calculateSubtotal,
 } = require("./helpers/order.helpers");
 const { logger } = require("../../utils/logger");
+const {
+  cancelOrderWithStockReversal,
+} = require("./services/cancelOrder.service");
 
 /**
  * Creates an order
@@ -166,19 +169,24 @@ const updateOrder = async ({ id, uid, orderStatus, shippingAddress }) => {
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
   if (orderStatus) {
-    // validateOrderStatusTransition(order.orderStatus, orderStatus); 
+    // validateOrderStatusTransition(order.orderStatus, orderStatus);
     logger.info("orderStatus: " + orderStatus);
     logger.info("order.orderStatus: " + order.orderStatus);
     logger.info("order.shippingStatus: " + order.shippingStatus);
-    if (order.orderStatus === ORDER_STATUS.CREATED || (order.orderStatus === ORDER_STATUS.CONFIRMED && order.shippingStatus === SHIPPING_STATUS.PENDING)) {
-      order.orderStatus = orderStatus;
-      order.orderStatusHistory.push({
-        status: orderStatus,
-        at: new Date(),
-        by: uid,
-      });
-      order.shippingStatus = SHIPPING_STATUS.CANCELLED;
-      
+    if (
+      order.orderStatus === ORDER_STATUS.CREATED ||
+      (order.orderStatus === ORDER_STATUS.CONFIRMED &&
+        order.shippingStatus === SHIPPING_STATUS.PENDING)
+    ) {
+      // order.orderStatus = orderStatus;
+      // order.orderStatusHistory.push({
+      //   status: orderStatus,
+      //   at: new Date(),
+      //   by: uid,
+      // });
+      // order.shippingStatus = SHIPPING_STATUS.CANCELLED;
+      cancelOrderWithStockReversal(id, uid);
+
     } else {
       throw new AppError(
         "Invalid order status transition",
