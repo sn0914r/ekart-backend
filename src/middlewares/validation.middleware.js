@@ -35,7 +35,7 @@ const validate =
  * @throws {400, ERROR_CODES.VALIDATION_ERROR} If the file is not found or not an image
  */
 const validateFile = (req, res, next) => {
-  if (!req.file) {
+  if (!req.files?.length===0) {
     throw new AppError("file not uploaded", 400, ERROR_CODES.VALIDATION_ERROR);
   }
   logger.info("File Exists");

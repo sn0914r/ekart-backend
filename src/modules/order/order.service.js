@@ -57,7 +57,7 @@ const createOrder = async ({ userId, email, shippingAddress }) => {
       quantity: qty,
       name: product.name,
       unitPrice: product.price,
-      imageUrl: product.imageUrl,
+      imageUrl: product.images[0],
       lineTotal: product.price * qty,
     };
   });

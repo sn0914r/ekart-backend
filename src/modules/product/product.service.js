@@ -19,7 +19,9 @@ const getActiveProducts = async (query) => {
     name: 1,
     price: 1,
     stock: 1,
-    imageUrl: 1,
+    images: { $slice: 1 },
+    stock: 1,
+    category: 1,
   }).sort(sortOrder);
 
   logger.info("Active Products fetched");
@@ -36,15 +38,27 @@ const getActiveProducts = async (query) => {
  * @param {number} stock
  * @returns {object} added product details
  */
-const addProductByAdmin = async ({ file, name, price, isActive, stock }) => {
-  const imageUrl = await cloudinaryIntegration.uploadImage(file.buffer);
+const addProductByAdmin = async ({
+  files,
+  name,
+  price,
+  isActive,
+  stock,
+  description,
+  category,
+  attributes,
+}) => {
+  const images = await cloudinaryIntegration.uploadImages(files);
 
   const product = await ProductModel.create({
     name,
     price,
     isActive,
-    imageUrl,
+    images,
     stock,
+    description,
+    category,
+    attributes,
   });
 
   logger.info(`New Product Added: ${product}`);
@@ -65,10 +79,12 @@ const getProductsForAdmin = async (query) => {
     name: 1,
     price: 1,
     stock: 1,
+    images: { $slice: 1 },
+    stock: 1,
+    category: 1,
     isActive: 1,
-    imageUrl: 1,
-    createdAt: 1,
-    updatedAt: 1,
+    description: 1,
+    attributes: 1
   }).sort(sortOrder);
 
   return products;
@@ -82,7 +98,7 @@ const getProductsForAdmin = async (query) => {
  * @throws {AppError} If product not found
  */
 const getProductForAdmin = async (id) => {
-  const product = await ProductModel.findOne({ _id: id });
+  const product = await ProductModel.findById(id);
   if (!product) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }

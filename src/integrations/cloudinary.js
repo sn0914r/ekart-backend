@@ -5,31 +5,36 @@ const { logger } = require("../utils/logger.js");
 const { ERROR_CODES } = require("../constants/errorCodes.js");
 
 /**
- * @desc Uploads an image to Cloudinary
- *
- * Side Effects:
- *  - Uploads the image to Cloudinary
- *
- * @param {Buffer} buffer - The image buffer
- * @returns {Promise<string>} The public URL of the uploaded image
+ * Uploads multiple images to Cloudinary
+ * 
+ * @param {Array} files - Array of multer file objects
+ * @returns {Promise<string[]>} Array of public URLs of the uploaded images
  */
-const uploadImage = (buffer) => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { folder: "eKart", public_id: nanoid() },
-      (err, result) => {
-        if (err) {
-          logger.error(err);
-          return reject(
-            new AppError(err.message, 400, ERROR_CODES.INTERNAL_SERVER_ERROR),
-          );
-        }
-        resolve(result.secure_url);
-      },
-    );
+const uploadImages = async (files) => {
+  if (!files || !Array.isArray(files) || files.length === 0) {
+    return [];
+  }
 
-    stream.end(buffer);
+  const uploadPromises = files.map((file) => {
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "eKart", public_id: nanoid() },
+        (err, result) => {
+          if (err) {
+            logger.error(err);
+            return reject(
+              new AppError(err.message, 400, ERROR_CODES.INTERNAL_SERVER_ERROR),
+            );
+          }
+          resolve(result.secure_url);
+        },
+      );
+
+      stream.end(file.buffer);
+    });
   });
+
+  return Promise.all(uploadPromises);
 };
 
-module.exports = { uploadImage };
+module.exports = { uploadImages };

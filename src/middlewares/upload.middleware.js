@@ -12,7 +12,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024,
-    files: 1,
+    files: 10,
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -24,6 +24,6 @@ const upload = multer({
 
     cb(null, true);
   },
-}).single("file");
+}).array("files", 10);
 
 module.exports = upload;

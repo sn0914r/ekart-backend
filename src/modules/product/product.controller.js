@@ -29,15 +29,18 @@ const getActiveProductsController = async (req, res) => {
  * @access Private
  */
 const addProductByAdminController = async (req, res) => {
-  const { file } = req;
-  const { name, price, isActive, stock } = req.body;
+  const { files } = req;
+  const { name, price, isActive, stock, description, category, attributes } = req.body;
 
   const product = await addProductByAdmin({
-    file,
+    files,
     name,
     price,
     isActive,
     stock,
+    description,
+    category,
+    attributes,
   });
 
   res.status(200).json({
