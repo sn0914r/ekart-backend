@@ -16,11 +16,18 @@ const {
   deleteProductByAdminController,
   getProductForAdminController,
   getActiveProductsController,
+  getActiveProductDetailsController,
+  getAvailableColorsOptionsByProductNameController,
 } = require("./product.controller");
 const { addProductSchema, updateProductSchema } = require("./product.schema");
 
 // Public routes
 router.get("/products", getActiveProductsController);
+router.get(
+  "/products/colors",
+  getAvailableColorsOptionsByProductNameController,
+);
+router.get("/products/:id", getActiveProductDetailsController);
 
 // Admin routes
 router.get(

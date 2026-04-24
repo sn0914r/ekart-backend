@@ -28,6 +28,54 @@ const getActiveProducts = async (query) => {
   return products;
 };
 
+/**
+ * Gets a single product details
+ *
+ * @param {string} id - product id
+ * @returns {object} - product details
+ */
+
+const getActiveProductDetails = async (id) => {
+  const product = await ProductModel.findById(id, {
+    updatedAt: 0,
+    createdAt: 0,
+  });
+
+  if (!product) {
+    throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
+  }
+
+  if (!product.isActive) {
+    throw new AppError(
+      "Product is not active",
+      400,
+      ERROR_CODES.BAD_REQUEST_ERROR,
+    );
+  }
+
+  logger.info(`Product is Fetched: ${product}`);
+  return product;
+};
+
+/**
+ * Gets the available colors of a product by its name
+ *
+ * @param {string} name - product name
+ * @returns {object} - product details
+ */
+const getAvailableColorsOptionsByProductName = async (name) => {
+  const productColors = await ProductModel.find(
+    { name, isActive: true },
+    {
+      _id: 1,
+      color: "$attributes.color",
+    },
+  );
+
+  logger.info(`Product colors is Fetched: ${productColors}`);
+  return productColors;
+};
+
 // ================================ Admin ================================
 
 /**
@@ -84,7 +132,7 @@ const getProductsForAdmin = async (query) => {
     category: 1,
     isActive: 1,
     description: 1,
-    attributes: 1
+    attributes: 1,
   }).sort(sortOrder);
 
   return products;
@@ -147,6 +195,8 @@ const deleteProductByAdmin = async (id) => {
 
 module.exports = {
   getActiveProducts,
+  getActiveProductDetails,
+  getAvailableColorsOptionsByProductName,
 
   addProductByAdmin,
   getProductsForAdmin,

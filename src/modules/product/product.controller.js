@@ -5,6 +5,8 @@ const {
   updateProductByAdmin,
   deleteProductByAdmin,
   getActiveProducts,
+  getActiveProductDetails,
+  getAvailableColorsOptionsByProductName,
 } = require("./product.service");
 
 /**
@@ -22,6 +24,36 @@ const getActiveProductsController = async (req, res) => {
   });
 };
 
+/**
+ * @route GET /products/:id
+ * @access Public
+ */
+const getActiveProductDetailsController = async (req, res) => {
+  const { id } = req.params;
+
+  const product = await getActiveProductDetails(id);
+  res.status(200).json({
+    success: true,
+    message: "Product fetched successfully",
+    data: product,
+  });
+};
+
+/**
+ * @route GET /products/colors?name=productName
+ * @access Public
+ */
+
+const getAvailableColorsOptionsByProductNameController = async (req, res) => {
+  const { name } = req.query;
+  const colors = await getAvailableColorsOptionsByProductName(name);
+  res.status(200).json({
+    success: true,
+    message: "Available colors fetched successfully",
+    data: colors,
+  });
+};
+
 // ================================ Admin ================================
 
 /**
@@ -30,7 +62,8 @@ const getActiveProductsController = async (req, res) => {
  */
 const addProductByAdminController = async (req, res) => {
   const { files } = req;
-  const { name, price, isActive, stock, description, category, attributes } = req.body;
+  const { name, price, isActive, stock, description, category, attributes } =
+    req.body;
 
   const product = await addProductByAdmin({
     files,
@@ -114,6 +147,8 @@ const deleteProductByAdminController = async (req, res) => {
 
 module.exports = {
   getActiveProductsController,
+  getActiveProductDetailsController,
+  getAvailableColorsOptionsByProductNameController,
 
   addProductByAdminController,
   getProductForAdminController,
