@@ -20,7 +20,7 @@ const errorHandler = (err, _req, res, _next) => {
   }
 
   if (!isProd) {
-    logger.error(err);
+    logger.error(err.message, err);
   }
 
   return res.status(statusCode).json(errorResponse);

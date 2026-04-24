@@ -17,8 +17,11 @@ const logger = {
     console.warn(formatMessage("warn", message));
   },
 
-  error: (message) => {
+  error: (message, error) => {
     console.error(formatMessage("error", message));
+    if (!isProduction && error instanceof Error && error.stack) {
+      console.error(error.stack);
+    }
   },
 };
 
