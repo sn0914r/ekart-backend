@@ -1,4 +1,3 @@
-const { logger } = require("../../utils/logger");
 const {
   createOrder,
   getOrders,
@@ -14,15 +13,10 @@ const {
  * @access Private
  */
 const createOrderController = async (req, res) => {
-  const { uid: userId, email } = req.user;
-  const { items, shippingAddress } = req.body;
+  const { userId, email } = req.user;
+  const { shippingAddress } = req.body;
 
-  const orderDetails = await createOrder({
-    userId,
-    email,
-    items,
-    shippingAddress,
-  });
+  const orderDetails = await createOrder(userId, email, shippingAddress);
   return res.status(201).json({
     success: true,
     message: "Order created successfully",
@@ -35,8 +29,8 @@ const createOrderController = async (req, res) => {
  * @access Private
  */
 const getOrdersController = async (req, res) => {
-  const { uid } = req.user;
-  const orders = await getOrders({ uid });
+  const { userId } = req.user;
+  const orders = await getOrders(userId);
   return res.status(200).json({
     success: true,
     message: "Orders fetched successfully",
@@ -50,15 +44,13 @@ const getOrdersController = async (req, res) => {
  * @desc Updates order status
  */
 const updateOrderController = async (req, res) => {
-  const { id } = req.params;
-  const { uid } = req.user;
+  const { id: orderId } = req.params;
+  const { userId } = req.user;
 
   const orderStatus = req.body?.orderStatus;
   const shippingAddress = req.body?.shippingAddress;
 
-  const updatedOrder = await updateOrder({
-    id,
-    uid,
+  const order = await updateOrder(orderId, userId, {
     orderStatus,
     shippingAddress,
   });
@@ -66,7 +58,7 @@ const updateOrderController = async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Order updated successfully",
-    data: updatedOrder,
+    data: order,
   });
 };
 
@@ -75,10 +67,10 @@ const updateOrderController = async (req, res) => {
  * @access Private
  */
 const getOrderController = async (req, res) => {
-  const { id } = req.params;
-  const { uid } = req.user;
+  const { id: orderId } = req.params;
+  const { userId } = req.user;
 
-  const order = await getOrder({ uid, id });
+  const order = await getOrder(userId, orderId);
 
   return res.status(200).json({
     success: true,
@@ -108,8 +100,8 @@ const getOrdersForAdminController = async (req, res) => {
  * @access Private
  */
 const getOrderForAdminController = async (req, res) => {
-  const { id } = req.params;
-  const order = await getOrderForAdmin(id);
+  const { id: orderId } = req.params;
+  const order = await getOrderForAdmin(orderId);
 
   res.status(200).json({
     success: true,
@@ -124,15 +116,15 @@ const getOrderForAdminController = async (req, res) => {
  * @desc Updates Shipping status
  */
 const updateOrderByAdminController = async (req, res) => {
-  const { id } = req.params;
-  const { uid } = req.user;
+  const { id: orderId } = req.params;
+  const { userId } = req.user;
   const shippingStatus = req.body?.shippingStatus;
 
-  const updatedOrder = await updateOrderByAdmin({
-    id,
-    uid,
+  const updatedOrder = await updateOrderByAdmin(
+    orderId,
+    userId,
     shippingStatus,
-  });
+  );
 
   res.status(200).json({
     success: true,

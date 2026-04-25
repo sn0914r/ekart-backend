@@ -1,7 +1,4 @@
-const { logger } = require("../../utils/logger");
-
 const formatCartList = (cartList) => {
-  logger.info("cartList: " + JSON.stringify(cartList));
   return cartList.map((item) => ({
     productId: item.productId._id,
     name: item.productId.name,

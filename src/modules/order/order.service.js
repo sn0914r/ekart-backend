@@ -21,10 +21,10 @@ const {
   buildProductQtyMap,
   calculateSubtotal,
 } = require("./helpers/order.helpers");
-const { logger } = require("../../utils/logger");
 const {
   cancelOrderWithStockReversal,
 } = require("./services/cancelOrder.service");
+const { logger } = require("../../utils/logger");
 
 /**
  * Creates an order
@@ -34,16 +34,17 @@ const {
  * @param {object} shippingAddress - shipping address
  * @returns {object} created order
  */
-const createOrder = async ({ userId, email, shippingAddress }) => {
-  logger.info("Creating Order");
-  logger.info("userId: " + userId);
+const createOrder = async (userId, email, shippingAddress) => {
+  logger.info("[User Id]: " + userId);
+  logger.info("[Shipping Address]: " + shippingAddress);
 
-  const cart = await CartModel.findOne({ uid: userId });
-  logger.info("cart: " + JSON.stringify(cart));
+  const cart = await CartModel.findOne({ userId });
+  logger.info("[CART] " + cart);
   validateCart(cart);
 
   const productIds = cart.items.map((i) => i.productId);
   const targetProducts = await ProductModel.find({ _id: { $in: productIds } });
+  logger.info("[TARGET PRODUCTS LIST] " + targetProducts);
   validateProductsExists(targetProducts, productIds);
 
   const productQtyMap = buildProductQtyMap(cart);
@@ -61,8 +62,6 @@ const createOrder = async ({ userId, email, shippingAddress }) => {
       lineTotal: product.price * qty,
     };
   });
-
-  logger.info("Order snapshot: " + orderSnapshot);
 
   const subTotal = calculateSubtotal(orderSnapshot);
 
@@ -84,21 +83,25 @@ const createOrder = async ({ userId, email, shippingAddress }) => {
     shippingAddress,
   });
 
-  await CartModel.deleteOne({ uid: userId });
+  await CartModel.updateOne(
+    { userId },
+    {
+      items: [],
+    },
+  );
 
-  logger.info("Order created successfully");
   return { orderId: order._id, subTotal: order.subTotal };
 };
 
 /**
  * Gets all the User's Orders
  *
- * @param {string} uid - user id
+ * @param {string} userId - user id
  * @returns {object[]} Array of orders
  */
-const getOrders = async ({ uid }) => {
+const getOrders = async (userId) => {
   const orders = await OrderModel.find(
-    { userId: uid },
+    { userId },
     {
       orderSnapshot: 1,
       shippingAddress: 1,
@@ -115,12 +118,12 @@ const getOrders = async ({ uid }) => {
 /**
  * Get a specific order of a User
  *
- * @param {string} uid - user id
- * @param {string} id - order id
+ * @param {string} userId
+ * @param {string} orderId
  * @returns {object} order details
  */
-const getOrder = async ({ uid, id }) => {
-  const order = await OrderModel.findById(id, {
+const getOrder = async (userId, orderId) => {
+  const order = await OrderModel.findById(orderId, {
     userId: 1,
     email: 1,
     orderSnapshot: 1,
@@ -138,17 +141,12 @@ const getOrder = async ({ uid, id }) => {
   if (!order)
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
-  logger.info("uid: " + uid);
-  logger.info("order.userId: " + order.userId);
-
-  if (order.userId !== uid)
+  if (order.userId !== userId)
     throw new AppError(
       "You are not authorized to access this order",
       403,
       ERROR_CODES.UNAUTHORIZED_ERROR,
     );
-
-  logger.info("Order Fetched: " + order);
 
   return order;
 };
@@ -156,37 +154,24 @@ const getOrder = async ({ uid, id }) => {
 /**
  * Updates the User's Order Status
  *
- * @param {string} id - order id
- * @param {string} uid - user id
- * @param {string} orderStatus - order status
- * @param {object} shippingAddress - shipping address
+ * @param {string} orderId
+ * @param {string} userId
+ * @param {object} updates - { orderStatus, shippingAddress }
  * @returns {object} updated order
  */
-const updateOrder = async ({ id, uid, orderStatus, shippingAddress }) => {
-  const order = await OrderModel.findById(id);
+const updateOrder = async (orderId, userId, updates) => {
+  const order = await OrderModel.findById(orderId);
 
   if (!order)
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
-  if (orderStatus) {
-    // validateOrderStatusTransition(order.orderStatus, orderStatus);
-    logger.info("orderStatus: " + orderStatus);
-    logger.info("order.orderStatus: " + order.orderStatus);
-    logger.info("order.shippingStatus: " + order.shippingStatus);
+  if (updates.orderStatus) {
     if (
       order.orderStatus === ORDER_STATUS.CREATED ||
       (order.orderStatus === ORDER_STATUS.CONFIRMED &&
         order.shippingStatus === SHIPPING_STATUS.PENDING)
     ) {
-      // order.orderStatus = orderStatus;
-      // order.orderStatusHistory.push({
-      //   status: orderStatus,
-      //   at: new Date(),
-      //   by: uid,
-      // });
-      // order.shippingStatus = SHIPPING_STATUS.CANCELLED;
-      cancelOrderWithStockReversal(id, uid);
-
+      cancelOrderWithStockReversal(orderId, userId);
     } else {
       throw new AppError(
         "Invalid order status transition",
@@ -195,8 +180,8 @@ const updateOrder = async ({ id, uid, orderStatus, shippingAddress }) => {
       );
     }
   }
-  if (shippingAddress) {
-    order.shippingAddress = shippingAddress;
+  if (updates.shippingAddress) {
+    order.shippingAddress = updates.shippingAddress;
   }
 
   await order.save();
@@ -208,7 +193,6 @@ const updateOrder = async ({ id, uid, orderStatus, shippingAddress }) => {
 /**
  * Gets all the orders for admin
  *
- * @param {string} uid - user id
  * @returns {object[]} Array of orders
  */
 const getOrdersForAdmin = async () => {
@@ -228,11 +212,11 @@ const getOrdersForAdmin = async () => {
 /**
  * Gets the Single Order for admin
  *
- * @param {string} id - order id
+ * @param {string} orderId
  * @returns {object} order
  */
-const getOrderForAdmin = async (id) => {
-  const order = await OrderModel.findOne({ _id: id });
+const getOrderForAdmin = async (orderId) => {
+  const order = await OrderModel.findById(orderId);
   if (!order)
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
@@ -242,14 +226,14 @@ const getOrderForAdmin = async (id) => {
 /**
  * Updates the Shipping Status of the Order
  *
- * @param {string} id - order id
- * @param {string} uid - user id
- * @param {string} shippingStatus - shipping status
+ * @param {string} orderId
+ * @param {string} userId
+ * @param {string} shippingStatus
  * @returns {object} updated order
  */
 
-const updateOrderByAdmin = async ({ id, uid, shippingStatus }) => {
-  const order = await OrderModel.findById(id);
+const updateOrderByAdmin = async (orderId, userId, shippingStatus) => {
+  const order = await OrderModel.findById(orderId);
 
   if (!order)
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
@@ -259,12 +243,11 @@ const updateOrderByAdmin = async ({ id, uid, shippingStatus }) => {
   order.shippingStatusHistory.push({
     status: shippingStatus,
     at: new Date(),
-    by: uid,
+    by: userId,
   });
 
   await order.save();
-  logger.info("Shipping status updated successfully");
-  logger.info("New Shipping status: " + shippingStatus);
+
   return { shippingStatus: order.shippingStatus };
 };
 

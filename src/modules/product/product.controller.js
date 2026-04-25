@@ -88,10 +88,9 @@ const addProductByAdminController = async (req, res) => {
  * @access Private
  */
 const getProductsForAdminController = async (req, res) => {
-  const { uid } = req.user;
   const query = req.query;
-
-  const products = await getProductsForAdmin({ uid, query });
+  
+  const products = await getProductsForAdmin(query);
 
   res.status(200).json({
     success: true,

@@ -11,15 +11,9 @@ const {
  */
 const createPaymentController = async (req, res) => {
   const { orderId } = req.body;
-  const { uid } = req.user;
+  const { userId } = req.user;
 
-  logger.info("uid: " + uid);
-  logger.info("orderId: " + orderId);
-
-  const paymentDetails = await createPaymentOrder({
-    uid,
-    orderId,
-  });
+  const paymentDetails = await createPaymentOrder(orderId, userId);
   res.status(200).json({
     success: true,
     message: "Payment order created successfully",
@@ -34,19 +28,16 @@ const createPaymentController = async (req, res) => {
  */
 const paymentSuccessController = async (req, res) => {
   const { razorpayPaymentId, razorpaySignature, razorpayOrderId } = req.body;
+  const { userId } = req.user;
 
-  const { uid } = req.user;
-
-  logger.info(`[RAZORPAY PAYMENT ID]: ${razorpayPaymentId}`);
-  logger.info(`[RAZORPAY ORDER ID]: ${razorpayOrderId}`);
-  logger.info(`[RAZORPAY SIGNATURE]: ${razorpaySignature}`);
-
-  const orderId = await handlePaymentSuccess({
-    razorpayOrderId,
-    razorpaySignature,
-    razorpayPaymentId,
-    uid,
-  });
+  const orderId = await handlePaymentSuccess(
+    {
+      razorpayOrderId,
+      razorpaySignature,
+      razorpayPaymentId,
+    },
+    userId,
+  );
 
   res.status(200).json({
     success: true,

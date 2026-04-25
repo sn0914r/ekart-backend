@@ -5,9 +5,9 @@ const Service = require("./cart.service");
  * @access Private
  */
 const getCartController = async (req, res) => {
-  const { uid } = req.user;
+  const { userId } = req.user;
 
-  const cart = await Service.getCart(uid);
+  const cart = await Service.getCart(userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Cart fetched successfully" });
@@ -18,10 +18,10 @@ const getCartController = async (req, res) => {
  * @access Private
  */
 const addToCartController = async (req, res) => {
-  const { uid } = req.user;
+  const { userId } = req.user;
   const { productId, variant } = req.body;
 
-  const cart = await Service.addToCart(productId, variant, uid);
+  const cart = await Service.addToCart(productId, variant, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Item added to cart" });
@@ -32,10 +32,10 @@ const addToCartController = async (req, res) => {
  * @access Private
  */
 const incQuantityController = async (req, res) => {
-  const { uid } = req.user;
+  const { userId } = req.user;
   const { productId } = req.body;
 
-  const cart = await Service.incQuantity(productId, uid);
+  const cart = await Service.incQuantity(productId, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Quantity increased successfully" });
@@ -46,10 +46,10 @@ const incQuantityController = async (req, res) => {
  * @access Private
  */
 const decQuantityController = async (req, res) => {
-  const { uid } = req.user;
+  const { userId } = req.user;
   const { productId } = req.body;
 
-  const cart = await Service.decQuantity(productId, uid);
+  const cart = await Service.decQuantity(productId, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Quantity decreased successfully" });
@@ -60,10 +60,10 @@ const decQuantityController = async (req, res) => {
  * @access Private
  */
 const removeFromCartController = async (req, res) => {
-  const { uid } = req.user;
+  const { userId } = req.user;
   const { id } = req.params;
 
-  const cart = await Service.removeFromCart(id, uid);
+  const cart = await Service.removeFromCart(id, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Item removed successfully" });
@@ -74,9 +74,9 @@ const removeFromCartController = async (req, res) => {
  * @access Private
  */
 const clearCartController = async (req, res) => {
-  const { uid } = req.user;
+  const { userId } = req.user;
 
-  const cart = await Service.clearCart(uid);
+  const cart = await Service.clearCart(userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Cart cleared successfully" });

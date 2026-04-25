@@ -1,5 +1,4 @@
 const CartModel = require("../../models/Cart.model");
-const { logger } = require("../../utils/logger");
 const { formatCartList } = require("./cart.helpers");
 
 /**
@@ -29,13 +28,7 @@ const getCart = async (userId) => {
  * @returns {object} cart
  */
 const addToCart = async (productId, variant, userId) => {
-  logger.info("======== addToCart =========");
-  logger.info("productId: " + JSON.stringify(productId));
-  logger.info("variant: " + JSON.stringify(variant));
-  logger.info("userId: " + JSON.stringify(userId));
-
   let cart = await CartModel.findOne({ userId });
-  logger.info("cart from addToCart: " + JSON.stringify(cart));
   if (!cart) {
     cart = await CartModel.create({ userId, items: [] });
   }
@@ -47,9 +40,6 @@ const addToCart = async (productId, variant, userId) => {
   if (item) {
     item.quantity += 1;
   } else {
-    logger.info("======== pushing new item to cart ===========");
-    logger.info("productId: " + JSON.stringify(productId));
-    logger.info("variant: " + JSON.stringify(variant));
     cart.items.push({ productId, variant });
   }
 
@@ -72,10 +62,7 @@ const addToCart = async (productId, variant, userId) => {
  * @returns {object} cart
  */
 const incQuantity = async (productId, userId) => {
-  logger.info("======== incQuantity START ========");
   const cart = await CartModel.findOne({ userId });
-  logger.info("cart from incQuantity: ");
-  logger.info(cart);
 
   const item = cart.items.find((item) => item.productId.toString() === productId);
   
@@ -88,11 +75,7 @@ const incQuantity = async (productId, userId) => {
     { items: 1 },
   ).populate("items.productId", "name images price stock");
   
-  logger.info("updatedCart from incQuantity: ");
-  logger.info(updatedCart);
-  
   const formattedItems = formatCartList(updatedCart.items);
-  logger.info("======== incQuantity END ==========");
   return { items: formattedItems };
 };
 
@@ -132,16 +115,8 @@ const decQuantity = async (productId, userId) => {
  * @returns {object} cart
  */
 const removeFromCart = async (productId, userId) => {
-  logger.info("======== removeFromCart START ========")
-  logger.info("productId: " + JSON.stringify(productId));
-  logger.info("userId: " + JSON.stringify(userId));
-
   const cart = await CartModel.findOne({ userId });
-  logger.info("CART")
-  logger.info(cart)
   cart.items = cart.items.filter((item) => item.productId.toString() !== productId);
-  logger.info("CART AFTER REMOVAL")
-  logger.info(cart)
   await cart.save();
   
   const updatedCart = await CartModel.findOne(

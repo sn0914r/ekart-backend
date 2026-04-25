@@ -2,7 +2,6 @@ const AppError = require("../../errors/AppError");
 const ProductModel = require("../../models/Product.model");
 const cloudinaryIntegration = require("../../integrations/cloudinary");
 const { ERROR_CODES } = require("../../constants/errorCodes");
-const { logger } = require("../../utils/logger");
 const { formatMongoQuery } = require("./helpers/product.helper");
 
 /**
@@ -25,7 +24,7 @@ const getActiveProducts = async (query) => {
     attributes: 1,
   }).sort(sortOrder);
 
-  logger.info("Active Products fetched");
+  
   return products;
 };
 
@@ -54,7 +53,7 @@ const getActiveProductDetails = async (id) => {
     );
   }
 
-  logger.info(`Product is Fetched: ${product}`);
+  
   return product;
 };
 
@@ -73,7 +72,7 @@ const getAvailableColorsOptionsByProductName = async (name) => {
     },
   );
 
-  logger.info(`Product colors is Fetched: ${productColors}`);
+  
   return productColors;
 };
 
@@ -110,14 +109,13 @@ const addProductByAdmin = async ({
     attributes,
   });
 
-  logger.info(`New Product Added: ${product}`);
+  
   return product;
 };
 
 /**
  * Fetches all products
  *
- * @param {string} uid - user id
  * @param {object} query - queries for filters
  * @returns {object[]} - products
  */
@@ -151,7 +149,7 @@ const getProductForAdmin = async (id) => {
   if (!product) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
-  logger.info(`Product is Fetched: ${product}`);
+  
   return product;
 };
 
@@ -173,7 +171,7 @@ const updateProductByAdmin = async (id, updates) => {
   if (!product) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
-  logger.info(`Product is Updated: ${product}`);
+  
   return product;
 };
 
@@ -190,7 +188,7 @@ const deleteProductByAdmin = async (id) => {
   if (!product) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
-  logger.info(`Product is Deleted: ${product}`);
+  
   return product;
 };
 

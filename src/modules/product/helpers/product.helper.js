@@ -1,5 +1,3 @@
-const { logger } = require("../../../utils/logger");
-
 const formatMongoQuery = (query) => {
   const { search, minPrice, maxPrice, sort } = query;
   let filter = {};
@@ -19,8 +17,6 @@ const formatMongoQuery = (query) => {
   sort === "price_desc" && (sortOrder.price = -1);
   sortOrder.createdAt = -1;
 
-  logger.info(`Search Query: ${JSON.stringify(filter)}`);
-  logger.info(`Sort Query: ${JSON.stringify(sortOrder)}`);
   return { filter, sortOrder };
 };
 

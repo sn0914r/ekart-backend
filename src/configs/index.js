@@ -21,6 +21,12 @@ const configs = {
     gmailPasswordKey: process.env.GMAIL_PASSWORD_KEY,
   },
   node_env: process.env.NODE_ENV || "development",
+  jwtSecret: {
+    access: process.env.JWT_ACCESS_TOKEN_SECRET,
+    refresh: process.env.JWT_REFRESH_TOKEN_SECRET,
+    accessTokenExpireTime: process.env.JWT_ACCESS_TOKEN_EXPIRES,
+    refreshTokenExpireTime: process.env.JWT_REFRESH_TOKEN_EXPIRES,
+  },
 };
 
 module.exports = configs;

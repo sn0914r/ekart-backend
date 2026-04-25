@@ -1,6 +1,9 @@
 const buildProductQtyMap = (cart) => {
   return new Map(
-    cart.items.map(({ productId, quantity }) => [productId, quantity]),
+    cart.items.map(({ productId, quantity }) => [
+      productId.toString(),
+      quantity,
+    ]),
   );
 };
 

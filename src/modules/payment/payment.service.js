@@ -13,12 +13,11 @@ const { logger } = require("../../lib/nodemailer");
 /**
  * Creates a razorpay payment order
  *
- * @param {string} uid - user id
  * @param {string} orderId - order id
- * @returns {object} {razorpayOrderId: string, amount: number} - Payment order details
- * @throws {AppError} If order not found
+ * @param {string} userId - user id
+ * @returns {object} {razorpayOrderId: string} - Payment order details
  */
-const createPaymentOrder = async ({ uid, orderId }) => {
+const createPaymentOrder = async (orderId, userId) => {
   const order = await OrderModel.findById(orderId);
 
   if (!order)
@@ -27,7 +26,7 @@ const createPaymentOrder = async ({ uid, orderId }) => {
   const RAZORPAY_OPTIONS = {
     amount: order.subTotal * 100,
     currency: order.currency || "INR",
-    receipt: `receipt_${uid.slice(0, 4)}_${Date.now()}`, // note: the razorpay receipt must be lessthan 40 chars
+    receipt: `receipt_${userId.slice(0, 4)}_${Date.now()}`, // note: the razorpay receipt must be lessthan 40 chars
   };
 
   const razorpayOrder = await razorpay.orders.create(RAZORPAY_OPTIONS);
@@ -36,31 +35,17 @@ const createPaymentOrder = async ({ uid, orderId }) => {
   order.paymentDetails.razorpayOrderId = razorpayOrder.id;
 
   await order.save();
-
-  logger.info("Payment order created successfully");
-  logger.info("Razorpay order created" + JSON.stringify(razorpayOrder));
-
-  return {
-    razorpayOrderId: razorpayOrder.id,
-    amount: razorpayOrder.amount,
-  };
+  return { razorpayOrderId: razorpayOrder.id };
 };
 
 /**
  * Verifies the payment and confirms the order
  *
- * @param {string} razorpaySignature
- * @param {string} razorpayOrderId
- * @param {string} razorpayPaymentId
- * @param {string} uid
+ * @param {object} paymentData {razorpaySignature, razorpayOrderId, razorpayPaymentId}
  * @returns {object} { orderId: string, razorpayPaymentId: string }
  */
-const handlePaymentSuccess = async ({
-  razorpaySignature,
-  razorpayOrderId,
-  razorpayPaymentId,
-  uid,
-}) => {
+const handlePaymentSuccess = async (paymentData, userId) => {
+  const { razorpaySignature, razorpayOrderId, razorpayPaymentId } = paymentData;
   let order;
   // Idempotency check
   order = await OrderModel.findOne({
@@ -131,7 +116,7 @@ const handlePaymentSuccess = async ({
     order.orderStatusHistory.push({
       status: ORDER_STATUS.CONFIRMED,
       at: new Date(),
-      by: uid,
+      by: userId,
     });
     await order.save();
   });
