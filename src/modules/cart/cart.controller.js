@@ -1,4 +1,4 @@
-const { getCart, updateCart } = require("./cart.service");
+const Service = require("./cart.service");
 
 /**
  * @route GET /cart
@@ -6,29 +6,87 @@ const { getCart, updateCart } = require("./cart.service");
  */
 const getCartController = async (req, res) => {
   const { uid } = req.user;
-  const cart = await getCart(uid);
 
-  res.status(200).json({
-    success: true,
-    message: "Cart fetched successfully",
-    data: cart,
-  });
+  const cart = await Service.getCart(uid);
+  return res
+    .status(200)
+    .json({ success: true, cart, message: "Cart fetched successfully" });
 };
 
 /**
- * @route PUT /cart
+ * @route POST /cart/add
  * @access Private
  */
-const updateCartController = async (req, res) => {
+const addToCartController = async (req, res) => {
   const { uid } = req.user;
-  const { items } = req.body;
+  const { productId, variant } = req.body;
 
-  const cart = await updateCart({ uid, items });
-  res.status(200).json({
-    success: true,
-    message: "Cart updated successfully",
-    data: cart,
-  });
+  const cart = await Service.addToCart(productId, variant, uid);
+  return res
+    .status(200)
+    .json({ success: true, cart, message: "Item added to cart" });
 };
 
-module.exports = { getCartController, updateCartController };
+/**
+ * @route PATCH /cart/increase
+ * @access Private
+ */
+const incQuantityController = async (req, res) => {
+  const { uid } = req.user;
+  const { productId } = req.body;
+
+  const cart = await Service.incQuantity(productId, uid);
+  return res
+    .status(200)
+    .json({ success: true, cart, message: "Quantity increased successfully" });
+};
+
+/**
+ * @route PATCH /cart/decrease
+ * @access Private
+ */
+const decQuantityController = async (req, res) => {
+  const { uid } = req.user;
+  const { productId } = req.body;
+
+  const cart = await Service.decQuantity(productId, uid);
+  return res
+    .status(200)
+    .json({ success: true, cart, message: "Quantity decreased successfully" });
+};
+
+/**
+ * @route DELETE /cart/remove
+ * @access Private
+ */
+const removeFromCartController = async (req, res) => {
+  const { uid } = req.user;
+  const { id } = req.params;
+
+  const cart = await Service.removeFromCart(id, uid);
+  return res
+    .status(200)
+    .json({ success: true, cart, message: "Item removed successfully" });
+};
+
+/**
+ * @route DELETE /cart/clear
+ * @access Private
+ */
+const clearCartController = async (req, res) => {
+  const { uid } = req.user;
+
+  const cart = await Service.clearCart(uid);
+  return res
+    .status(200)
+    .json({ success: true, cart, message: "Cart cleared successfully" });
+};
+
+module.exports = {
+  getCartController,
+  addToCartController,
+  incQuantityController,
+  decQuantityController,
+  removeFromCartController,
+  clearCartController,
+};

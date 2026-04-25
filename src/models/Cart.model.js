@@ -2,8 +2,18 @@ const { Schema, model } = require("mongoose");
 
 const CartItemSchema = new Schema(
   {
-    productId: String,
-    quantity: Number,
+    productId: {
+      type: Schema.Types.ObjectId,
+      ref: "products",
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      default: 1,
+    },
+    variant: {
+      size: String,
+    },
   },
   {
     _id: false,
@@ -13,8 +23,12 @@ const CartItemSchema = new Schema(
 
 const CartSchema = new Schema(
   {
+    userId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     items: [CartItemSchema],
-    uid: String,
   },
   {
     versionKey: false,

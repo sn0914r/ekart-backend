@@ -22,6 +22,7 @@ const getActiveProducts = async (query) => {
     images: { $slice: 1 },
     stock: 1,
     category: 1,
+    attributes: 1,
   }).sort(sortOrder);
 
   logger.info("Active Products fetched");

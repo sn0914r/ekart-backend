@@ -17,9 +17,11 @@ app.use(helmet());
 
 app.use((req, res, next) => {
   logger.info(`New Request: ${req.method}/ ${req.url}`);
+  logger.info("Request Body: " + JSON.stringify(req.body));
+  logger.info("Request Params: " + JSON.stringify(req.params));
+  logger.info("Request Query: " + JSON.stringify(req.query));
   next();
 });
-
 
 app.use(authRoutes);
 app.use(orderRoutes);

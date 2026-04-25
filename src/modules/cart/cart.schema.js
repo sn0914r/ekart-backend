@@ -1,12 +1,15 @@
 const joi = require("joi");
 
-const CartSchema = joi.object({
-  items: joi.array().items(
-    joi.object({
-      productId: joi.string(),
-      quantity: joi.number(),
-    }),
-  ),
+const CartRequestSchema = joi.object({
+  productId: joi.string().required(),
+});
+const AddToCartRequestSchema = joi.object({
+  productId: joi.string().required(),
+  variant: joi
+    .object({
+      size: joi.string().required(),
+    })
+    .required(),
 });
 
-module.exports = { CartSchema };
+module.exports = { CartRequestSchema, AddToCartRequestSchema };
