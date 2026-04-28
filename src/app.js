@@ -9,6 +9,8 @@ const orderRoutes = require("./modules/order/order.routes");
 const paymentRoutes = require("./modules/payment/payment.routes");
 const productRoutes = require("./modules/product/product.routes");
 const cartRoutes = require("./modules/cart/cart.routes");
+const wishlistRoutes = require("./modules/wishlist/wishlist.routes");
+
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -36,6 +38,7 @@ app.use(orderRoutes);
 app.use(paymentRoutes);
 app.use(productRoutes);
 app.use(cartRoutes);
+app.use(wishlistRoutes);
 
 app.use("/health", (req, res) => {
   res.status(200).json({ success: true });
