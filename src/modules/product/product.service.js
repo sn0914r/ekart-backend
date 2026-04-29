@@ -2,7 +2,7 @@ const AppError = require("../../errors/AppError");
 const ProductModel = require("../../models/Product.model");
 const cloudinaryIntegration = require("../../integrations/cloudinary");
 const { ERROR_CODES } = require("../../constants/errorCodes");
-const { formatMongoQuery } = require("./helpers/product.helper");
+const { buildFilter, buildSort, buildPagination } = require("./utils");
 
 /**
  * Fetches Active products
@@ -11,21 +11,32 @@ const { formatMongoQuery } = require("./helpers/product.helper");
  * @returns {object[]} - products
  */
 const getActiveProducts = async (query) => {
-  const { filter, sortOrder } = formatMongoQuery(query);
+  const filter = buildFilter(query);
   filter.isActive = true;
+  const sortOrder = buildSort(query);
+  const { page, limit, skip } = buildPagination(query);
 
   const products = await ProductModel.find(filter, {
     name: 1,
     price: 1,
     stock: 1,
     images: { $slice: 1 },
-    stock: 1,
     category: 1,
     attributes: 1,
-  }).sort(sortOrder);
+  })
+    .sort(sortOrder)
+    .skip(skip)
+    .limit(limit)
+    .select("name price stock images category attributes");
 
-  
-  return products;
+  const total = await ProductModel.countDocuments(filter);
+
+  return {
+    page,
+    totalPages: Math.ceil(total / limit),
+    totalItems: total,
+    products,
+  };
 };
 
 /**
@@ -53,7 +64,6 @@ const getActiveProductDetails = async (id) => {
     );
   }
 
-  
   return product;
 };
 
@@ -72,7 +82,6 @@ const getAvailableColorsOptionsByProductName = async (name) => {
     },
   );
 
-  
   return productColors;
 };
 
@@ -109,7 +118,6 @@ const addProductByAdmin = async ({
     attributes,
   });
 
-  
   return product;
 };
 
@@ -149,7 +157,7 @@ const getProductForAdmin = async (id) => {
   if (!product) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
-  
+
   return product;
 };
 
@@ -171,7 +179,7 @@ const updateProductByAdmin = async (id, updates) => {
   if (!product) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
-  
+
   return product;
 };
 
@@ -188,7 +196,7 @@ const deleteProductByAdmin = async (id) => {
   if (!product) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
-  
+
   return product;
 };
 
