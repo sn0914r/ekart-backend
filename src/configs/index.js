@@ -1,6 +1,8 @@
 const configs = {
   port: process.env.PORT || 3000,
+  clientOrigins: process.env.CLIENT_ORIGINS ? process.env.CLIENT_ORIGINS.split(",") : ["http://localhost:3000"],
   mongoURI: process.env.MONGO_URI,
+
   jwtSecret: process.env.JWT_SECRET,
   cloudinary: {
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

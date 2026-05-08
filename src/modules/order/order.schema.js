@@ -2,16 +2,7 @@ const joi = require("joi");
 const { SHIPPING_STATUS } = require("../../constants/order");
 
 const createOrderSchema = joi.object({
-  items: joi
-    .array()
-    .items(
-      joi.object({
-        productId: joi.string().required(),
-        quantity: joi.number().required().min(1),
-      }),
-    )
-    .min(1)
-    .required(),
+
   shippingAddress: joi.object({
     name: joi.string().required(),
     address: joi.string().min(25).required(),

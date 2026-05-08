@@ -23,6 +23,14 @@ const errorHandler = (err, _req, res, _next) => {
     logger.error(err.message, err);
   }
 
+  if (err.name === "CastError") {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid ${err.path}: ${err.value}`,
+      errorCode: ERROR_CODES.BAD_REQUEST_ERROR,
+    });
+  }
+
   return res.status(statusCode).json(errorResponse);
 };
 

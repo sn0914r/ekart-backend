@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const { logger } = require("./utils/logger");
+const configs = require("./configs/index");
 const errorHandler = require("./middlewares/error.middleware");
 
 const authRoutes = require("./modules/auth/auth.routes");
@@ -18,16 +19,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5174", "http://localhost:5173", "https://ekart-admin-dashboard.pages.dev", "https://ekart-frontend.pages.dev"],
+    origin: configs.clientOrigins,
     credentials: true,
+    methods: ["GET", "POST", "DELETE", "PATCH"],
+    // allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use(helmet());
 
 app.use((req, res, next) => {
   logger.info(`New Request: ${req.method} ${req.url}`);
-  // logger.info("Request Body: " + JSON.stringify(req.body));
-  // logger.info("Request Params: " + JSON.stringify(req.params));
+  logger.info("Request Body: " + JSON.stringify(req.body));
+  logger.info("Request Params: " + JSON.stringify(req.params));
   // logger.info("Request Query: " + JSON.stringify(req.query));
   // logger.info("Request Cookies: " + JSON.stringify(req.cookies));
   next();

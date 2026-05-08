@@ -128,7 +128,9 @@ const addProductByAdmin = async ({
  * @returns {object[]} - products
  */
 const getProductsForAdmin = async (query) => {
-  const { filter, sortOrder } = formatMongoQuery(query);
+  // const { filter, sortOrder } = formatMongoQuery(query);
+  const filter = buildFilter(query);
+  const sortOrder = buildSort(query)
 
   const products = await ProductModel.find(filter, {
     name: 1,
