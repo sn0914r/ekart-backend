@@ -1,5 +1,5 @@
-const OrderModel = require("../../models/Order/Order.model");
-const ProductModel = require("../../models/Product.model");
+const OrderModel = require("../../../models/Order/Order.model");
+const ProductModel = require("../../../models/Product.model");
 
 const getDashboardData = async () => {
   const [

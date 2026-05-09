@@ -1,5 +1,8 @@
 const router = require("express").Router();
-const { getDashboardController } = require("./insights.controller");
+const {
+  getDashboardController,
+  getAnalyticsController,
+} = require("./insights.controller");
 const {
   verifyAuth,
   requireAdmin,
@@ -10,6 +13,13 @@ router.get(
   verifyAuth,
   requireAdmin,
   getDashboardController,
+);
+
+router.get(
+  "/admin/analytics",
+  verifyAuth,
+  requireAdmin,
+  getAnalyticsController,
 );
 
 module.exports = router;
