@@ -13,11 +13,6 @@ const configs = {
     keyId: process.env.RAZORPAY_TEST_API_KEY,
     keySecret: process.env.RAZORPAY_TEST_KEY_SECRET,
   },
-  firebase: {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY,
-  },
   nodemailer: {
     gmail: process.env.GMAIL,
     gmailPasswordKey: process.env.GMAIL_PASSWORD_KEY,

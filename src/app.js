@@ -11,6 +11,7 @@ const paymentRoutes = require("./modules/payment/payment.routes");
 const productRoutes = require("./modules/product/product.routes");
 const cartRoutes = require("./modules/cart/cart.routes");
 const wishlistRoutes = require("./modules/wishlist/wishlist.routes");
+const insightsRoutes = require("./modules/insights/insights.routes");
 
 const cookieParser = require("cookie-parser");
 
@@ -42,6 +43,7 @@ app.use(paymentRoutes);
 app.use(productRoutes);
 app.use(cartRoutes);
 app.use(wishlistRoutes);
+app.use(insightsRoutes);
 
 app.use("/health", (req, res) => {
   res.status(200).json({ success: true });
