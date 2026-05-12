@@ -9,12 +9,12 @@ const UserModel = require("../../../models/User.model");
  * @returns {object} {accessToken, refreshToken}
  */
 const generateAuthTokens = async (payload) => {
-  const accessToken = jwt.sign(payload, configs.jwtSecret.access, {
-    expiresIn: configs.jwtSecret.accessTokenExpireTime,
+  const accessToken = jwt.sign(payload, configs.auth_jwt.accessSecret, {
+    expiresIn: configs.auth_jwt.accessTokenExpireTime,
   });
 
-  const refreshToken = jwt.sign(payload, configs.jwtSecret.refresh, {
-    expiresIn: configs.jwtSecret.refreshTokenExpireTime,
+  const refreshToken = jwt.sign(payload, configs.auth_jwt.refreshSecret, {
+    expiresIn: configs.auth_jwt.refreshTokenExpireTime,
   });
 
   await UserModel.findByIdAndUpdate(payload.userId, {

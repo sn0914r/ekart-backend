@@ -1,12 +1,12 @@
 const {
   monthlyRevenueAggregation,
-} = require("./analytics-aggregations/monthlyRevenue");
+} = require("./monthlyRevenue");
 const {
   orderStatusDistributionAggregation,
-} = require("./analytics-aggregations/orderStatusDistribution");
+} = require("./orderStatusDistribution");
 const {
   topProductsAggregation,
-} = require("./analytics-aggregations/topProducts");
+} = require("./topProducts");
 
 const getAnalyticsData = async () => {
   const [monthlyRevenue, orderStatusDistribution, topProducts] =

@@ -11,7 +11,7 @@ const getDashboardData = async () => {
     lowStockItems,
     recentActivity,
   ] = await Promise.all([
-    // Total Revenue
+    // INFO: Total Revenue
     OrderModel.aggregate([
       {
         $match: {
@@ -28,31 +28,31 @@ const getDashboardData = async () => {
       },
     ]),
 
-    // Total Orders
+    // INFO: Total Orders
     OrderModel.countDocuments(),
 
-    // Pending Orders
+    // INFO: Pending Orders
     OrderModel.countDocuments({
       orderStatus: "CREATED",
     }),
 
-    // Low Stock Count
+    // INFO: Low Stock Count
     ProductModel.countDocuments({ stock: { $lt: 10 } }),
 
-    // Recent Orders
+    // INFO: Recent Orders
     OrderModel.find()
       .sort({ createdAt: -1 })
       .limit(5)
       .select("email subTotal orderStatus paymentStatus createdAt"),
 
-    // Low stock Items
+    // INFO: Low stock Items
     ProductModel.find({
       stock: { $lt: 10 },
     })
       .select("name stock category images")
       .limit(5),
 
-    // Recent Activity
+    // INFO: Recent Activity
     OrderModel.find()
       .sort({ createdAt: -1 })
       .limit(5)

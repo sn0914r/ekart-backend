@@ -1,4 +1,4 @@
-const cloudinary = require("../lib/cloudinary.js");
+const cloudinary = require("../clients/cloudinary.js");
 const AppError = require("../errors/AppError.js");
 const { nanoid } = require("nanoid");
 const { logger } = require("../utils/logger.js");

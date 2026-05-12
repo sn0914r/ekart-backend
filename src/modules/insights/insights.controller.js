@@ -1,12 +1,11 @@
-const { getDashboardData } = require("./services/dashboard.service");
-const { getAnalyticsData } = require("./services/analytics.service");
+const Service = require("./services");
 
 /**
  * @route GET /admin/dashboard
  * @access Private
  */
 const getDashboardController = async (req, res) => {
-  const report = await getDashboardData();
+  const report = await Service.getDashboardData();
 
   res.status(200).json({
     success: true,
@@ -20,7 +19,7 @@ const getDashboardController = async (req, res) => {
  * @access Private
  */
 const getAnalyticsController = async (req, res) => {
-  const report = await getAnalyticsData();
+  const report = await Service.getAnalyticsData();
 
   res.status(200).json({
     success: true,

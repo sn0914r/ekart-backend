@@ -2,7 +2,7 @@ const { logger } = require("../../utils/logger");
 const {
   createPaymentOrder,
   handlePaymentSuccess,
-} = require("./payment.service");
+} = require("./services");
 
 /**
  * @route POST /payments/create

@@ -1,7 +1,7 @@
-const AppError = require("../../../errors/AppError");
+const AppError = require("../../errors/AppError");
 const crypto = require("crypto");
-const configs = require("../../../configs/index");
-const { ERROR_CODES } = require("../../../constants/errorCodes");
+const configs = require("../../configs/index");
+const { ERROR_CODES } = require("../../constants/errorCodes");
 
 
 const validatePaymentSignature = ({

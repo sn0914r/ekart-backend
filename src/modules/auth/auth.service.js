@@ -79,7 +79,11 @@ const loginUser = async (email, password) => {
  * @return {string} accessToken
  */
 const refreshToken = async (refreshToken) => {
-  const decoded = jwt.verify(refreshToken, configs.jwtSecret.refresh);
+  if (!refreshToken) {
+    throw new AppError("Refresh token missing", 401, ERROR_CODES.BAD_REQUEST_ERROR);
+  }
+
+  const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret);
   const user = await UserModel.findById(decoded.userId);
 
   if (!user || refreshToken !== user.refreshToken) {
@@ -96,8 +100,9 @@ const refreshToken = async (refreshToken) => {
     name: user.name,
     email: user.email,
   };
-  const accessToken = jwt.sign(payload, configs.jwtSecret.access, {
-    expiresIn: configs.jwtSecret.accessTokenExpireTime,
+
+  const accessToken = jwt.sign(payload, configs.auth_jwt.accessSecret, {
+    expiresIn: configs.auth_jwt.accessTokenExpireTime,
   });
 
   return accessToken;
@@ -108,7 +113,7 @@ const refreshToken = async (refreshToken) => {
  */
 const logoutUser = async (refreshToken) => {
   try {
-    const decoded = jwt.verify(refreshToken, configs.jwtSecret.refresh);
+    const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret);
     await UserModel.findOneAndUpdate(
       { _id: decoded.userId, refreshToken },
       { refreshToken: null },

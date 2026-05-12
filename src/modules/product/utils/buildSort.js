@@ -1,4 +1,4 @@
-const { SORT } = require("../../../constants/query");
+const { SORT } = require("../../../constants/productQuery");
 
 const buildSort = (query) => {
   const { sort } = query;

@@ -1,6 +1,6 @@
 const AppError = require("../../errors/AppError");
 const ProductModel = require("../../models/Product.model");
-const cloudinaryIntegration = require("../../integrations/cloudinary");
+const cloudinaryIntegration = require("../../providers/cloudinary");
 const { ERROR_CODES } = require("../../constants/errorCodes");
 const { buildFilter, buildSort, buildPagination } = require("./utils");
 

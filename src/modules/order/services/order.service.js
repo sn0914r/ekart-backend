@@ -1,30 +1,30 @@
-const AppError = require("../../errors/AppError");
-const OrderModel = require("../../models/Order/Order.model");
-const ProductModel = require("../../models/Product.model");
-const UserModel = require("../../models/User.model");
-const CartModel = require("../../models/Cart.model");
-const { ORDER_STATUS, SHIPPING_STATUS } = require("../../constants/order");
-const { ROLES } = require("../../constants/roles");
-const { ERROR_CODES } = require("../../constants/errorCodes");
+const AppError = require("../../../errors/AppError");
+const OrderModel = require("../../../models/Order/Order.model");
+const ProductModel = require("../../../models/Product.model");
+const UserModel = require("../../../models/User.model");
+const CartModel = require("../../../models/Cart.model");
+const { ORDER_STATUS, SHIPPING_STATUS } = require("../../../constants/order");
+const { ROLES } = require("../../../constants/roles");
+const { ERROR_CODES } = require("../../../constants/errorCodes");
 const {
   validateOrderStatusTransition,
-} = require("./validators/order.validator");
+} = require("../validators/order.validator");
 const {
   validateShippingStatusTransition,
-} = require("./validators/shipping.validator");
+} = require("../validators/shipping.validator");
 const {
   validateCart,
   validateProductsExists,
   validateStock,
-} = require("./validators/order.validator");
+} = require("../validators/order.validator");
 const {
   buildProductQtyMap,
   calculateSubtotal,
-} = require("./helpers/order.helpers");
+} = require("../order.utils");
 const {
   cancelOrderWithStockReversal,
-} = require("./services/cancelOrder.service");
-const { logger } = require("../../utils/logger");
+} = require("./cancelOrder");
+const { logger } = require("../../../utils/logger");
 
 /**
  * Creates an order
@@ -111,7 +111,7 @@ const getOrders = async (userId) => {
       subTotal: 1,
       createdAt: 1,
     },
-  );
+  ).sort({ createdAt: -1 });
   return orders;
 };
 
@@ -171,7 +171,7 @@ const updateOrder = async (orderId, userId, updates) => {
       (order.orderStatus === ORDER_STATUS.CONFIRMED &&
         order.shippingStatus === SHIPPING_STATUS.PENDING)
     ) {
-      cancelOrderWithStockReversal(orderId, userId);
+      await cancelOrderWithStockReversal(orderId, userId);
     } else {
       throw new AppError(
         "Invalid order status transition",

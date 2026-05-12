@@ -1,6 +1,6 @@
-const config = require("../configs/index.js");
-const { ERROR_CODES } = require("../constants/errorCodes.js");
-const { logger } = require("../utils/logger.js");
+const config = require("../configs");
+const { ERROR_CODES } = require("../constants/errorCodes");
+const { logger } = require("../utils/logger");
 
 const errorHandler = (err, _req, res, _next) => {
   const statusCode = err.statusCode || 500;

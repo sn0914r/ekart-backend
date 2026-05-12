@@ -22,7 +22,7 @@ const verifyAuth = async (req, res, next) => {
   const token = req.headers.authorization.split(" ")[1];
 
   try {
-    const decodedToken = jwt.verify(token, configs.jwtSecret.access);
+    const decodedToken = jwt.verify(token, configs.auth_jwt.accessSecret);
     req.user = decodedToken;
     next();
   } catch (error) {

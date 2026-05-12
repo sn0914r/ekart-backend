@@ -1,12 +1,4 @@
-const {
-  createOrder,
-  getOrders,
-  updateOrder,
-  getOrdersForAdmin,
-  getOrderForAdmin,
-  updateOrderByAdmin,
-  getOrder,
-} = require("./order.service");
+const Service = require("./services/order.service")
 
 /**
  * @route POST /orders
@@ -16,7 +8,7 @@ const createOrderController = async (req, res) => {
   const { userId, email } = req.user;
   const { shippingAddress } = req.body;
 
-  const orderDetails = await createOrder(userId, email, shippingAddress);
+  const orderDetails = await Service.createOrder(userId, email, shippingAddress);
   return res.status(201).json({
     success: true,
     message: "Order created successfully",
@@ -30,7 +22,8 @@ const createOrderController = async (req, res) => {
  */
 const getOrdersController = async (req, res) => {
   const { userId } = req.user;
-  const orders = await getOrders(userId);
+
+  const orders = await Service.getOrders(userId);
   return res.status(200).json({
     success: true,
     message: "Orders fetched successfully",
@@ -50,7 +43,7 @@ const updateOrderController = async (req, res) => {
   const orderStatus = req.body?.orderStatus;
   const shippingAddress = req.body?.shippingAddress;
 
-  const order = await updateOrder(orderId, userId, {
+  const order = await Service.updateOrder(orderId, userId, {
     orderStatus,
     shippingAddress,
   });
@@ -70,7 +63,7 @@ const getOrderController = async (req, res) => {
   const { id: orderId } = req.params;
   const { userId } = req.user;
 
-  const order = await getOrder(userId, orderId);
+  const order = await Service.getOrder(userId, orderId);
 
   return res.status(200).json({
     success: true,
@@ -86,7 +79,7 @@ const getOrderController = async (req, res) => {
  * @access Private
  */
 const getOrdersForAdminController = async (req, res) => {
-  const orders = await getOrdersForAdmin();
+  const orders = await Service.getOrdersForAdmin();
 
   return res.status(200).json({
     success: true,
@@ -101,7 +94,7 @@ const getOrdersForAdminController = async (req, res) => {
  */
 const getOrderForAdminController = async (req, res) => {
   const { id: orderId } = req.params;
-  const order = await getOrderForAdmin(orderId);
+  const order = await Service.getOrderForAdmin(orderId);
 
   res.status(200).json({
     success: true,
@@ -120,7 +113,7 @@ const updateOrderByAdminController = async (req, res) => {
   const { userId } = req.user;
   const shippingStatus = req.body?.shippingStatus;
 
-  const updatedOrder = await updateOrderByAdmin(
+  const updatedOrder = await Service.updateOrderByAdmin(
     orderId,
     userId,
     shippingStatus,

@@ -1,5 +1,5 @@
 const CartModel = require("../../models/Cart.model");
-const { formatCartList } = require("./cart.helpers");
+const { formatCartList } = require("./cart.utils");
 
 /**
  * Gets the Whole Cart Array
