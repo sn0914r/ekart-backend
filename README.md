@@ -1,21 +1,20 @@
-# Ekart Backend (Single Vendor)
+# eKart Backend
 
-A **Single-vendor** e-commerce backend built to demonstrate secure authentication, product management, order processing, and payment verification using Razorpay.
+REST API backend for handling authentication, products, orders, payments, and admin operations in the eKart ecommerce platform.
 
 ---
 
-## Tech Stack
+## Live Demo
 
-- Node.js (`v18+`)
-- Express.js (`v5`)
-- Firebase Auth (authentication & roles)
-- MongoDB (database)
-- Cloudinary (product images)
-- Razorpay (payments - test mode)
-- Joi (request validation)
-- Nodemailer (email notifications)
-- Helmet (secure headers)
-- express-rate-limit (rate limiting)
+Health Endpoint: `https://ekart-backend-9y0c.onrender.com/health`
+
+---
+
+## Related Repositories
+
+- [eKart-frontend](https://github.com/sn0914r/ekart-frontend)
+- [eKart-admin-panel](https://github.com/sn0914r/ekart-admin-panel)
+- [eKart System](https://github.com/sn0914r/eKart-system)
 
 ---
 
@@ -23,185 +22,217 @@ A **Single-vendor** e-commerce backend built to demonstrate secure authenticatio
 
 ### Authentication & Authorization
 
-- Firebase ID token verification
-- Role-based access (public / user / admin )
-- Admin-only protected routes
-- User-only protected routes
-- Backend user registration (`/auth/register`) with default role support
+- JWT based authentication with Access and Refresh tokens.
+- Secure refresh token flow using HTTP-only cookies.
+- Role-Based Access Control (RBAC) for User and Admin roles.
+- Protected middleware for route-level authorization.
 
-### Products
+### Product Management
 
-- Admin can create products with image upload
-- Product stock support (**available stock**)
-- Public product listing (`GET /products`)
-- Only active products are visible to users (`isActive=true`)
-- Admin can update product details (`PATCH /admin/products/:id`)
-  - name
-  - price
-  - isActive
-  - stock
+- Full CRUD operations for products (Admin only).
+- Advanced filtering, sorting, and pagination for product listings.
+- Inventory tracking with automatic stock reduction upon successful payment.
+- Multi-image uploads integrated with Cloudinary.
 
 ### Orders & Payments
 
-- Backend-only pricing (prices are fetched using product IDs and calculated on the backend)
-- Razorpay order creation (at server-side)
-- Secure payment signature verification
-- Orders saved only after successful verification
-- Email notifications on successful order placement
-- Stock is reduced only after successful payment verification
-- Order snapshot feature (stores product price/details at order creation time)
+- Order creation with snapshot-based item storage to preserve pricing at time of purchase.
+- Razorpay payment gateway integration.
+- Server-side payment signature verification.
+- Transaction-safe order confirmation and stock updates.
+- Automated order confirmation emails via Nodemailer.
 
-### Orders Lifecycle Management (v2)
+### User Features
 
-- improved order lifecycle validation
-- Prevent invalid status transitions
-- Admin can update order lifecycle safely
+- Persistent cart management APIs.
+- Wishlist functionality for saved products.
+- Comprehensive order history for authenticated users.
 
-### Idempotency (v2)
+### Backend Infrastructure
 
-- Duplicate payment verification is blocked.
-- `POST /payments/verify` rejects if payment is already marked as **paid**.
-- Prevents multiple orders from being created using the same payment details.
-
-### Security Improvements (v2)
-
-- Helmet enabled (secure headers)
-- Rate limiting added on payment routes:
-  - `POST /payments/create`
-  - `POST /payments/verify`
+- Modular domain-driven architecture (Auth, Product, Order, etc.).
+- Joi-based request validation and standardized API responses.
+- API rate limiting on sensitive endpoints (Payments).
+- Security headers with Helmet and CORS configuration.
+- Structured request logging middleware.
 
 ---
 
-## Payment Flow
+## Tech Stack
 
-1. User initiates checkout, frontend sends cart items and firebase ID token to backend
-2. Backend calculates total price and creates Razorpay order and sends order ID to frontend
-3. Frontend opens Razorpay checkout and the user completes payment
-4. Frontend sends payment details + signatures to backend.
-5. Backend verifies Razorpay signature
-6. Backend checks idempotency (**reject if already paid**)
-7. Order is saved in Database.
-8. Product stock is reduced.
-9. Email notifications are sent
+### Backend
 
----
+- Node.js
+- Express.js
 
-## Roles (Public/User/Admin )
+### Database
 
-### Public
+- MongoDB
+- Mongoose (ODM)
 
-- No authentication required
-- Can access:
-  - `GET /products`
+### Authentication & Security
 
-### User
+- JSON Web Tokens (JWT)
+- bcrypt (Password hashing)
+- Helmet & CORS
+- express-rate-limit
 
-- Authenticated user (Firebase ID token required)
-- Can access:
-  - `GET /orders`
-  - `POST /payments/create`
-  - `POST /payments/verify-payment`
+### Payments & Uploads
 
-### Admin
+- Razorpay
+- Cloudinary
+- Multer
 
-- Authenticated user with custom claim: `role="admin"`
-- Can access:
-  - `POST /admin/products`
-  - `PATCH /admin/products/:id`
-  - `GET /admin/orders`
-  - `PATCH /admin/orders/:id`
+### Validation & Utilities
 
----
-
-## API Endpoints
-
-### Public
-
-- `GET /products `:- get all active products
-
-- `POST /auth/register `:- creates user at backend & returns custom token (single sign-in) (not an ID token)
-
-### User
-
-- `GET /orders `:- get orders created by the user (authentication token is required)
-
-### Payments (User)
-
-- `POST /payments/create-payment `:- creates a Razorpay order (**backend-only pricing**)
-
-- `POST /payments/verify-payment `:- verifies Razorpay payment and create order record
-
-### Admin
-
-- `POST /admin/products `:- create a product with image upload + stock
-
-- `GET /admin/orders `:- view all orders
-
-- `PATCH /admin/orders/:id`:- update the order status
-
-- `PATCH /admin/products/:id`:- Update product details
-
----
-
-## Security Notes
-
-- Pricing is calculated on the backend
-- Payments are verified using Razorpay signatures
-- Orders are never created before verification
-- Duplicate verification is blocked (idempotency)
-- Clients cannot modify sensitive fields
+- Joi (Request validation)
+- Nodemailer (Email notifications)
+- NanoID
 
 ---
 
 ## Folder Structure
 
 ```text
-ekart-backend/
-
-├── src/
-│   ├── configs/
-│   ├── controllers/
-│   ├── db/
-│   ├── errors/
-│   ├── middlewares/
-│   ├── routes/
-│   ├── schemas/
-│   ├── services/
-│   ├── utils/
-│   ├── validation/
-│   ├── app.js
-│   └── server.js
-│
-├── .gitignore
-├── package.json
-├── package-lock.json
-└── README.md
+src/
+├── clients/
+├── configs/
+├── constants/
+├── errors/
+├── middlewares/
+├── models/
+├── modules/
+│   ├── auth/
+│   ├── cart/
+│   ├── order/
+│   ├── payment/
+│   └── product/
+├── providers/
+├── templates/
+└── utils/
 ```
 
 ---
 
 ## Environment Variables
 
+The following environment variables are required to run the project. See `.env.example` for details.
+
 ```bash
-PORT=
+PORT=3000
+NODE_ENV=development
+CLIENT_ORIGINS=http://localhost:5173
 
-# Firebase
-FIREBASE_PROJECT_ID=
-FIREBASE_CLIENT_EMAIL=
-FIREBASE_PRIVATE_KEY=
-FIREBASE_STORAGE_BUCKET=
+MONGO_URI=
 
-# Razorpay
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
 RAZORPAY_TEST_API_KEY=
 RAZORPAY_TEST_KEY_SECRET=
 
-# Nodemailer
 GMAIL=
 GMAIL_PASSWORD_KEY=
+
+JWT_ACCESS_TOKEN_SECRET=
+JWT_REFRESH_TOKEN_SECRET=
+JWT_ACCESS_TOKEN_EXPIRES=
+JWT_REFRESH_TOKEN_EXPIRES=
 ```
 
 ---
 
-## Status
+## Installation
 
-**v2 - Completed** (_v1 + \_v2 features included_)
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/sn0914r/ekart-backend.git
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Configure environment variables:
+   - Create a `.env` file in the root directory.
+   - Copy contents from `.env.example` and fill in your credentials.
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## API Endpoints
+
+### Authentication
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
+
+### Products
+
+- `GET /products`
+- `GET /products/colors`
+- `GET /products/:id`
+- `POST /admin/products`
+- `PATCH /admin/products/:id`
+- `DELETE /admin/products/:id`
+
+### Cart
+
+- `GET /cart`
+- `POST /cart/add`
+- `PATCH /cart/increase`
+- `PATCH /cart/decrease`
+- `DELETE /cart/remove/:id`
+- `DELETE /cart/clear`
+
+### Wishlist
+
+- `GET /wishlist`
+- `POST /wishlist`
+- `DELETE /wishlist/:productId`
+- `DELETE /wishlist`
+
+### Orders
+
+- `POST /orders`
+- `GET /orders`
+- `GET /orders/:id`
+- `GET /admin/orders`
+- `PATCH /admin/orders/:id`
+
+### Payments
+
+- `POST /payments/create`
+- `POST /payments/verify`
+
+### Admin Insights
+
+- `GET /admin/dashboard`
+- `GET /admin/analytics`
+
+---
+
+## Security
+
+The backend includes multiple security layers for authentication, authorization, and payment verification:
+
+- **JWT Authentication**: All sensitive routes are protected by JWT verification.
+- **RBAC**: Access to admin functionalities is restricted to users with the `admin` role.
+- **Password Hashing**: User passwords are encrypted using `bcrypt` before storage.
+- **Request Validation**: All incoming request bodies and parameters are validated using Joi schemas.
+- **Razorpay Security**:
+  - All pricing and order amounts are calculated server-side.
+  - Razorpay orders are generated on the server to prevent client-side tampering.
+  - Payment signatures are verified using the `crypto` module before any order is persisted or stock is reduced.
+  - Idempotency checks are performed to prevent duplicate payment processing.
+- **Error Handling**: A centralized error handling middleware prevents sensitive stack traces from being exposed in production.
