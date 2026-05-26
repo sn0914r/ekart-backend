@@ -1,21 +1,15 @@
 const jwt = require("jsonwebtoken");
 const AppError = require("../errors/AppError");
-const { ROLES } = require("../constants/roles");
 const { logger } = require("../utils/logger");
 const { ERROR_CODES } = require("../constants/errorCodes");
 const configs = require("../configs");
 
-/**
- * Verifies the user authentication and attaches the user to the req.user
- *
- * @throws {401, ERROR_CODES.INVALID_TOKEN} if the token is missing or invalid
- */
 const verifyAuth = async (req, res, next) => {
   if (!req.headers?.authorization?.startsWith("Bearer ")) {
     throw new AppError(
       "Bearer token is missing",
       401,
-      ERROR_CODES.INVALID_TOKEN,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
     );
   }
 
@@ -33,23 +27,22 @@ const verifyAuth = async (req, res, next) => {
         ? "Session expired"
         : "Invalid authentication token",
       401,
-      ERROR_CODES.INVALID_TOKEN,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
     );
   }
 };
 
-const requireAdmin = async (req, res, next) => {
-  if (req.user.role !== ROLES.ADMIN) {
-    throw new AppError("Admin access only", 403, ERROR_CODES.FORBIDDEN_ERROR);
-  }
-  next();
+const requireRole = (allowedRoles = []) => {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.role)) {
+      throw new AppError(
+        "You are not allowed to access this route",
+        403,
+        ERROR_CODES.FORBIDDEN_ERROR,
+      );
+    }
+    next();
+  };
 };
 
-const requireUser = async (req, res, next) => {
-  if (req.user.role === ROLES.ADMIN) {
-    throw new AppError("User access only", 403, ERROR_CODES.FORBIDDEN_ERROR);
-  }
-  next();
-};
-
-module.exports = { verifyAuth, requireAdmin, requireUser };
+module.exports = { verifyAuth, requireRole };

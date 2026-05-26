@@ -3,9 +3,14 @@ const jwt = require("jsonwebtoken");
 const configs = require("../../configs");
 const AppError = require("../../errors/AppError");
 const UserModel = require("../../models/User.model");
-const generateAuthTokens = require("./utils/generateAuthTokens");
 const { ERROR_CODES } = require("../../constants/errorCodes");
 const { ROLES } = require("../../constants/roles");
+const RefreshTokenModel = require("../../models/RefreshTokens.model");
+const {
+  generateRefreshToken,
+  generateAccessToken,
+} = require("./utils/generateAuthTokens");
+const { hashToken } = require("./utils/hashToken");
 
 /**
  * @param {string} name
@@ -29,13 +34,31 @@ const createUser = async (name, email, password) => {
     role: ROLES.USER,
   });
 
-  const payload = {
+  const refreshTokenDoc = await RefreshTokenModel.create({
+    userId: newUser._id,
+  });
+
+  const refreshToken = generateRefreshToken({
+    sessionId: refreshTokenDoc._id,
+    userId: newUser._id,
+  });
+
+  const accessToken = generateAccessToken({
     userId: newUser._id,
     role: newUser.role,
     name: newUser.name,
     email: newUser.email,
-  };
-  const { accessToken, refreshToken } = await generateAuthTokens(payload);
+  });
+
+  const hashedRefreshToken = hashToken(refreshToken);
+
+  const expireDate = new Date();
+  // FIXME: get the expire time from the configs (normalize string)
+  expireDate.setDate(expireDate.getDate() + 7);
+  await RefreshTokenModel.findByIdAndUpdate(refreshTokenDoc._id, {
+    hashedToken: hashedRefreshToken,
+    expiresAt: expireDate,
+  });
 
   return { accessToken, refreshToken };
 };
@@ -48,29 +71,46 @@ const createUser = async (name, email, password) => {
 const loginUser = async (email, password) => {
   const user = await UserModel.findOne({ email });
   if (!user) {
-    throw new AppError(
-      "Invalid email or password",
-      401,
-      ERROR_CODES.BAD_REQUEST_ERROR,
-    );
+    throw new AppError("User not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
+
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
     throw new AppError(
-      "Invalid email or password",
+      "Incorrect password",
       401,
-      ERROR_CODES.BAD_REQUEST_ERROR,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
     );
   }
 
-  const payload = {
+  const refreshTokenDoc = await RefreshTokenModel.create({
+    userId: user._id,
+  });
+
+  const refreshToken = generateRefreshToken({
+    sessionId: refreshTokenDoc._id,
+    userId: user._id,
+  });
+
+  const accessToken = generateAccessToken({
     userId: user._id,
     role: user.role,
     name: user.name,
     email: user.email,
-  };
-  const { accessToken, refreshToken } = await generateAuthTokens(payload);
+  });
+
+  const hashedRefreshToken = hashToken(refreshToken);
+
+  const expires = new Date();
+  // FIXME: get the expire time from the configs (normalize string)
+  expires.setDate(expires.getDate() + 7);
+
+  await RefreshTokenModel.findByIdAndUpdate(refreshTokenDoc._id, {
+    hashedToken: hashedRefreshToken,
+    expiresAt: expires,
+  });
+
   return { accessToken, refreshToken };
 };
 
@@ -80,29 +120,45 @@ const loginUser = async (email, password) => {
  */
 const refreshToken = async (refreshToken) => {
   if (!refreshToken) {
-    throw new AppError("Refresh token missing", 401, ERROR_CODES.BAD_REQUEST_ERROR);
-  }
-
-  const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret);
-  const user = await UserModel.findById(decoded.userId);
-
-  if (!user || refreshToken !== user.refreshToken) {
     throw new AppError(
-      "Invalid refresh, Please Login again",
+      "Refresh token missing",
       401,
-      ERROR_CODES.BAD_REQUEST_ERROR,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
     );
   }
 
-  const payload = {
-    userId: user._id,
-    role: user.role,
-    name: user.name,
-    email: user.email,
-  };
+  const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret);
+  const sessionId = decoded.sessionId;
 
-  const accessToken = jwt.sign(payload, configs.auth_jwt.accessSecret, {
-    expiresIn: configs.auth_jwt.accessTokenExpireTime,
+  const refreshTokenDoc = await RefreshTokenModel.findById(sessionId);
+
+  if (!refreshTokenDoc) {
+    throw new AppError(
+      "Session expired. Please login again",
+      401,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
+    );
+  }
+
+  const generatedHash = hashToken(refreshToken);
+
+  const isHashMatched = generatedHash === refreshTokenDoc.hashedToken;
+  if (!isHashMatched) {
+    throw new AppError(
+      "Invalid refresh token",
+      401,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
+    );
+  }
+
+  const userId = decoded.userId;
+  const userDoc = await UserModel.findById(userId);
+
+  const accessToken = generateAccessToken({
+    userId: userDoc._id,
+    role: userDoc.role,
+    name: userDoc.name,
+    email: userDoc.email,
   });
 
   return accessToken;
@@ -112,14 +168,10 @@ const refreshToken = async (refreshToken) => {
  * @param {string} refreshToken
  */
 const logoutUser = async (refreshToken) => {
-  try {
-    const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret);
-    await UserModel.findOneAndUpdate(
-      { _id: decoded.userId, refreshToken },
-      { refreshToken: null },
-    );
-  } catch (err) {}
+  const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret);
+  const sessionId = decoded.sessionId;
 
+  await RefreshTokenModel.findByIdAndDelete(sessionId);
   return;
 };
 

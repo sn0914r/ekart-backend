@@ -6,7 +6,6 @@ const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: Object.values(ROLES), default: ROLES.USER },
-  refreshToken: { type: String, default: null },
 });
 
 const UserModel = model("users", UserSchema);

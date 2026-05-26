@@ -10,8 +10,7 @@ const {
 } = require("./order.controller");
 const {
   verifyAuth,
-  requireUser,
-  requireAdmin,
+  requireRole,
 } = require("../../middlewares/auth.middleware");
 const { validate } = require("../../middlewares/validation.middleware");
 const {
@@ -19,43 +18,54 @@ const {
   updateOrderSchema,
   updateShippingStatusSchema,
 } = require("./order.schema");
+const { ROLES } = require("../../constants/roles");
 
 // User routes
-router.get("/orders", verifyAuth, requireUser, getOrdersController);
+router.get(
+  "/orders",
+  verifyAuth,
+  requireRole([ROLES.USER]),
+  getOrdersController,
+);
 router.post(
   "/orders",
   verifyAuth,
-  requireUser,
+  requireRole([ROLES.USER]),
   validate(createOrderSchema),
   createOrderController,
 );
 router.patch(
   "/orders/:id",
   verifyAuth,
-  requireUser,
+  requireRole([ROLES.USER]),
   validate(updateOrderSchema),
   updateOrderController,
 );
-router.get("/orders/:id", verifyAuth, requireUser, getOrderController);
+router.get(
+  "/orders/:id",
+  verifyAuth,
+  requireRole([ROLES.USER]),
+  getOrderController,
+);
 
 // Admin routes
 router.get(
   "/admin/orders",
   verifyAuth,
-  requireAdmin,
+  requireRole([ROLES.ADMIN]),
   getOrdersForAdminController,
 );
 router.patch(
   "/admin/orders/:id",
   verifyAuth,
-  requireAdmin,
+  requireRole([ROLES.ADMIN]),
   validate(updateShippingStatusSchema),
   updateOrderByAdminController,
 );
 router.get(
   "/admin/orders/:id",
   verifyAuth,
-  requireAdmin,
+  requireRole([ROLES.ADMIN]),
   getOrderForAdminController,
 );
 

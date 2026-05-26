@@ -10,19 +10,20 @@ const {
 } = require("../../middlewares/rateLimiter.middleware");
 const {
   verifyAuth,
-  requireUser,
+  requireRole,
 } = require("../../middlewares/auth.middleware");
 const {
   createPaymentController,
   paymentSuccessController,
 } = require("./payment.controller");
+const { ROLES } = require("../../constants/roles");
 
 // User routes
 router.post(
   "/payments/create",
   createPaymentLimiter,
   verifyAuth,
-  requireUser,
+  requireRole([ROLES.USER]),
   validate(orderIdSchema),
   createPaymentController,
 );
@@ -30,7 +31,7 @@ router.post(
   "/payments/verify",
   verifyPaymentLimiter,
   verifyAuth,
-  requireUser,
+  requireRole([ROLES.USER]),
   validate(paymentVerificationSchema),
   paymentSuccessController,
 );
