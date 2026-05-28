@@ -15,6 +15,12 @@ const OrderSchema = new Schema(
     userId: String,
     email: String,
 
+    orderId: {
+      type: String,
+      unique: true,
+      index: true,
+    },
+
     orderSnapshot: [OrderItemSchema],
 
     subTotal: { type: Number, min: 0 },
@@ -45,6 +51,12 @@ const OrderSchema = new Schema(
   },
   { timestamps: true, versionKey: false },
 );
+
+OrderSchema.pre("save", function () {
+  if (!this.orderId) {
+    this.orderId = `EK-${this._id.toString().slice(-6).toUpperCase()}`;
+  }
+});
 
 const OrderModel = model("Order", OrderSchema);
 module.exports = OrderModel;

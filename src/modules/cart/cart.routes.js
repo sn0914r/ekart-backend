@@ -13,34 +13,34 @@ router.get("/cart", verifyAuth, C.getCartController);
 router.post(
   "/cart/add",
   verifyAuth,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.USER]),
   validate(AddToCartRequestSchema),
   C.addToCartController,
 );
 router.patch(
   "/cart/increase",
   verifyAuth,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.USER]),
   validate(CartRequestSchema),
   C.incQuantityController,
 );
 router.patch(
   "/cart/decrease",
   verifyAuth,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.USER]),
   validate(CartRequestSchema),
   C.decQuantityController,
 );
 router.delete(
   "/cart/remove/:id",
   verifyAuth,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.USER]),
   C.removeFromCartController,
 );
 router.delete(
   "/cart/clear",
   verifyAuth,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.USER]),
   C.clearCartController,
 );
 

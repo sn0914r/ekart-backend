@@ -1,4 +1,5 @@
-const Service = require("./services/order.service")
+const { logger } = require("../../utils/logger");
+const Service = require("./services/order.service");
 
 /**
  * @route POST /orders
@@ -8,7 +9,11 @@ const createOrderController = async (req, res) => {
   const { userId, email } = req.user;
   const { shippingAddress } = req.body;
 
-  const orderDetails = await Service.createOrder(userId, email, shippingAddress);
+  const orderDetails = await Service.createOrder(
+    userId,
+    email,
+    shippingAddress,
+  );
   return res.status(201).json({
     success: true,
     message: "Order created successfully",
@@ -79,12 +84,14 @@ const getOrderController = async (req, res) => {
  * @access Private
  */
 const getOrdersForAdminController = async (req, res) => {
-  const orders = await Service.getOrdersForAdmin();
+  logger.info("req.query" + JSON.stringify(req.query));
+  const { orders, pagination } = await Service.getOrdersForAdmin(req.query);
 
   return res.status(200).json({
     success: true,
     message: "Orders fetched successfully",
     data: orders,
+    pagination,
   });
 };
 

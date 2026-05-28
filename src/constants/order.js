@@ -17,4 +17,26 @@ const PAYMENT_STATUS = {
   PAID: "PAID",
 };
 
-module.exports = { ORDER_STATUS, SHIPPING_STATUS, PAYMENT_STATUS };
+const VALID_ORDER_SORT_FIELDS_ADMIN = [
+  "orderId",
+  "email",
+  "subTotal",
+  "paymentStatus",
+  "shippingStatus",
+  "orderStatus",
+  "createdAt",
+  "-orderId",
+  "-email",
+  "-subTotal",
+  "-paymentStatus",
+  "-shippingStatus",
+  "-orderStatus",
+  "-createdAt",
+];
+
+module.exports = {
+  ORDER_STATUS,
+  SHIPPING_STATUS,
+  PAYMENT_STATUS,
+  VALID_ORDER_SORT_FIELDS_ADMIN,
+};

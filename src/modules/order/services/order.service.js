@@ -17,14 +17,12 @@ const {
   validateProductsExists,
   validateStock,
 } = require("../validators/order.validator");
-const {
-  buildProductQtyMap,
-  calculateSubtotal,
-} = require("../order.utils");
-const {
-  cancelOrderWithStockReversal,
-} = require("./cancelOrder");
+const { buildProductQtyMap, calculateSubtotal } = require("../order.utils");
+const { cancelOrderWithStockReversal } = require("./cancelOrder");
 const { logger } = require("../../../utils/logger");
+const { buildOrderPagination } = require("../utils/buildPagination");
+const { buildOrderFilter } = require("../utils/buildSearchFilter");
+const { buildSortFilter } = require("../utils/buildSort");
 
 /**
  * Creates an order
@@ -103,6 +101,7 @@ const getOrders = async (userId) => {
   const orders = await OrderModel.find(
     { userId },
     {
+      orderId: 1,
       orderSnapshot: 1,
       shippingAddress: 1,
       orderStatus: 1,
@@ -124,6 +123,7 @@ const getOrders = async (userId) => {
  */
 const getOrder = async (userId, orderId) => {
   const order = await OrderModel.findById(orderId, {
+    orderId: 1,
     userId: 1,
     email: 1,
     orderSnapshot: 1,
@@ -195,18 +195,35 @@ const updateOrder = async (orderId, userId, updates) => {
  *
  * @returns {object[]} Array of orders
  */
-const getOrdersForAdmin = async () => {
-  return await OrderModel.find(
-    {},
-    {
-      email: 1,
-      subTotal: 1,
-      paymentStatus: 1,
-      shippingStatus: 1,
-      orderStatus: 1,
-      createdAt: 1,
+const getOrdersForAdmin = async (query) => {
+  const { page, limit, skip } = buildOrderPagination(query);
+  const orderFilters = buildOrderFilter(query);
+  const orderSortFilter = buildSortFilter(query);
+  
+  const orders = await OrderModel.find(orderFilters, {
+    orderId: 1,
+    email: 1,
+    subTotal: 1,
+    paymentStatus: 1,
+    shippingStatus: 1,
+    orderStatus: 1,
+    createdAt: 1,
+  })
+    .skip(skip)
+    .limit(limit)
+    .sort(orderSortFilter);
+
+  const totalDocuments = await OrderModel.countDocuments(orderFilters);
+
+  return {
+    orders,
+    pagination: {
+      page,
+      limit,
+      totalPages: Math.ceil(totalDocuments / limit),
+      // totalItems: totalDocuments,
     },
-  ).sort({ createdAt: -1 });
+  };
 };
 
 /**
