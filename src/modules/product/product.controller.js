@@ -89,13 +89,14 @@ const addProductByAdminController = async (req, res) => {
  */
 const getProductsForAdminController = async (req, res) => {
   const query = req.query;
-  
-  const products = await getProductsForAdmin(query);
+
+  const { products, pagination } = await getProductsForAdmin(query);
 
   res.status(200).json({
     success: true,
     message: "Products fetched successfully",
     data: products,
+    pagination,
   });
 };
 

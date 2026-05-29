@@ -3,6 +3,7 @@ const ProductModel = require("../../models/Product.model");
 const cloudinaryIntegration = require("../../providers/cloudinary");
 const { ERROR_CODES } = require("../../constants/errorCodes");
 const { buildFilter, buildSort, buildPagination } = require("./utils");
+const { logger } = require("../../utils/logger");
 
 /**
  * Fetches Active products
@@ -130,21 +131,34 @@ const addProductByAdmin = async ({
 const getProductsForAdmin = async (query) => {
   // const { filter, sortOrder } = formatMongoQuery(query);
   const filter = buildFilter(query);
-  const sortOrder = buildSort(query)
+  const sortOrder = buildSort(query);
+  const { skip, limit, page } = buildPagination(query);
 
   const products = await ProductModel.find(filter, {
     name: 1,
     price: 1,
     stock: 1,
     images: { $slice: 1 },
-    stock: 1,
     category: 1,
     isActive: 1,
-    description: 1,
-    attributes: 1,
-  }).sort(sortOrder);
+  })
+    .sort(sortOrder)
+    .skip(skip)
+    .limit(limit);
 
-  return products;
+  // description: 1,
+  // attributes: 1,
+  const totalDocs = await ProductModel.countDocuments(filter);
+
+  return {
+    products,
+    pagination: {
+      limit,
+      page,
+      totalProducts: totalDocs,
+      totalPages: Math.ceil(totalDocs / limit),
+    },
+  };
 };
 
 /**

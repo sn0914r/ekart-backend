@@ -47,7 +47,7 @@ const errorHandler = (err, _req, res, _next) => {
     });
   }
 
-  logger.error(err);
+  logger.error(err.stack);
   res.status(500).json({
     success: false,
     message: "Something went wrong",
