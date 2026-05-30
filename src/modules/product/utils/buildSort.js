@@ -3,7 +3,7 @@ const { logger } = require("../../../utils/logger");
 
 const buildSort = (query) => {
   const { sort = null } = query;
-  const sortOptions = {};
+  let sortOptions = {};
 
   if (!sort) {
     return sortOptions;
