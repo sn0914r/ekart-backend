@@ -23,6 +23,7 @@ const { logger } = require("../../../utils/logger");
 const { buildOrderPagination } = require("../utils/buildPagination");
 const { buildOrderFilter } = require("../utils/buildSearchFilter");
 const { buildSortFilter } = require("../utils/buildSort");
+const createTimeline = require("../utils/createOrderTimeline");
 
 /**
  * Creates an order
@@ -67,17 +68,12 @@ const createOrder = async (userId, email, shippingAddress) => {
     { status: ORDER_STATUS.CREATED, at: new Date(), by: userId },
   ];
 
-  const shippingStatusHistory = [
-    { status: SHIPPING_STATUS.PENDING, at: new Date(), by: userId },
-  ];
-
   const order = await OrderModel.create({
     userId,
     email,
     orderSnapshot,
     subTotal,
     orderStatusHistory,
-    shippingStatusHistory,
     shippingAddress,
   });
 
@@ -135,6 +131,7 @@ const getOrder = async (userId, orderId) => {
     shippingStatusHistory: 1,
     shippingAddress: 1,
     createdAt: 1,
+    paymentStatusPaidHistory: 1,
     "paymentDetails.razorpayPaymentId": 1,
   });
 
@@ -148,7 +145,19 @@ const getOrder = async (userId, orderId) => {
       ERROR_CODES.UNAUTHORIZED_ERROR,
     );
 
-  return order;
+  const timeline = createTimeline(
+    order.paymentStatusPaidHistory,
+    order.orderStatusHistory,
+    order.shippingStatusHistory,
+  );
+
+  const {
+    orderStatusHistory,
+    paymentStatusPaidHistory,
+    shippingStatusHistory,
+    ...orderResponse
+  } = order._doc;
+  return { ...orderResponse, timeline };
 };
 
 /**
@@ -199,7 +208,7 @@ const getOrdersForAdmin = async (query) => {
   const { page, limit, skip } = buildOrderPagination(query);
   const orderFilters = buildOrderFilter(query);
   const orderSortFilter = buildSortFilter(query);
-  
+
   const orders = await OrderModel.find(orderFilters, {
     orderId: 1,
     email: 1,

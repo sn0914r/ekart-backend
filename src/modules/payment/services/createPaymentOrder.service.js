@@ -1,4 +1,5 @@
 const { ERROR_CODES } = require("../../../constants/errorCodes");
+const { PAYMENT_STATUS } = require("../../../constants/order");
 const AppError = require("../../../errors/AppError");
 const OrderModel = require("../../../models/Order/Order.model");
 const { createRazorpayOrder } = require("../../../providers/razorpay");
@@ -21,6 +22,11 @@ const createPaymentOrder = async (orderId, userId) => {
 
   order.paymentDetails = order.paymentDetails || {};
   order.paymentDetails.razorpayOrderId = razorpayOrderId;
+  order.paymentStatusPaidHistory = {
+    status: PAYMENT_STATUS.PENDING,
+    at: new Date(),
+    by: order.userId,
+  };
 
   await order.save();
   return { razorpayOrderId };

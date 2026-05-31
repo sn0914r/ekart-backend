@@ -34,9 +34,34 @@ const VALID_ORDER_SORT_FIELDS_ADMIN = [
   "-createdAt",
 ];
 
+const ORDER_TIMELINE_LABELS = {
+  PAYMENT: {
+    PAID: "Payment received",
+    PENDING: "Payment pending",
+    // TODO: Add this in future
+    // FAILED: "Payment failed",
+    // REFUNDED: "Payment refunded",
+  },
+
+  ORDER: {
+    CREATED: "Order placed",
+    CONFIRMED: "Order confirmed",
+    CANCELLED: "Order cancelled",
+  },
+
+  SHIPPING: {
+    PENDING: "Awaiting shipment",
+    PACKED: "Order packed",
+    SHIPPED: "Order shipped",
+    DELIVERED: "Order delivered",
+    CANCELLED: "Shipment cancelled",
+  },
+};
+
 module.exports = {
   ORDER_STATUS,
   SHIPPING_STATUS,
   PAYMENT_STATUS,
   VALID_ORDER_SORT_FIELDS_ADMIN,
+  ORDER_TIMELINE_LABELS,
 };

@@ -5,7 +5,7 @@ const AppError = require("../../../errors/AppError");
 const OrderModel = require("../../../models/Order/Order.model");
 const crypto = require("crypto");
 const ProductModel = require("../../../models/Product.model");
-const { ORDER_STATUS, PAYMENT_STATUS } = require("../../../constants/order");
+const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = require("../../../constants/order");
 const { sendMail } = require("../../../providers/nodemailer");
 const orderConfirmation = require("../../../templates/orderConfirmation");
 
@@ -84,6 +84,11 @@ const updatePaymentStatus = async (
   order.paymentStatus = PAYMENT_STATUS.PAID;
   order.paymentDetails.razorpayPaymentId = razorpayPaymentId;
   order.paymentDetails.razorpaySignature = razorpaySignature;
+  order.paymentStatusPaidHistory = {
+    status: PAYMENT_STATUS.PAID,
+    at: new Date(),
+    by: order.userId,
+  };
 
   await order.save();
 };
@@ -132,6 +137,9 @@ const runTransaction = async (order, userId) => {
       at: new Date(),
       by: userId,
     });
+    order.shippingStatusHistory = [
+      { status: SHIPPING_STATUS.PENDING, at: new Date(), by: userId },
+    ];
     await order.save({ session });
   });
 
