@@ -31,12 +31,15 @@ const handlePaymentSuccess = async (paymentData, userId) => {
   await runTransaction(order, userId);
 
   sendConfirmationMail(order);
-  return { orderId: order._id, razorpayPaymentId };
+  return {
+    orderId: order.orderId,
+    razorpayPaymentId,
+    totalAmount: order.subTotal,
+    email: order.email,
+  };
 };
 
 module.exports = handlePaymentSuccess;
-
-
 
 /* ======================
     Idempotency check

@@ -10,7 +10,7 @@ const { formatCartList } = require("./cart.utils");
 const getCart = async (userId) => {
   const cart = await CartModel.findOne({ userId }, { items: 1 }).populate(
     "items.productId",
-    "name images price stock",
+    "name images price stock attributes",
   );
 
   if (!cart) return { items: [] };

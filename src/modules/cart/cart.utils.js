@@ -7,6 +7,7 @@ const formatCartList = (cartList) => {
     stock: item.productId.stock,
     quantity: item.quantity,
     size: item.variant.size,
+    color: item.productId.attributes.color
   }));
 };
 
