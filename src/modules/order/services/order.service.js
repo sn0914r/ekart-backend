@@ -246,7 +246,12 @@ const getOrderForAdmin = async (orderId) => {
   if (!order)
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
-  return order;
+  const timeline = createTimeline(
+    order.paymentStatusPaidHistory,
+    order.orderStatusHistory,
+    order.shippingStatusHistory,
+  );
+  return { ...order._doc, timeline };
 };
 
 /**

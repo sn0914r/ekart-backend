@@ -42,7 +42,7 @@ const getDashboardData = async () => {
     // INFO: Recent Orders
     OrderModel.find()
       .sort({ createdAt: -1 })
-      .limit(5)
+      .limit(10)
       .select("email subTotal orderStatus paymentStatus createdAt"),
 
     // INFO: Low stock Items

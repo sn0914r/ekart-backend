@@ -141,13 +141,13 @@ const getProductsForAdmin = async (query) => {
     images: { $slice: 1 },
     category: 1,
     isActive: 1,
+    description: 1,
+    attributes: 1,
   })
     .sort(sortOrder)
     .skip(skip)
     .limit(limit);
 
-  // description: 1,
-  // attributes: 1,
   const totalDocs = await ProductModel.countDocuments(filter);
 
   return {
