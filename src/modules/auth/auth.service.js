@@ -168,10 +168,18 @@ const refreshToken = async (refreshToken) => {
  * @param {string} refreshToken
  */
 const logoutUser = async (refreshToken) => {
-  const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret);
-  const sessionId = decoded.sessionId;
+  try {
+    const decoded = jwt.verify(refreshToken, configs.auth_jwt.refreshSecret, {
+      ignoreExpiration: true,
+    });
+    const sessionId = decoded.sessionId;
 
-  await RefreshTokenModel.findByIdAndDelete(sessionId);
+    if (sessionId) {
+      await RefreshTokenModel.findByIdAndDelete(sessionId);
+    }
+  } catch (error) {
+    // INFO: Token is completely invalid, but user wants to log out anyway, so we just proceed
+  }
   return;
 };
 
