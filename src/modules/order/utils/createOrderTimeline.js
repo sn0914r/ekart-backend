@@ -1,6 +1,21 @@
-const { ORDER_TIMELINE_LABELS } = require("../../../constants/order");
+import { ORDER_TIMELINE_LABELS } from "../../../constants/order.js";
 
-const createTimeline = (
+/**
+ * @typedef {Object} TimelineEntry
+ * @property {'PAYMENT' | 'ORDER' | 'SHIPPING'} type
+ * @property {string} status
+ * @property {string} label
+ * @property {Date} at
+ */
+
+/**
+ * @param {{ status: string, at: Date }} paymentStatusHistory
+ * @param {{ status: string, at: Date }[]} orderStatusHistory
+ * @param {{ status: string, at: Date }[]} shippingStatusHistory
+ * @returns {TimelineEntry[]}
+ */
+
+export const createTimeline = (
   paymentStatusHistory,
   orderStatusHistory,
   shippingStatusHistory,
@@ -36,5 +51,3 @@ const createTimeline = (
 
   return timeline;
 };
-
-module.exports = createTimeline;

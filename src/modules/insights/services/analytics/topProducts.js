@@ -1,6 +1,6 @@
-const OrderModel = require("../../../../models/Order/Order.model");
+import OrderModel from "../../../../models/Order/Order.model.js";
 
-const topProductsAggregation = OrderModel.aggregate([
+export const topProductsAggregation = OrderModel.aggregate([
   {
     $match: {
       paymentStatus: "PAID",
@@ -64,5 +64,3 @@ const topProductsAggregation = OrderModel.aggregate([
     },
   },
 ]);
-
-module.exports = { topProductsAggregation };

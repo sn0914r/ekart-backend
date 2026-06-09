@@ -1,5 +1,5 @@
-const cloudinary = require("cloudinary").v2;
-const configs = require("../configs/index.js");
+import { v2 as cloudinary } from "cloudinary";
+import { configs } from "../configs/index.js";
 
 cloudinary.config({
   cloud_name: configs.cloudinary.cloud_name,
@@ -7,4 +7,4 @@ cloudinary.config({
   api_secret: configs.cloudinary.api_secret,
 });
 
-module.exports = cloudinary;
+export { cloudinary };

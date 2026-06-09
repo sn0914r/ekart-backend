@@ -1,6 +1,6 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose";
 
-const ShippingAddressSchema = new Schema(
+export const ShippingAddressSchema = new Schema(
   {
     name: String,
     address: String,
@@ -14,5 +14,3 @@ const ShippingAddressSchema = new Schema(
     _id: false,
   },
 );
-
-module.exports = ShippingAddressSchema;

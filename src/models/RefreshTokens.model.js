@@ -1,5 +1,4 @@
-const { Schema, model } = require("mongoose");
-
+import { Schema, model } from "mongoose";
 const RefreshTokenSchema = new Schema(
   {
     userId: {
@@ -23,5 +22,4 @@ const RefreshTokenSchema = new Schema(
 );
 
 const RefreshTokenModel = model("RefreshTokens", RefreshTokenSchema);
-
-module.exports = RefreshTokenModel;
+export default RefreshTokenModel;

@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { Schema, model } from "mongoose";
 
 const wishlistSchema = new Schema(
   {
@@ -30,6 +30,6 @@ const wishlistSchema = new Schema(
   },
 );
 
-wishlistSchema.index({ user: 1 });
 
-module.exports = model("Wishlist", wishlistSchema);
+const WishlistModel = model("Wishlist", wishlistSchema);
+export default WishlistModel;

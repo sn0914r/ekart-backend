@@ -1,11 +1,11 @@
-const Service = require("./services");
+import { getDashboardData, getAnalyticsData } from "./services/index.js";
 
 /**
  * @route GET /admin/dashboard
  * @access Private
  */
-const getDashboardController = async (req, res) => {
-  const report = await Service.getDashboardData();
+export const getDashboardController = async (req, res) => {
+  const report = await getDashboardData();
 
   res.status(200).json({
     success: true,
@@ -18,17 +18,12 @@ const getDashboardController = async (req, res) => {
  * @route GET /admin/analytics
  * @access Private
  */
-const getAnalyticsController = async (req, res) => {
-  const report = await Service.getAnalyticsData();
+export const getAnalyticsController = async (req, res) => {
+  const report = await getAnalyticsData();
 
   res.status(200).json({
     success: true,
     message: "Analytics data fetched successfully",
     data: report,
   });
-};
-
-module.exports = {
-  getDashboardController,
-  getAnalyticsController,
 };

@@ -1,4 +1,4 @@
-const formatCartList = (cartList) => {
+export const formatCartList = (cartList) => {
   return cartList.map((item) => ({
     productId: item.productId._id,
     name: item.productId.name,
@@ -7,8 +7,6 @@ const formatCartList = (cartList) => {
     stock: item.productId.stock,
     quantity: item.quantity,
     size: item.variant.size,
-    color: item.productId.attributes.color
+    color: item.productId.attributes.color,
   }));
 };
-
-module.exports = { formatCartList };

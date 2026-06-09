@@ -2,7 +2,7 @@
   "name": "ekart",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
@@ -11,9 +11,9 @@
   "keywords": [],
   "author": "Sivananda Reddy (https://github.com/sn0914r)",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -26,6 +26,7 @@
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.5",
+    "morgan": "^1.11.0",
     "multer": "^2.0.2",
     "nanoid": "^5.1.9",
     "nodemailer": "^8.0.5",

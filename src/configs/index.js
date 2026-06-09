@@ -1,7 +1,10 @@
-const configs = {
+export const configs = {
   port: process.env.PORT || 3000,
   node_env: process.env.NODE_ENV || "development",
-  clientOrigins: process.env.CLIENT_ORIGINS ? process.env.CLIENT_ORIGINS.split(",") : ["http://localhost:3000"],
+  clientOrigins: process.env.CLIENT_ORIGINS
+    ? process.env.CLIENT_ORIGINS.split(",")
+    : ["http://localhost:3000"],
+    
   mongoURI: process.env.MONGO_URI,
 
   cloudinary: {
@@ -27,5 +30,3 @@ const configs = {
     refreshTokenExpireTime: process.env.JWT_REFRESH_TOKEN_EXPIRES,
   },
 };
-
-module.exports = configs;

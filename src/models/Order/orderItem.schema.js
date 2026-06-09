@@ -1,6 +1,6 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose";
 
-const OrderItemSchema = new Schema(
+export const OrderItemSchema = new Schema(
   {
     productId: { type: Schema.Types.ObjectId },
     quantity: Number,
@@ -11,5 +11,3 @@ const OrderItemSchema = new Schema(
   },
   { _id: false },
 );
-
-module.exports = OrderItemSchema;

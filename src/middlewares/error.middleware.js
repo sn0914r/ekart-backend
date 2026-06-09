@@ -1,9 +1,9 @@
-const configs = require("../configs");
-const { ERROR_CODES } = require("../constants/errorCodes");
-const AppError = require("../errors/AppError");
-const { logger } = require("../utils/logger");
+import { configs } from "../configs/index.js";
+import { ERROR_CODES } from "../constants/errorCodes.js";
+import { AppError } from "../errors/AppError.js";
+import { logger } from "../utils/logger.js";
 
-const errorHandler = (err, _req, res, _next) => {
+export const errorHandler = (err, _req, res, _next) => {
   const isProd = configs.node_env === "production";
 
   if (err.isJoi) {
@@ -55,5 +55,3 @@ const errorHandler = (err, _req, res, _next) => {
     stack: isProd ? undefined : err.stack,
   });
 };
-
-module.exports = errorHandler;

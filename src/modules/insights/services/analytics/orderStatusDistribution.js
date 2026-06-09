@@ -1,6 +1,6 @@
-const OrderModel = require("../../../../models/Order/Order.model");
+import OrderModel from "../../../../models/Order/Order.model.js";
 
-const orderStatusDistributionAggregation = OrderModel.aggregate([
+export const orderStatusDistributionAggregation = OrderModel.aggregate([
   {
     $group: {
       _id: "$orderStatus",
@@ -11,5 +11,3 @@ const orderStatusDistributionAggregation = OrderModel.aggregate([
     },
   },
 ]);
-
-module.exports = { orderStatusDistributionAggregation };

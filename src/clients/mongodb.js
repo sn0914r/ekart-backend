@@ -1,15 +1,13 @@
-const mongoose = require("mongoose");
-const config = require("../configs/index.js");
-const { logger } = require("../utils/logger.js");
+import mongoose from "mongoose";
+import { configs } from "../configs/index.js";
+import { logger } from "../utils/logger.js";
 
-async function connectDB() {
+export const connectMongoDB = async () => {
   try {
-    await mongoose.connect(config.mongoURI);
+    await mongoose.connect(configs.mongoURI);
     logger.info("MongoDB connected");
   } catch (err) {
     logger.error(err.message);
     process.exit(1);
   }
-}
-
-module.exports = connectDB;
+};

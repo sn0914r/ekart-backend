@@ -1,13 +1,23 @@
-const CartModel = require("../../models/Cart.model");
-const { formatCartList } = require("./cart.utils");
+import CartModel from "../../models/Cart.model.js";
+import { formatCartList } from "./cart.utils.js";
 
 /**
- * Gets the Whole Cart Array
- *
- * @param {string} userId
- * @returns {object} cart
+ * @typedef {Object} CartItem
+ * @property {string} productId
+ * @property {string} name
+ * @property {number} price
+ * @property {string} thumbnail
+ * @property {number} stock
+ * @property {number} quantity
+ * @property {string} size
+ * @property {string} color
  */
-const getCart = async (userId) => {
+
+/**
+ * @param {string} userId
+ * @returns {Promise<{items: CartItem[]}>}
+ */
+export const getCart = async (userId) => {
   const cart = await CartModel.findOne({ userId }, { items: 1 }).populate(
     "items.productId",
     "name images price stock attributes",
@@ -20,14 +30,12 @@ const getCart = async (userId) => {
 };
 
 /**
- * Add new Item to the cart
- *
  * @param {string} productId
- * @param {object} variant - {size, color}
+ * @param {{size: number | string, color: string}} variant
  * @param {string} userId
- * @returns {object} cart
+ * @returns {Promise<{items: CartItem[]}>}
  */
-const addToCart = async (productId, variant, userId) => {
+export const addToCart = async (productId, variant, userId) => {
   let cart = await CartModel.findOne({ userId });
   if (!cart) {
     cart = await CartModel.create({ userId, items: [] });
@@ -55,38 +63,36 @@ const addToCart = async (productId, variant, userId) => {
 };
 
 /**
- * Increase product quantity
- *
  * @param {string} productId
  * @param {string} userId
- * @returns {object} cart
+ * @returns {Promise<{items: CartItem[]}>}
  */
-const incQuantity = async (productId, userId) => {
+export const incQuantity = async (productId, userId) => {
   const cart = await CartModel.findOne({ userId });
 
-  const item = cart.items.find((item) => item.productId.toString() === productId);
-  
+  const item = cart.items.find(
+    (item) => item.productId.toString() === productId,
+  );
+
   if (item) item.quantity += 1;
-  
+
   await cart.save();
-  
+
   const updatedCart = await CartModel.findOne(
     { userId },
     { items: 1 },
   ).populate("items.productId", "name images price stock");
-  
+
   const formattedItems = formatCartList(updatedCart.items);
   return { items: formattedItems };
 };
 
 /**
- * Decrease product quantity
- *
  * @param {string} productId
  * @param {string} userId
- * @returns {object} cart
+ * @returns {Promise<{items: CartItem[]}>}
  */
-const decQuantity = async (productId, userId) => {
+export const decQuantity = async (productId, userId) => {
   const cart = await CartModel.findOne({ userId });
   const item = cart.items.find(
     (item) => item.productId.toString() === productId,
@@ -94,7 +100,9 @@ const decQuantity = async (productId, userId) => {
   if (item) {
     item.quantity -= 1;
     if (item.quantity <= 0) {
-      cart.items = cart.items.filter((item) => item.productId.toString() !== productId);
+      cart.items = cart.items.filter(
+        (item) => item.productId.toString() !== productId,
+      );
     }
   }
   await cart.save();
@@ -108,17 +116,17 @@ const decQuantity = async (productId, userId) => {
 };
 
 /**
- * Remove a product
- *
  * @param {string} productId
  * @param {string} userId
- * @returns {object} cart
+ * @returns {Promise<{items: CartItem[]}>}
  */
-const removeFromCart = async (productId, userId) => {
+export const removeFromCart = async (productId, userId) => {
   const cart = await CartModel.findOne({ userId });
-  cart.items = cart.items.filter((item) => item.productId.toString() !== productId);
+  cart.items = cart.items.filter(
+    (item) => item.productId.toString() !== productId,
+  );
   await cart.save();
-  
+
   const updatedCart = await CartModel.findOne(
     { userId },
     { items: 1 },
@@ -129,23 +137,12 @@ const removeFromCart = async (productId, userId) => {
 };
 
 /**
- * Clear cart
- *
  * @param {string} userId
- * @returns {object} cart
+ * @returns {Promise<{items: []}>}
  */
-const clearCart = async (userId) => {
+export const clearCart = async (userId) => {
   const cart = await CartModel.findOne({ userId });
   cart.items = [];
   await cart.save();
   return { items: [] };
-};
-
-module.exports = {
-  getCart,
-  addToCart,
-  decQuantity,
-  incQuantity,
-  removeFromCart,
-  clearCart,
 };

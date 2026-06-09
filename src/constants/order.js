@@ -1,10 +1,10 @@
-const ORDER_STATUS = {
+export const ORDER_STATUS = {
   CREATED: "CREATED",
   CONFIRMED: "CONFIRMED",
   CANCELLED: "CANCELLED",
 };
 
-const SHIPPING_STATUS = {
+export const SHIPPING_STATUS = {
   PENDING: "PENDING",
   PACKED: "PACKED",
   SHIPPED: "SHIPPED",
@@ -12,12 +12,12 @@ const SHIPPING_STATUS = {
   CANCELLED: "CANCELLED",
 };
 
-const PAYMENT_STATUS = {
+export const PAYMENT_STATUS = {
   PENDING: "PENDING",
   PAID: "PAID",
 };
 
-const VALID_ORDER_SORT_FIELDS_ADMIN = [
+export const VALID_ORDER_SORT_FIELDS_FOR_ADMIN_LIST = [
   "orderId",
   "email",
   "subTotal",
@@ -34,7 +34,7 @@ const VALID_ORDER_SORT_FIELDS_ADMIN = [
   "-createdAt",
 ];
 
-const ORDER_TIMELINE_LABELS = {
+export const ORDER_TIMELINE_LABELS = {
   PAYMENT: {
     PAID: "Payment received",
     PENDING: "Payment pending",
@@ -58,10 +58,16 @@ const ORDER_TIMELINE_LABELS = {
   },
 };
 
-module.exports = {
-  ORDER_STATUS,
-  SHIPPING_STATUS,
-  PAYMENT_STATUS,
-  VALID_ORDER_SORT_FIELDS_ADMIN,
-  ORDER_TIMELINE_LABELS,
+export const ORDER_TRANSITIONS = {
+  CREATED: ["CONFIRMED", "CANCELLED"],
+  CONFIRMED: ["CANCELLED"],
+  CANCELLED: [],
+};
+
+export const SHIPPING_TRANSITIONS = {
+  PENDING: ["PACKED", "CANCELLED"],
+  PACKED: ["SHIPPED"],
+  SHIPPED: ["DELIVERED"],
+  DELIVERED: [],
+  CANCELLED: [],
 };

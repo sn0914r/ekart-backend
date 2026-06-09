@@ -1,6 +1,6 @@
-const transporter = require("../clients/nodemailer");
+import { transporter } from "../clients/nodemailer.js";
 
-const sendMail = ({ to, subject, template }) => {
+export const sendMail = ({ to, subject, template }) => {
   transporter.sendMail({
     from: process.env.GMAIL,
     to,
@@ -8,5 +8,3 @@ const sendMail = ({ to, subject, template }) => {
     html: template,
   });
 };
-
-module.exports = { sendMail };

@@ -1,9 +1,10 @@
-const joi = require("joi");
+import joi from "joi";
 
-const CartRequestSchema = joi.object({
+export const CartItemProductIdSchema = joi.object({
   productId: joi.string().required(),
 });
-const AddToCartRequestSchema = joi.object({
+
+export const AddToCartSchema = joi.object({
   productId: joi.string().required(),
   variant: joi
     .object({
@@ -11,5 +12,3 @@ const AddToCartRequestSchema = joi.object({
     })
     .required(),
 });
-
-module.exports = { CartRequestSchema, AddToCartRequestSchema };

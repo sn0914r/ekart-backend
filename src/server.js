@@ -1,13 +1,17 @@
-require("dotenv").config();
-const app = require("./app");
-const configs = require("./configs/index");
-const connectMongoDB = require("./clients/mongodb");
-const { logger } = require("./utils/logger");
+import "dotenv/config";
+import { app } from "./app.js";
+import { configs } from "./configs/index.js";
+import { connectMongoDB } from "./clients/mongodb.js";
+import { logger } from "./utils/logger.js";
 
 const PORT = configs.port;
 
-connectMongoDB();
+const startServer = () => {
+  connectMongoDB();
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+  app.listen(PORT, () => {
+    logger.info(`Server is running on port ${PORT}`);
+  });
+};
+
+startServer();

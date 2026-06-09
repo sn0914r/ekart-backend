@@ -1,6 +1,6 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose";
 
-const PaymentSchema = new Schema(
+export const PaymentSchema = new Schema(
   {
     razorpayOrderId: { type: String, default: null },
     razorpayPaymentId: { type: String, default: null },
@@ -10,5 +10,3 @@ const PaymentSchema = new Schema(
     _id: false,
   },
 );
-
-module.exports = PaymentSchema;

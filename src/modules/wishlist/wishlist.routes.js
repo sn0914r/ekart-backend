@@ -1,19 +1,39 @@
-const router = require("express").Router();
-const { ROLES } = require("../../constants/roles");
-const {
-  verifyAuth,
-  requireRole,
-} = require("../../middlewares/auth.middleware");
-const C = require("./wishlist.controller");
+import { Router } from "express";
+import { ROLES } from "../../constants/roles.js";
+import { authenticate, requireRole } from "../../middlewares/auth.middleware.js";
+import {
+  addItemToWishListController,
+  deleteItemInWishListController,
+  deleteWishListController,
+  getWishListController,
+} from "./wishlist.controller.js";
 
-router.get("/wishlist", verifyAuth, requireRole([ROLES.USER]), C.getWishListController);
-router.post("/wishlist", verifyAuth, requireRole([ROLES.USER]), C.addItemToWishListController);
-router.delete(
-  "/wishlist/:productId",
-  verifyAuth,
+export const wishlistRouter = Router();
+
+wishlistRouter.get(
+  "/wishlist",
+  authenticate,
   requireRole([ROLES.USER]),
-  C.deleteItemInWishListController,
+  getWishListController,
 );
-router.delete("/wishlist", verifyAuth, requireRole([ROLES.USER]), C.deleteWishListController);
 
-module.exports = router;
+wishlistRouter.post(
+  "/wishlist",
+  authenticate,
+  requireRole([ROLES.USER]),
+  addItemToWishListController,
+);
+
+wishlistRouter.delete(
+  "/wishlist/:productId",
+  authenticate,
+  requireRole([ROLES.USER]),
+  deleteItemInWishListController,
+);
+
+wishlistRouter.delete(
+  "/wishlist",
+  authenticate,
+  requireRole([ROLES.USER]),
+  deleteWishListController,
+);

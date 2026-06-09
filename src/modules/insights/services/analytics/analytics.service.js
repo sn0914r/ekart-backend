@@ -1,14 +1,8 @@
-const {
-  monthlyRevenueAggregation,
-} = require("./monthlyRevenue");
-const {
-  orderStatusDistributionAggregation,
-} = require("./orderStatusDistribution");
-const {
-  topProductsAggregation,
-} = require("./topProducts");
+import { monthlyRevenueAggregation } from "./monthlyRevenue.js";
+import { orderStatusDistributionAggregation } from "./orderStatusDistribution.js";
+import { topProductsAggregation } from "./topProducts.js";
 
-const getAnalyticsData = async () => {
+export const getAnalyticsData = async () => {
   const [monthlyRevenue, orderStatusDistribution, topProducts] =
     await Promise.all([
       monthlyRevenueAggregation,
@@ -41,5 +35,3 @@ const getAnalyticsData = async () => {
     },
   };
 };
-
-module.exports = { getAnalyticsData };

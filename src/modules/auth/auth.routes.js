@@ -1,24 +1,37 @@
-const router = require("express").Router();
-const Schema = require("./auth.schema");
-const { validate } = require("../../middlewares/validation.middleware");
-const C = require("./auth.controller");
+import { Router } from "express";
+import { validate } from "../../middlewares/validation.middleware.js";
 
-// Public routes
-router.post(
+import {
+  createUserController,
+  loginUserController,
+  logoutUserController,
+  refreshTokenController,
+} from "./auth.controller.js";
+
+import {
+  loginUserSchema,
+  refreshTokenSchema,
+  registerUserSchema,
+} from "./auth.schema.js";
+
+export const authRouter = Router();
+
+authRouter.post(
   "/auth/register",
-  validate(Schema.registerUserSchema, "body"),
-  C.createUserController,
+  validate(registerUserSchema, "body"),
+  createUserController,
 );
-router.post(
-  "/auth/login",
-  validate(Schema.loginUserSchema, "body"),
-  C.loginUserController,
-);
-router.post(
-  "/auth/refresh",
-  validate(Schema.refreshTokenSchema, "cookies"),
-  C.refreshTokenController,
-);
-router.post("/auth/logout", C.logoutUserController);
 
-module.exports = router;
+authRouter.post(
+  "/auth/login",
+  validate(loginUserSchema, "body"),
+  loginUserController,
+);
+
+authRouter.post(
+  "/auth/refresh",
+  validate(refreshTokenSchema, "cookies"),
+  refreshTokenController,
+);
+
+authRouter.post("/auth/logout", logoutUserController);

@@ -1,16 +1,16 @@
-const cloudinary = require("../clients/cloudinary.js");
-const AppError = require("../errors/AppError.js");
-const { nanoid } = require("nanoid");
-const { logger } = require("../utils/logger.js");
-const { ERROR_CODES } = require("../constants/errorCodes.js");
+import { cloudinary } from "../clients/cloudinary.js";
+import { AppError } from "../errors/AppError.js";
+import { nanoid } from "nanoid";
+import { logger } from "../utils/logger.js";
+import { ERROR_CODES } from "../constants/errorCodes.js";
 
 /**
  * Uploads multiple images to Cloudinary
- * 
+ *
  * @param {Array} files - Array of multer file objects
  * @returns {Promise<string[]>} Array of public URLs of the uploaded images
  */
-const uploadImages = async (files) => {
+export const uploadImages = async (files) => {
   if (!files || !Array.isArray(files) || files.length === 0) {
     return [];
   }
@@ -36,5 +36,3 @@ const uploadImages = async (files) => {
 
   return Promise.all(uploadPromises);
 };
-
-module.exports = { uploadImages };

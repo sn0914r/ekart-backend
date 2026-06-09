@@ -1,13 +1,13 @@
-const { Schema, model } = require("mongoose");
-const OrderItemSchema = require("./orderItem.schema");
-const {
+import { Schema, model } from "mongoose";
+import {
   ORDER_STATUS,
   PAYMENT_STATUS,
   SHIPPING_STATUS,
-} = require("../../constants/order");
-const PaymentSchema = require("./payment.schema");
-const StatusHistory = require("./statusHistory.schema");
-const ShippingAddressSchema = require("./address.schema");
+} from "../../constants/order.js";
+import { OrderItemSchema } from "./orderItem.schema.js";
+import { PaymentSchema } from "./payment.schema.js";
+import { StatusHistory } from "./statusHistory.schema.js";
+import { ShippingAddressSchema } from "./address.schema.js";
 
 const OrderSchema = new Schema(
   {
@@ -64,4 +64,4 @@ OrderSchema.pre("save", function () {
 });
 
 const OrderModel = model("Order", OrderSchema);
-module.exports = OrderModel;
+export default OrderModel;

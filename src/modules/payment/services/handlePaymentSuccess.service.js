@@ -1,22 +1,27 @@
-const mongoose = require("mongoose");
-const configs = require("../../../configs");
-const { ERROR_CODES } = require("../../../constants/errorCodes");
-const AppError = require("../../../errors/AppError");
-const OrderModel = require("../../../models/Order/Order.model");
-const crypto = require("crypto");
-const ProductModel = require("../../../models/Product.model");
-const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = require("../../../constants/order");
-const { sendMail } = require("../../../providers/nodemailer");
-const orderConfirmation = require("../../../templates/orderConfirmation");
+import { AppError } from "../../../errors/AppError.js";
+import OrderModel from "../../../models/Order/Order.model.js";
+import ProductModel from "../../../models/Product.model.js";
+import { configs } from "../../../configs/index.js";
+import mongoose from "mongoose";
+import { ERROR_CODES } from "../../../constants/errorCodes.js";
+import crypto from "crypto";
+import { sendMail } from "../../../providers/nodemailer.js";
+import { orderConfirmation } from "../../../templates/orderConfirmation.js";
+import {
+  ORDER_STATUS,
+  PAYMENT_STATUS,
+  SHIPPING_STATUS,
+} from "../../../constants/order.js";
 
 /**
  * Verifies payment and confirms order
  *
- * @param {object} paymentData {razorpaySignature, razorpayOrderId, razorpayPaymentId}
- * @returns {object} {orderId: string, razorpayPaymentId: string}
+ * @param {{razorpaySignature: string, razorpayOrderId: string, razorpayPaymentId: string}} paymentData
+ * @param {string} userId
+ * @returns {Promise<{orderId: string, razorpayPaymentId: string, totalAmount: number, email: string}>}
  */
 
-const handlePaymentSuccess = async (paymentData, userId) => {
+export const handlePaymentSuccess = async (paymentData, userId) => {
   const { razorpayOrderId, razorpayPaymentId } = paymentData;
 
   await idempotencyCheck(razorpayPaymentId);
@@ -26,7 +31,6 @@ const handlePaymentSuccess = async (paymentData, userId) => {
     "paymentDetails.razorpayOrderId": razorpayOrderId,
   });
 
-  // INFO: updates Payment status to PAID
   await updatePaymentStatus(order, paymentData);
   await runTransaction(order, userId);
 
@@ -39,11 +43,9 @@ const handlePaymentSuccess = async (paymentData, userId) => {
   };
 };
 
-module.exports = handlePaymentSuccess;
-
-/* ======================
-    Idempotency check
-========================*/
+/**
+ * @param {string} razorpayPaymentId
+ */
 const idempotencyCheck = async (razorpayPaymentId) => {
   const order = await OrderModel.findOne({
     "paymentDetails.razorpayPaymentId": razorpayPaymentId,
@@ -60,9 +62,9 @@ const idempotencyCheck = async (razorpayPaymentId) => {
   }
 };
 
-/* ======================
-    Signature validation
-========================*/
+/**
+ * @param {{razorpaySignature: string, razorpayOrderId: string, razorpayPaymentId: string}} paymentData
+ */
 const validatePaymentSignatures = (paymentData) => {
   const generatedSignature = crypto
     .createHmac("sha256", configs.razorpay.keySecret)
@@ -74,9 +76,10 @@ const validatePaymentSignatures = (paymentData) => {
   }
 };
 
-/* ======================
-    payment status update
-========================*/
+/**
+ * @param {object} order
+ * @param {{razorpayPaymentId: string, razorpaySignature: string}}
+ */
 const updatePaymentStatus = async (
   order,
   { razorpayPaymentId, razorpaySignature },
@@ -93,9 +96,12 @@ const updatePaymentStatus = async (
   await order.save();
 };
 
-/* ======================
-    Transaction
-========================*/
+/**
+ * Transaction for safe stock reduction
+ *
+ * @param {object} Order
+ * @param {string} userId
+ */
 const runTransaction = async (order, userId) => {
   const session = await mongoose.startSession();
 
@@ -146,9 +152,9 @@ const runTransaction = async (order, userId) => {
   await session.endSession();
 };
 
-/* ======================
-    Notifications
-========================*/
+/**
+ * @param {object} order
+ */
 const sendConfirmationMail = (order) => {
   sendMail({
     to: order.email,

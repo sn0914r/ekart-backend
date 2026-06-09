@@ -11,13 +11,13 @@ export default defineConfig([
       globals: {
         ...globals.node,
       },
-      sourceType: "commonjs",
+      sourceType: "module",
     },
     rules: {
-      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", ignoreRestSiblings: true },
+      ],
     },
-  },
-  {
-    ignores: ["test-script/**", "test-frontend/**"],
   },
 ]);

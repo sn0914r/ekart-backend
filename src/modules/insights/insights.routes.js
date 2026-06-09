@@ -1,26 +1,23 @@
-const router = require("express").Router();
-const {
+import { Router } from "express";
+import { authenticate, requireRole } from "../../middlewares/auth.middleware.js";
+import { ROLES } from "../../constants/roles.js";
+import {
   getDashboardController,
   getAnalyticsController,
-} = require("./insights.controller");
-const {
-  verifyAuth,
-  requireRole,
-} = require("../../middlewares/auth.middleware");
-const { ROLES } = require("../../constants/roles");
+} from "./insights.controller.js";
 
-router.get(
+export const insightsRouter = Router();
+
+insightsRouter.get(
   "/admin/dashboard",
-  verifyAuth,
+  authenticate,
   requireRole([ROLES.ADMIN]),
   getDashboardController,
 );
 
-router.get(
+insightsRouter.get(
   "/admin/analytics",
-  verifyAuth,
+  authenticate,
   requireRole([ROLES.ADMIN]),
   getAnalyticsController,
 );
-
-module.exports = router;

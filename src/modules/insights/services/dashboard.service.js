@@ -1,7 +1,7 @@
-const OrderModel = require("../../../models/Order/Order.model");
-const ProductModel = require("../../../models/Product.model");
+import OrderModel from "../../../models/Order/Order.model.js";
+import ProductModel from "../../../models/Product.model.js";
 
-const getDashboardData = async () => {
+export const getDashboardData = async () => {
   const [
     totalRevenueResult,
     totalOrders,
@@ -74,5 +74,3 @@ const getDashboardData = async () => {
     recentActivity,
   };
 };
-
-module.exports = { getDashboardData };

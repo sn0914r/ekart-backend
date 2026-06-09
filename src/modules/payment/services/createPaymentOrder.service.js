@@ -1,17 +1,15 @@
-const { ERROR_CODES } = require("../../../constants/errorCodes");
-const { PAYMENT_STATUS } = require("../../../constants/order");
-const AppError = require("../../../errors/AppError");
-const OrderModel = require("../../../models/Order/Order.model");
-const { createRazorpayOrder } = require("../../../providers/razorpay");
+import OrderModel from "../../../models/Order/Order.model.js";
+import { AppError } from "../../../errors/AppError.js";
+import { createRazorpayOrder } from "../../../providers/razorpay.js";
+import { ERROR_CODES } from "../../../constants/errorCodes.js";
+import { PAYMENT_STATUS } from "../../../constants/order.js";
 
 /**
- * Create a razorpay payment orders
- *
- * @param {string} orderId - order id
- * @param {string} userId - user id
- * @returns {object} {razorpayOrderId: string} - Payment Order details
+ * @param {string} orderId
+ * @param {string} userId
+ * @returns {Promise<{razorpayOrderId: string}>}
  */
-const createPaymentOrder = async (orderId, userId) => {
+export const createPaymentOrder = async (orderId, userId) => {
   const order = await OrderModel.findById(orderId);
 
   if (!order) {
@@ -31,5 +29,3 @@ const createPaymentOrder = async (orderId, userId) => {
   await order.save();
   return { razorpayOrderId };
 };
-
-module.exports = { createPaymentOrder };

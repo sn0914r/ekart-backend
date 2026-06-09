@@ -1,18 +1,13 @@
-const configs = require("../../configs");
-const Service = require("../auth/auth.service");
+import { configs } from "../../configs/index.js";
+import { createUser, loginUser, refreshToken, logoutUser } from "./services/index.js";
 
 /**
  * @route POST /auth/register
  * @access Public
- * @desc Creates a new user and returns access and refresh tokens
  */
-const createUserController = async (req, res) => {
+export const createUserController = async (req, res) => {
   const { name, email, password } = req.body;
-  const { accessToken, refreshToken } = await Service.createUser(
-    name,
-    email,
-    password,
-  );
+  const { accessToken, refreshToken } = await createUser(name, email, password);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -26,14 +21,10 @@ const createUserController = async (req, res) => {
 /**
  * @route POST /auth/login
  * @access Public
- * @desc Logs in a user and returns access and refresh tokens
  */
-const loginUserController = async (req, res) => {
+export const loginUserController = async (req, res) => {
   const { email, password } = req.body;
-  const { accessToken, refreshToken } = await Service.loginUser(
-    email,
-    password,
-  );
+  const { accessToken, refreshToken } = await loginUser(email, password);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -47,11 +38,10 @@ const loginUserController = async (req, res) => {
 /**
  * @route POST /auth/refresh
  * @access Public
- * @desc Refreshes the access token
  */
-const refreshTokenController = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  const accessToken = await Service.refreshToken(refreshToken);
+export const refreshTokenController = async (req, res) => {
+  const refreshTokenString = req.cookies.refreshToken;
+  const accessToken = await refreshToken(refreshTokenString);
 
   res.status(200).json({ accessToken });
 };
@@ -59,19 +49,11 @@ const refreshTokenController = async (req, res) => {
 /**
  * @route POST /auth/logout
  * @access Public
- * @desc Logs out a user
  */
-const logoutUserController = async (req, res) => {
+export const logoutUserController = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  await Service.logoutUser(refreshToken);
+  await logoutUser(refreshToken);
 
   res.clearCookie("refreshToken");
   res.status(200).json({ message: "User logged out successfully" });
-};
-
-module.exports = {
-  createUserController,
-  loginUserController,
-  refreshTokenController,
-  logoutUserController,
 };

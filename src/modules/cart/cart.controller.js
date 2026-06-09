@@ -1,13 +1,20 @@
-const Service = require("./cart.service");
+import {
+  getCart,
+  addToCart,
+  incQuantity,
+  decQuantity,
+  removeFromCart,
+  clearCart,
+} from "./cart.service.js";
 
 /**
  * @route GET /cart
  * @access Private
  */
-const getCartController = async (req, res) => {
+export const getCartController = async (req, res) => {
   const { userId } = req.user;
 
-  const cart = await Service.getCart(userId);
+  const cart = await getCart(userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Cart fetched successfully" });
@@ -17,11 +24,11 @@ const getCartController = async (req, res) => {
  * @route POST /cart/add
  * @access Private
  */
-const addToCartController = async (req, res) => {
+export const addToCartController = async (req, res) => {
   const { userId } = req.user;
   const { productId, variant } = req.body;
 
-  const cart = await Service.addToCart(productId, variant, userId);
+  const cart = await addToCart(productId, variant, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Item added to cart" });
@@ -31,11 +38,11 @@ const addToCartController = async (req, res) => {
  * @route PATCH /cart/increase
  * @access Private
  */
-const incQuantityController = async (req, res) => {
+export const incQuantityController = async (req, res) => {
   const { userId } = req.user;
   const { productId } = req.body;
 
-  const cart = await Service.incQuantity(productId, userId);
+  const cart = await incQuantity(productId, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Quantity increased successfully" });
@@ -45,11 +52,11 @@ const incQuantityController = async (req, res) => {
  * @route PATCH /cart/decrease
  * @access Private
  */
-const decQuantityController = async (req, res) => {
+export const decQuantityController = async (req, res) => {
   const { userId } = req.user;
   const { productId } = req.body;
 
-  const cart = await Service.decQuantity(productId, userId);
+  const cart = await decQuantity(productId, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Quantity decreased successfully" });
@@ -59,11 +66,11 @@ const decQuantityController = async (req, res) => {
  * @route DELETE /cart/remove
  * @access Private
  */
-const removeFromCartController = async (req, res) => {
+export const removeFromCartController = async (req, res) => {
   const { userId } = req.user;
   const { id } = req.params;
 
-  const cart = await Service.removeFromCart(id, userId);
+  const cart = await removeFromCart(id, userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Item removed successfully" });
@@ -73,20 +80,11 @@ const removeFromCartController = async (req, res) => {
  * @route DELETE /cart/clear
  * @access Private
  */
-const clearCartController = async (req, res) => {
+export const clearCartController = async (req, res) => {
   const { userId } = req.user;
 
-  const cart = await Service.clearCart(userId);
+  const cart = await clearCart(userId);
   return res
     .status(200)
     .json({ success: true, cart, message: "Cart cleared successfully" });
-};
-
-module.exports = {
-  getCartController,
-  addToCartController,
-  incQuantityController,
-  decQuantityController,
-  removeFromCartController,
-  clearCartController,
 };

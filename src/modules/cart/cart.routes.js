@@ -1,47 +1,60 @@
-const router = require("express").Router();
-const { validate } = require("../../middlewares/validation.middleware");
-const {
-  verifyAuth,
+import { Router } from "express";
+import {
+  authenticate,
   requireRole,
-} = require("../../middlewares/auth.middleware");
-const { CartRequestSchema, AddToCartRequestSchema } = require("./cart.schema");
-const C = require("./cart.controller");
-const { ROLES } = require("../../constants/roles");
+} from "../../middlewares/auth.middleware.js";
+import { ROLES } from "../../constants/roles.js";
+import {
+  addToCartController,
+  clearCartController,
+  decQuantityController,
+  getCartController,
+  incQuantityController,
+  removeFromCartController,
+} from "./cart.controller.js";
+import { AddToCartSchema, CartItemProductIdSchema } from "./cart.schema.js";
+import { validate } from "../../middlewares/validation.middleware.js";
 
-// User routes
-router.get("/cart", verifyAuth, C.getCartController);
-router.post(
+export const cartRouter = Router();
+
+cartRouter.get(
+  "/cart",
+  authenticate,
+  requireRole([ROLES.USER]),
+  getCartController,
+);
+
+cartRouter.post(
   "/cart/add",
-  verifyAuth,
+  authenticate,
   requireRole([ROLES.USER]),
-  validate(AddToCartRequestSchema),
-  C.addToCartController,
-);
-router.patch(
-  "/cart/increase",
-  verifyAuth,
-  requireRole([ROLES.USER]),
-  validate(CartRequestSchema),
-  C.incQuantityController,
-);
-router.patch(
-  "/cart/decrease",
-  verifyAuth,
-  requireRole([ROLES.USER]),
-  validate(CartRequestSchema),
-  C.decQuantityController,
-);
-router.delete(
-  "/cart/remove/:id",
-  verifyAuth,
-  requireRole([ROLES.USER]),
-  C.removeFromCartController,
-);
-router.delete(
-  "/cart/clear",
-  verifyAuth,
-  requireRole([ROLES.USER]),
-  C.clearCartController,
+  validate(AddToCartSchema),
+  addToCartController,
 );
 
-module.exports = router;
+cartRouter.patch(
+  "/cart/increase",
+  authenticate,
+  requireRole([ROLES.USER]),
+  validate(CartItemProductIdSchema),
+  incQuantityController,
+);
+cartRouter.patch(
+  "/cart/decrease",
+  authenticate,
+  requireRole([ROLES.USER]),
+  validate(CartItemProductIdSchema),
+  decQuantityController,
+);
+cartRouter.delete(
+  "/cart/remove/:id",
+  authenticate,
+  requireRole([ROLES.USER]),
+  removeFromCartController,
+);
+cartRouter.delete(
+  "/cart/clear",
+  authenticate,
+  requireRole([ROLES.USER]),
+  clearCartController,
+);

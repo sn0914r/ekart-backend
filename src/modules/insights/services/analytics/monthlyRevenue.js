@@ -1,6 +1,6 @@
-const OrderModel = require("../../../../models/Order/Order.model");
+import OrderModel from "../../../../models/Order/Order.model.js";
 
-const monthlyRevenueAggregation = OrderModel.aggregate([
+export const monthlyRevenueAggregation = OrderModel.aggregate([
   {
     $match: {
       paymentStatus: "PAID",
@@ -28,5 +28,3 @@ const monthlyRevenueAggregation = OrderModel.aggregate([
     },
   },
 ]);
-
-module.exports = { monthlyRevenueAggregation };

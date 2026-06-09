@@ -1,9 +1,7 @@
-const Razorpay = require("razorpay");
-const configs = require("../configs/index.js");
+import Razorpay from "razorpay";
+import { configs } from "../configs/index.js";
 
-const razorpay = new Razorpay({
+export const razorpay = new Razorpay({
   key_id: configs.razorpay.keyId,
   key_secret: configs.razorpay.keySecret,
 });
-
-module.exports = razorpay;

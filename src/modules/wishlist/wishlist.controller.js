@@ -1,13 +1,18 @@
-const Service = require("./wishlist.services");
+import {
+  addItemToWishlist,
+  deleteItemInWishlist,
+  deleteWishlist,
+  getWishlist,
+} from "./wishlist.services.js";
 
 /**
  * @route GET /wishlist
  * @access Private
- * @desc Gets the wishlist
  */
-const getWishListController = async (req, res) => {
+export const getWishListController = async (req, res) => {
   const { userId } = req.user;
-  const wishlist = await Service.getWishlist(userId);
+
+  const wishlist = await getWishlist(userId);
 
   return res.status(200).json({
     success: true,
@@ -19,13 +24,12 @@ const getWishListController = async (req, res) => {
 /**
  * @route POST /wishlist
  * @access Private
- * @desc Adds a product to the wishlist
  */
-const addItemToWishListController = async (req, res) => {
+export const addItemToWishListController = async (req, res) => {
   const { userId } = req.user;
   const { productId } = req.body;
 
-  const wishlist = await Service.addItemToWishlist(userId, productId);
+  const wishlist = await addItemToWishlist(userId, productId);
 
   return res.status(200).json({
     success: true,
@@ -37,13 +41,12 @@ const addItemToWishListController = async (req, res) => {
 /**
  * @route DELETE /wishlist/:productId
  * @access Private
- * @desc Deletes a product from the wishlist
  */
-const deleteItemInWishListController = async (req, res) => {
+export const deleteItemInWishListController = async (req, res) => {
   const { userId } = req.user;
   const { productId } = req.params;
 
-  const wishlist = await Service.deleteItemInWishlist(userId, productId);
+  const wishlist = await deleteItemInWishlist(userId, productId);
 
   return res.status(200).json({
     success: true,
@@ -55,22 +58,14 @@ const deleteItemInWishListController = async (req, res) => {
 /**
  * @route DELETE /wishlist
  * @access Private
- * @desc Deletes the wishlist
  */
-const deleteWishListController = async (req, res) => {
+export const deleteWishListController = async (req, res) => {
   const { userId } = req.user;
 
-  await Service.deleteWishlist(userId);
+  await deleteWishlist(userId);
 
   return res.status(200).json({
     success: true,
     message: "Wishlist deleted successfully",
   });
-};
-
-module.exports = {
-  getWishListController,
-  addItemToWishListController,
-  deleteItemInWishListController,
-  deleteWishListController,
 };

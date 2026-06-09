@@ -1,6 +1,6 @@
-const joi = require("joi");
+import joi from "joi";
 
-const addProductSchema = joi.object({
+export const addProductSchema = joi.object({
   name: joi.string().required(),
   price: joi.number().positive().required(),
   stock: joi.number().positive().required(),
@@ -15,7 +15,7 @@ const addProductSchema = joi.object({
     .required(),
 });
 
-const updateProductSchema = joi
+export const updateProductSchema = joi
   .object({
     name: joi.string().optional(),
     price: joi.number().positive().optional(),
@@ -31,8 +31,3 @@ const updateProductSchema = joi
       .optional(),
   })
   .min(1);
-
-module.exports = {
-  addProductSchema,
-  updateProductSchema,
-};

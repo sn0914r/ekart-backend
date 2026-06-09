@@ -1,7 +1,2 @@
-const { getDashboardData } = require("./dashboard.service");
-const { getAnalyticsData } = require("./analytics/analytics.service");
-
-module.exports = {
-  getDashboardData,
-  getAnalyticsData,
-};
+export { getDashboardData } from "./dashboard.service.js";
+export { getAnalyticsData } from "./analytics/analytics.service.js";

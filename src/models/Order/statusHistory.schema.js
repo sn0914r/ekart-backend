@@ -1,6 +1,6 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose";
 
-const StatusHistory = new Schema(
+export const StatusHistory = new Schema(
   {
     status: String,
     at: Date,
@@ -10,5 +10,3 @@ const StatusHistory = new Schema(
     _id: false,
   },
 );
-
-module.exports = StatusHistory;

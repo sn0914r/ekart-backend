@@ -1,5 +1,5 @@
-const { Schema, model } = require("mongoose");
-const { ROLES } = require("../constants/roles");
+import { Schema, model } from "mongoose";
+import { ROLES } from "../constants/roles.js";
 
 const UserSchema = new Schema({
   name: String,
@@ -8,11 +8,5 @@ const UserSchema = new Schema({
   role: { type: String, enum: Object.values(ROLES), default: ROLES.USER },
 });
 
-const UserModel = model("users", UserSchema);
-
-// Drop stale unique index from previous Firebase implementation
-UserModel.collection.dropIndex("uid_1").catch(() => {
-  // Ignore if index doesn't exist
-});
-
-module.exports = UserModel;
+const UserModel = model("Users", UserSchema);
+export default UserModel;

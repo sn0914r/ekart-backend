@@ -1,39 +1,33 @@
-const router = require("express").Router();
-const { validate } = require("../../middlewares/validation.middleware");
-const {
-  paymentVerificationSchema,
-  orderIdSchema,
-} = require("./payment.schema");
-const {
+import { Router } from "express";
+import {
   createPaymentLimiter,
   verifyPaymentLimiter,
-} = require("../../middlewares/rateLimiter.middleware");
-const {
-  verifyAuth,
-  requireRole,
-} = require("../../middlewares/auth.middleware");
-const {
+} from "../../middlewares/rateLimiter.middleware.js";
+import { authenticate, requireRole } from "../../middlewares/auth.middleware.js";
+import { ROLES } from "../../constants/roles.js";
+import { validate } from "../../middlewares/validation.middleware.js";
+import { orderIdSchema, paymentVerificationSchema } from "./payment.schema.js";
+import {
   createPaymentController,
   paymentSuccessController,
-} = require("./payment.controller");
-const { ROLES } = require("../../constants/roles");
+} from "./payment.controller.js";
 
-// User routes
-router.post(
+export const paymentRouter = Router();
+
+paymentRouter.post(
   "/payments/create",
   createPaymentLimiter,
-  verifyAuth,
+  authenticate,
   requireRole([ROLES.USER]),
   validate(orderIdSchema),
   createPaymentController,
 );
-router.post(
+
+paymentRouter.post(
   "/payments/verify",
   verifyPaymentLimiter,
-  verifyAuth,
+  authenticate,
   requireRole([ROLES.USER]),
   validate(paymentVerificationSchema),
   paymentSuccessController,
 );
-
-module.exports = router;

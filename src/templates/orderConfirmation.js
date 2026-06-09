@@ -1,4 +1,4 @@
-const orderConfirmation = (email, orderId, totalAmount) => {
+export const orderConfirmation = (email, orderId, totalAmount) => {
   const timestamp = new Date().toString();
   return `<div>
       <h3>
@@ -22,5 +22,3 @@ const orderConfirmation = (email, orderId, totalAmount) => {
       <p style="color: gray"> Thanks for shopping with us</p>
     </div>`;
 };
-
-module.exports = orderConfirmation;

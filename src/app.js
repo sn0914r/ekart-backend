@@ -1,21 +1,21 @@
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const { logger } = require("./utils/logger");
-const configs = require("./configs/index");
-const errorHandler = require("./middlewares/error.middleware");
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import { configs } from "./configs/index.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
+import morgan from "morgan";
 
-const authRoutes = require("./modules/auth/auth.routes");
-const orderRoutes = require("./modules/order/order.routes");
-const paymentRoutes = require("./modules/payment/payment.routes");
-const productRoutes = require("./modules/product/product.routes");
-const cartRoutes = require("./modules/cart/cart.routes");
-const wishlistRoutes = require("./modules/wishlist/wishlist.routes");
-const insightsRoutes = require("./modules/insights/insights.routes");
+import { authRouter } from "./modules/auth/auth.routes.js";
+import { orderRouter } from "./modules/order/order.routes.js";
+import { paymentRouter } from "./modules/payment/payment.routes.js";
+import { productsRouter } from "./modules/product/product.routes.js";
+import { cartRouter } from "./modules/cart/cart.routes.js";
+import { wishlistRouter } from "./modules/wishlist/wishlist.routes.js";
+import { insightsRouter } from "./modules/insights/insights.routes.js";
 
-const cookieParser = require("cookie-parser");
+export const app = express();
 
-const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -23,32 +23,21 @@ app.use(
     origin: configs.clientOrigins,
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PATCH"],
-    // allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use(helmet());
 
-app.use((req, res, next) => {
-  logger.info(`New Request: ${req.method} ${req.url}`);
-  logger.info("Request Body: " + JSON.stringify(req.body));
-  logger.info("Request Params: " + JSON.stringify(req.params));
-  // logger.info("Request Query: " + JSON.stringify(req.query));
-  // logger.info("Request Cookies: " + JSON.stringify(req.cookies));
-  next();
-});
-
-app.use(authRoutes);
-app.use(orderRoutes);
-app.use(paymentRoutes);
-app.use(productRoutes);
-app.use(cartRoutes);
-app.use(wishlistRoutes);
-app.use(insightsRoutes);
+app.use(morgan("dev"));
+app.use(authRouter);
+app.use(orderRouter);
+app.use(paymentRouter);
+app.use(productsRouter);
+app.use(cartRouter);
+app.use(wishlistRouter);
+app.use(insightsRouter);
 
 app.use("/health", (req, res) => {
   res.status(200).json({ success: true });
 });
 
 app.use(errorHandler);
-
-module.exports = app;

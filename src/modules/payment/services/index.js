@@ -1,7 +1,2 @@
-const { createPaymentOrder } = require("./createPaymentOrder.service");
-const handlePaymentSuccess = require("./handlePaymentSuccess.service");
-
-module.exports = {
-  createPaymentOrder,
-  handlePaymentSuccess,
-};
+export { createPaymentOrder } from "./createPaymentOrder.service.js";
+export { handlePaymentSuccess } from "./handlePaymentSuccess.service.js";

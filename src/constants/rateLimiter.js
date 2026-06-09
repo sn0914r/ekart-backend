@@ -1,4 +1,4 @@
-const RATE_LIMIT = {
+export const RATE_LIMIT = {
   CREATE_PAYMENT: {
     WINDOW_MS: 10 * 60 * 1000,
     MAX: 10,
@@ -8,5 +8,3 @@ const RATE_LIMIT = {
     MAX: 30,
   },
 };
-
-module.exports = { RATE_LIMIT };
