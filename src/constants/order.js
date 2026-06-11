@@ -71,3 +71,27 @@ export const SHIPPING_TRANSITIONS = {
   DELIVERED: [],
   CANCELLED: [],
 };
+
+export const ORDER_STATUS_EMAILS = {
+  PACKED: {
+    subject: "Your Order Has Been Packed",
+    message: "Good news! Your order has been packed and is ready for shipment.",
+  },
+
+  SHIPPED: {
+    subject: "Your Order Has Been Shipped",
+    message:
+      "Your order has been shipped and is on its way to your delivery address.",
+  },
+
+  DELIVERED: {
+    subject: "Order Delivered",
+    message:
+      "Your order has been successfully delivered. We hope you enjoy your purchase.",
+  },
+
+  CANCELLED: {
+    subject: "Order Cancelled",
+    message: "Your order has been cancelled.",
+  },
+};

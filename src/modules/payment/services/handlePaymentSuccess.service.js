@@ -5,13 +5,13 @@ import { configs } from "../../../configs/index.js";
 import mongoose from "mongoose";
 import { ERROR_CODES } from "../../../constants/errorCodes.js";
 import crypto from "crypto";
-import { sendMail } from "../../../providers/nodemailer.js";
-import { orderConfirmation } from "../../../templates/orderConfirmation.js";
 import {
   ORDER_STATUS,
   PAYMENT_STATUS,
   SHIPPING_STATUS,
 } from "../../../constants/order.js";
+import { sendEmail } from "../../../providers/mailer/sendEmail.js";
+import { orderConfirmationTemplate } from "../../../providers/mailer/templates/orderConfirmation.template.js";
 
 /**
  * Verifies payment and confirms order
@@ -34,7 +34,15 @@ export const handlePaymentSuccess = async (paymentData, userId) => {
   await updatePaymentStatus(order, paymentData);
   await runTransaction(order, userId);
 
-  sendConfirmationMail(order);
+  await sendEmail(
+    order.email,
+    "Order Confirmed",
+    orderConfirmationTemplate({
+      orderId: order.orderId,
+      totalAmount: order.subTotal,
+    }),
+  );
+
   return {
     orderId: order.orderId,
     razorpayPaymentId,
@@ -150,15 +158,4 @@ const runTransaction = async (order, userId) => {
   });
 
   await session.endSession();
-};
-
-/**
- * @param {object} order
- */
-const sendConfirmationMail = (order) => {
-  sendMail({
-    to: order.email,
-    subject: "Order has been placed successfully",
-    template: orderConfirmation(order.email, order._id, order.subTotal),
-  });
 };
