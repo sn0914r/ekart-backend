@@ -4,7 +4,7 @@ export const configs = {
   clientOrigins: process.env.CLIENT_ORIGINS
     ? process.env.CLIENT_ORIGINS.split(",")
     : ["http://localhost:3000"],
-    
+
   mongoURI: process.env.MONGO_URI,
 
   cloudinary: {
@@ -29,4 +29,6 @@ export const configs = {
     accessTokenExpireTime: process.env.JWT_ACCESS_TOKEN_EXPIRES,
     refreshTokenExpireTime: process.env.JWT_REFRESH_TOKEN_EXPIRES,
   },
+
+  redisURL: process.env.REDIS_URL,
 };
