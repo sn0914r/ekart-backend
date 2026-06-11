@@ -1,21 +1,31 @@
-import rateLimit from "express-rate-limit";
-import { RATE_LIMIT } from "../constants/rateLimiter.js";
+import { redisClient } from "../clients/redis.js";
 import { ERROR_CODES } from "../constants/errorCodes.js";
+import { AppError } from "../errors/AppError.js";
 
-export const createPaymentLimiter = rateLimit({
-  windowMs: RATE_LIMIT.CREATE_PAYMENT.WINDOW_MS,
-  max: RATE_LIMIT.CREATE_PAYMENT.MAX,
-  message: {
-    message: "Too many requests. Try later",
-    errorCode: ERROR_CODES.RATE_LIMIT_ERROR,
-  },
-});
+export const rateLimiter = (maxAttempts, route, timeInSeconds = 300) => {
+  return async (req, _res, next) => {
+    const key = `ratelimit:${route}:${req.ip}`;
+    console.log("Request from " + key);
 
-export const verifyPaymentLimiter = rateLimit({
-  windowMs: RATE_LIMIT.VERIFY_PAYMENT.WINDOW_MS,
-  max: RATE_LIMIT.VERIFY_PAYMENT.MAX,
-  message: {
-    message: "Too many requests. Try later",
-    errorCode: ERROR_CODES.RATE_LIMIT_ERROR,
-  },
-});
+    const count = await redisClient.incr(key);
+
+    if (count === 1) {
+      await redisClient.expire(key, timeInSeconds);
+    }
+
+    const ttl = await redisClient.ttl(key);
+
+    const minutes = Math.ceil(ttl / 60);
+    const time = ttl >= 60 ? `${minutes} minute(s)` : `${ttl} second(s)`;
+
+    if (count > maxAttempts) {
+      throw new AppError(
+        `Too many requests, try again after ${time}`,
+        429,
+        ERROR_CODES.RATE_LIMIT_ERROR,
+      );
+    }
+
+    next();
+  };
+};
