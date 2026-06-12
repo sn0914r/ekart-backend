@@ -1,3 +1,4 @@
+import { redisClient } from "../../../../clients/redis.js";
 import ProductModel from "../../../../models/Product.model.js";
 import {
   buildFilter,
@@ -15,6 +16,14 @@ import {
  * }>}
  */
 export const getActiveProducts = async (query) => {
+  const key = `products:${JSON.stringify(query) || ""}`;
+
+  const cachedProductsData = await redisClient.get(key);
+
+  if (cachedProductsData) {
+    return JSON.parse(cachedProductsData);
+  }
+
   const filter = buildFilter(query);
   filter.isActive = true;
 
@@ -37,10 +46,14 @@ export const getActiveProducts = async (query) => {
 
   const total = await ProductModel.countDocuments(filter);
 
-  return {
+  const data = {
     page,
     totalPages: Math.ceil(total / limit),
     totalItems: total,
     products,
   };
+
+  await redisClient.setEx(key, 300, JSON.stringify(data));
+
+  return data;
 };

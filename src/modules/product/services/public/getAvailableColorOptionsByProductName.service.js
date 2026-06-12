@@ -1,12 +1,20 @@
 import ProductModel from "../../../../models/Product.model.js";
+import { redisClient } from "../../../../clients/redis.js";
 
 /**
  * Gets the available colors of a product by its name
  *
  * @param {string} name - product name
- * @returns {Promise<object>}
+ * @returns {Promise<{_id: string, color: string}[]>}
  */
 export const getAvailableColorsOptionsByProductName = async (name) => {
+  const key = `product:colors:${name}`;
+  const cachedColors = await redisClient.get(key);
+
+  if (cachedColors) {
+    return JSON.parse(cachedColors);
+  }
+
   const productColors = await ProductModel.find(
     { name, isActive: true },
     {
@@ -14,6 +22,8 @@ export const getAvailableColorsOptionsByProductName = async (name) => {
       color: "$attributes.color",
     },
   );
+
+  await redisClient.set(key, JSON.stringify(productColors));
 
   return productColors;
 };

@@ -1,6 +1,7 @@
 import { AppError } from "../../../errors/AppError.js";
 import OrderModel from "../../../models/Order/Order.model.js";
 import ProductModel from "../../../models/Product.model.js";
+import { redisClient } from "../../../clients/redis.js";
 import { configs } from "../../../configs/index.js";
 import mongoose from "mongoose";
 import { ERROR_CODES } from "../../../constants/errorCodes.js";
@@ -139,6 +140,9 @@ const runTransaction = async (order, userId) => {
       // INFO: Reduce stock
       targetProduct.stock -= item.quantity;
       await targetProduct.save({ session });
+      
+      // INFO: Invalidate product cache
+      await redisClient.del(`product:${item.productId}`);
     }
 
     // INFO: Save order

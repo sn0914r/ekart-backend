@@ -1,3 +1,4 @@
+import { redisClient } from "../../../../clients/redis.js";
 import ProductModel from "../../../../models/Product.model.js";
 import { uploadImages } from "../../../../providers/cloudinary.js";
 
@@ -27,6 +28,12 @@ export const addProductByAdmin = async ({
     category,
     attributes,
   });
+
+  const keys = await redisClient.keys("products:*");
+  if (keys.length > 0) {
+    await redisClient.del(keys);
+  }
+  await redisClient.del(`product:colors:${name}`);
 
   return product;
 };
