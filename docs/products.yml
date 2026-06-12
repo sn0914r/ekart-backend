@@ -1,0 +1,593 @@
+paths:
+  # ==========================================
+  # Get All Active Products (Public)
+  # ==========================================
+  /products:
+    get:
+      tags:
+        - Products (Public)
+      summary: Get all active products
+      description: Fetch a paginated list of active products with optional filtering and sorting.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+          description: Number of items per page (max 50)
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by product name or category
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter by category
+        - in: query
+          name: minPrice
+          schema:
+            type: number
+          description: Minimum price filter
+        - in: query
+          name: maxPrice
+          schema:
+            type: number
+          description: Maximum price filter
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [price_asc, price_desc, newest]
+          description: Sort order
+      responses:
+        "200":
+          description: Products fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Products fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      totalPages:
+                        type: integer
+                        example: 5
+                      totalItems:
+                        type: integer
+                        example: 50
+                      products:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProductSummary"
+
+  # ==========================================
+  # Get Available Colors by Product Name (Public)
+  # ==========================================
+  /products/colors:
+    get:
+      tags:
+        - Products (Public)
+      summary: Get available color options
+      description: Get available color variants for a product by its name.
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+          description: Product name to search colors for
+      responses:
+        "200":
+          description: Available colors fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Available colors fetched successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 665a1b2c3d4e5f6a7b8c9d0e
+                        color:
+                          type: string
+                          example: Red
+
+  # ==========================================
+  # Get Active Product Details (Public)
+  # ==========================================
+  /products/{id}:
+    get:
+      tags:
+        - Products (Public)
+      summary: Get product details
+      description: Get detailed information about a single active product.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID
+      responses:
+        "200":
+          description: Product fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product fetched successfully
+                  data:
+                    $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Get All Products (Admin)
+  # ==========================================
+  /admin/products:
+    get:
+      tags:
+        - Products (Admin)
+      summary: Get all products
+      description: Fetch a paginated list of all products (including inactive). Requires admin role.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+          description: Number of items per page (max 50)
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by product name or category
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter by category
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [ACTIVE, NOT_ACTIVE]
+          description: Filter by product status
+        - in: query
+          name: stockStatus
+          schema:
+            type: string
+            enum: [IN_STOCK, LOW_STOCK, OUT_OF_STOCK]
+          description: Filter by stock status
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: "Sort fields (comma separated). Prefix with - for descending. e.g. -price,name"
+      responses:
+        "200":
+          description: Products fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Products fetched successfully
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    # ==========================================
+    # Add Product (Admin)
+    # ==========================================
+    post:
+      tags:
+        - Products (Admin)
+      summary: Add a new product
+      description: Create a new product with images. Requires admin role. Uses multipart/form-data for file upload.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - images
+                - data
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Product images
+                data:
+                  type: string
+                  description: "JSON string containing product details: { name, price, stock, isActive, description, category, attributes: { color, size[] } }"
+                  example: '{"name":"iPhone 16","price":79999,"stock":50,"isActive":true,"description":"Latest iPhone","category":"Smartphones","attributes":{"color":"Black","size":["128GB","256GB"]}}'
+      responses:
+        "200":
+          description: Product added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product added successfully
+                  data:
+                    $ref: "#/components/schemas/Product"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Get Single Product (Admin)
+  # ==========================================
+  /admin/products/{id}:
+    get:
+      tags:
+        - Products (Admin)
+      summary: Get product by ID
+      description: Get detailed information about any product (including inactive). Requires admin role.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID
+      responses:
+        "200":
+          description: Product fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product fetched successfully
+                  data:
+                    $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    # ==========================================
+    # Update Product (Admin)
+    # ==========================================
+    patch:
+      tags:
+        - Products (Admin)
+      summary: Update a product
+      description: Update product fields. At least one field is required. Requires admin role.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductRequest"
+      responses:
+        "200":
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product updated successfully
+                  data:
+                    $ref: "#/components/schemas/Product"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    # ==========================================
+    # Delete Product (Admin)
+    # ==========================================
+    delete:
+      tags:
+        - Products (Admin)
+      summary: Delete a product
+      description: Permanently delete a product. Requires admin role.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID
+      responses:
+        "200":
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product deleted successfully
+                  data:
+                    $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+# ==========================================
+# Components & Schemas
+# ==========================================
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 665a1b2c3d4e5f6a7b8c9d0e
+        name:
+          type: string
+          example: iPhone 16
+        price:
+          type: number
+          example: 79999
+        stock:
+          type: integer
+          example: 50
+        isActive:
+          type: boolean
+          example: true
+        category:
+          type: string
+          example: Smartphones
+        images:
+          type: array
+          items:
+            type: string
+          example: ["https://res.cloudinary.com/demo/image/upload/iphone16.jpg"]
+        description:
+          type: string
+          example: Latest iPhone with A18 chip
+        attributes:
+          $ref: "#/components/schemas/ProductAttributes"
+
+    ProductSummary:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 665a1b2c3d4e5f6a7b8c9d0e
+        name:
+          type: string
+          example: iPhone 16
+        price:
+          type: number
+          example: 79999
+        stock:
+          type: integer
+          example: 50
+        images:
+          type: array
+          items:
+            type: string
+          description: First image only
+        category:
+          type: string
+          example: Smartphones
+        attributes:
+          $ref: "#/components/schemas/ProductAttributes"
+
+    ProductAttributes:
+      type: object
+      properties:
+        color:
+          type: string
+          example: Black
+        size:
+          type: array
+          items:
+            type: string
+          example: ["128GB", "256GB"]
+
+    UpdateProductRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          example: iPhone 16 Pro
+        price:
+          type: number
+          example: 119999
+        stock:
+          type: integer
+          example: 30
+        isActive:
+          type: boolean
+          example: true
+        description:
+          type: string
+          example: Updated description
+        category:
+          type: string
+          example: Smartphones
+        attributes:
+          $ref: "#/components/schemas/ProductAttributes"
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 5
+        totalItems:
+          type: integer
+          example: 50

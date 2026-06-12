@@ -1,0 +1,221 @@
+paths:
+  # ==========================================
+  # Get Wishlist
+  # ==========================================
+  /wishlist:
+    get:
+      tags:
+        - Wishlist (User)
+      summary: Get user's wishlist
+      description: Fetch the current user's wishlist with populated product details (name, price, thumbnail).
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Wishlist fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Wishlist fetched successfully
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/WishlistItem"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    # ==========================================
+    # Add Item to Wishlist
+    # ==========================================
+    post:
+      tags:
+        - Wishlist (User)
+      summary: Add to wishlist
+      description: Add a product to the user's wishlist. Returns conflict if product is already in the wishlist.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddWishlistItemRequest"
+      responses:
+        "200":
+          description: Product added to wishlist successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product added to wishlist successfully
+                  data:
+                    type: object
+                    properties:
+                      productId:
+                        type: string
+                        example: 665a1b2c3d4e5f6a7b8c9d0e
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Conflict - Product already exists in wishlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    # ==========================================
+    # Clear Wishlist
+    # ==========================================
+    delete:
+      tags:
+        - Wishlist (User)
+      summary: Clear entire wishlist
+      description: Delete the user's entire wishlist.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Wishlist deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Wishlist deleted successfully
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Wishlist not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Remove Item from Wishlist
+  # ==========================================
+  /wishlist/{productId}:
+    delete:
+      tags:
+        - Wishlist (User)
+      summary: Remove from wishlist
+      description: Remove a specific product from the wishlist by its product ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: Product ID to remove
+      responses:
+        "200":
+          description: Product deleted from wishlist successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product deleted from wishlist successfully
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Wishlist or Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+# ==========================================
+# Components & Schemas
+# ==========================================
+components:
+  schemas:
+    AddWishlistItemRequest:
+      type: object
+      required:
+        - productId
+      properties:
+        productId:
+          type: string
+          example: 665a1b2c3d4e5f6a7b8c9d0e
+
+    WishlistItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          example: 665a1b2c3d4e5f6a7b8c9d0e
+        name:
+          type: string
+          example: iPhone 16
+        price:
+          type: number
+          example: 79999
+        thumbnail:
+          type: string
+          example: https://res.cloudinary.com/demo/image/upload/iphone16.jpg

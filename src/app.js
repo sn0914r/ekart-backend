@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import { configs } from "./configs/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import morgan from "morgan";
+import { apiReference } from "@scalar/express-api-reference";
+import { openApiSpec } from "./configs/openapi.js";
 
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { orderRouter } from "./modules/order/order.routes.js";
@@ -25,7 +27,11 @@ app.use(
     methods: ["GET", "POST", "DELETE", "PATCH"],
   }),
 );
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
 
 app.use(morgan("dev"));
 app.use(authRouter);
@@ -35,6 +41,17 @@ app.use(productsRouter);
 app.use(cartRouter);
 app.use(wishlistRouter);
 app.use(insightsRouter);
+
+app.use(
+  "/docs",
+  apiReference({
+    content: openApiSpec,
+    theme: "deepSpace",
+    customCss: ".darklight, .integrations { display: none !important; }",
+  }),
+);
+
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 app.use("/health", (req, res) => {
   res.status(200).json({ success: true });

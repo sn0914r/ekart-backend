@@ -1,0 +1,351 @@
+paths:
+  # ==========================================
+  # Get Cart
+  # ==========================================
+  /cart:
+    get:
+      tags:
+        - Cart (User)
+      summary: Get user's cart
+      description: Fetch the current user's cart with populated product details.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Cart fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Cart fetched successfully
+                  cart:
+                    $ref: "#/components/schemas/CartResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Add to Cart
+  # ==========================================
+  /cart/add:
+    post:
+      tags:
+        - Cart (User)
+      summary: Add item to cart
+      description: Add a product to the cart. If the product already exists, its quantity is incremented.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddToCartRequest"
+      responses:
+        "200":
+          description: Item added to cart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Item added to cart
+                  cart:
+                    $ref: "#/components/schemas/CartResponse"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Increase Quantity
+  # ==========================================
+  /cart/increase:
+    patch:
+      tags:
+        - Cart (User)
+      summary: Increase item quantity
+      description: Increase the quantity of a product in the cart by 1.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartItemProductIdRequest"
+      responses:
+        "200":
+          description: Quantity increased successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Quantity increased successfully
+                  cart:
+                    $ref: "#/components/schemas/CartResponse"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Decrease Quantity
+  # ==========================================
+  /cart/decrease:
+    patch:
+      tags:
+        - Cart (User)
+      summary: Decrease item quantity
+      description: Decrease the quantity of a product in the cart by 1. Removes the item if quantity reaches 0.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartItemProductIdRequest"
+      responses:
+        "200":
+          description: Quantity decreased successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Quantity decreased successfully
+                  cart:
+                    $ref: "#/components/schemas/CartResponse"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Remove Item from Cart
+  # ==========================================
+  /cart/remove/{id}:
+    delete:
+      tags:
+        - Cart (User)
+      summary: Remove item from cart
+      description: Remove a specific product from the cart by its product ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID to remove
+      responses:
+        "200":
+          description: Item removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Item removed successfully
+                  cart:
+                    $ref: "#/components/schemas/CartResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Clear Cart
+  # ==========================================
+  /cart/clear:
+    delete:
+      tags:
+        - Cart (User)
+      summary: Clear entire cart
+      description: Remove all items from the cart.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Cart cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Cart cleared successfully
+                  cart:
+                    $ref: "#/components/schemas/CartResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - User role required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+# ==========================================
+# Components & Schemas
+# ==========================================
+components:
+  schemas:
+    AddToCartRequest:
+      type: object
+      required:
+        - productId
+        - variant
+      properties:
+        productId:
+          type: string
+          example: 665a1b2c3d4e5f6a7b8c9d0e
+        variant:
+          type: object
+          required:
+            - size
+          properties:
+            size:
+              type: string
+              example: 128GB
+
+    CartItemProductIdRequest:
+      type: object
+      required:
+        - productId
+      properties:
+        productId:
+          type: string
+          example: 665a1b2c3d4e5f6a7b8c9d0e
+
+    CartResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          example: 665a1b2c3d4e5f6a7b8c9d0e
+        name:
+          type: string
+          example: iPhone 16
+        price:
+          type: number
+          example: 79999
+        thumbnail:
+          type: string
+          example: https://res.cloudinary.com/demo/image/upload/iphone16.jpg
+        stock:
+          type: integer
+          example: 50
+        quantity:
+          type: integer
+          example: 2
+        size:
+          type: string
+          example: 128GB
+        color:
+          type: string
+          example: Black
