@@ -4,9 +4,9 @@ REST API backend for handling authentication, products, orders, payments, and ad
 
 ---
 
-## Live Demo
+## API Docs
 
-Health Endpoint: `https://ekart-backend-9y0c.onrender.com/health`
+[https://ekart-backend-s0x7.onrender.com/docs](https://ekart-backend-s0x7.onrender.com/docs)
 
 ---
 
@@ -14,7 +14,7 @@ Health Endpoint: `https://ekart-backend-9y0c.onrender.com/health`
 
 - [eKart-frontend](https://github.com/sn0914r/ekart-frontend)
 - [eKart-admin-panel](https://github.com/sn0914r/ekart-admin-panel)
-- [eKart System](https://github.com/sn0914r/eKart-system)
+- [eKart-system](https://github.com/sn0914r/eKart-system)
 
 ---
 
@@ -30,17 +30,26 @@ Health Endpoint: `https://ekart-backend-9y0c.onrender.com/health`
 ### Product Management
 
 - Full CRUD operations for products (Admin only).
-- Advanced filtering, sorting, and pagination for product listings.
+- Supports filtering, sorting, and pagination for product listings.
 - Inventory tracking with automatic stock reduction upon successful payment.
 - Multi-image uploads integrated with Cloudinary.
 
 ### Orders & Payments
 
-- Order creation with snapshot-based item storage to preserve pricing at time of purchase.
+- Snapshot-based order items to preserve product data and pricing at purchase time.
 - Razorpay payment gateway integration.
 - Server-side payment signature verification.
-- Transaction-safe order confirmation and stock updates.
+- Transaction-safe order confirmation and stock updates, with stock reversal on cancellation.
+- Idempotency checks to prevent duplicate payment processing.
+- Order status history and timeline tracking.
 - Automated order confirmation emails via Nodemailer.
+
+### Admin Insights & Analytics
+
+- Revenue analytics with monthly breakdowns.
+- Order status distribution reports.
+- Top-performing products tracking.
+- Low stock alerts for inventory management.
 
 ### User Features
 
@@ -51,10 +60,13 @@ Health Endpoint: `https://ekart-backend-9y0c.onrender.com/health`
 ### Backend Infrastructure
 
 - Modular domain-driven architecture (Auth, Product, Order, etc.).
+- Redis-powered caching layer for improved performance.
 - Joi-based request validation and standardized API responses.
-- API rate limiting on sensitive endpoints (Payments).
+- Redis-backed API rate limiting on sensitive endpoints.
 - Security headers with Helmet and CORS configuration.
 - Structured request logging middleware.
+- Interactive API documentation via OpenAPI/Swagger.
+- Docker support for consistent development and deployment.
 
 ---
 
@@ -69,6 +81,10 @@ Health Endpoint: `https://ekart-backend-9y0c.onrender.com/health`
 
 - MongoDB
 - Mongoose (ODM)
+
+### Caching
+
+- Redis
 
 ### Authentication & Security
 
@@ -89,27 +105,43 @@ Health Endpoint: `https://ekart-backend-9y0c.onrender.com/health`
 - Nodemailer (Email notifications)
 - NanoID
 
+### Containerization
+
+- Docker
+
+### Documentation
+
+- OpenAPI / Swagger
+
 ---
 
 ## Folder Structure
 
 ```text
-src/
-├── clients/
-├── configs/
-├── constants/
-├── errors/
-├── middlewares/
-├── models/
-├── modules/
-│   ├── auth/
-│   ├── cart/
-│   ├── order/
-│   ├── payment/
-│   └── product/
-├── providers/
-├── templates/
-└── utils/
+├── docs/
+├── src/
+│   ├── clients/
+│   ├── configs/
+│   ├── constants/
+│   ├── errors/
+│   ├── middlewares/
+│   ├── models/
+│   ├── modules/
+│   │   ├── auth/
+│   │   ├── cart/
+│   │   ├── insights/
+│   │   ├── order/
+│   │   ├── payment/
+│   │   ├── product/
+│   │   └── wishlist/
+│   ├── providers/
+│   └── utils/
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── package.json
+└── README.md
 ```
 
 ---
@@ -139,11 +171,31 @@ JWT_ACCESS_TOKEN_SECRET=
 JWT_REFRESH_TOKEN_SECRET=
 JWT_ACCESS_TOKEN_EXPIRES=
 JWT_REFRESH_TOKEN_EXPIRES=
+
+REDIS_URL=
 ```
 
 ---
 
-## Installation
+## Run with Docker
+
+The backend includes Docker support for consistent development and deployment.
+
+### Build Image
+
+```bash
+docker build -t ekart-backend .
+```
+
+### Run Container
+
+```bash
+docker run -p 3000:3000 --env-file .env ekart-backend
+```
+
+---
+
+## Local Setup (without Docker)
 
 1. Clone the repository:
 
@@ -162,6 +214,7 @@ JWT_REFRESH_TOKEN_EXPIRES=
    - Copy contents from `.env.example` and fill in your credentials.
 
 4. Start the development server:
+
    ```bash
    npm run dev
    ```
