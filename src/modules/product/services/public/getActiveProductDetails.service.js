@@ -14,16 +14,8 @@ export const getActiveProductDetails = async (id) => {
     createdAt: 0,
   });
 
-  if (!product) {
+  if (!product || !product.isActive) {
     throw new AppError("Product not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
-  }
-
-  if (!product.isActive) {
-    throw new AppError(
-      "Product is not active",
-      400,
-      ERROR_CODES.BAD_REQUEST_ERROR,
-    );
   }
 
   return product;

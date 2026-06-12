@@ -23,7 +23,7 @@ export const uploadImages = async (files) => {
           if (err) {
             logger.error(err);
             return reject(
-              new AppError(err.message, 400, ERROR_CODES.INTERNAL_SERVER_ERROR),
+              new AppError(err.message, 500, ERROR_CODES.IMAGE_UPLOAD_FAILED),
             );
           }
           resolve(result.secure_url);

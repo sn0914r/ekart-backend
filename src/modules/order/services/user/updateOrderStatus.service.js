@@ -71,9 +71,9 @@ const cancelOrderWithStockReversal = async (orderId, userId) => {
 
     if (!order)
       throw new AppError(
-        "Order cannot be cancelled or already processed",
-        400,
-        ERROR_CODES.BAD_REQUEST_ERROR,
+        "Order not found or cannot be cancelled",
+        404,
+        ERROR_CODES.NOT_FOUND_ERROR,
       );
 
     const bulkOperations = order.orderSnapshot.map((item) => ({

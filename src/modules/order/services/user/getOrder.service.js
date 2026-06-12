@@ -35,7 +35,7 @@ export const getOrder = async (userId, orderId) => {
     throw new AppError(
       "You are not authorized to access this order",
       403,
-      ERROR_CODES.UNAUTHORIZED_ERROR,
+      ERROR_CODES.FORBIDDEN_ERROR,
     );
 
   const timeline = createTimeline(

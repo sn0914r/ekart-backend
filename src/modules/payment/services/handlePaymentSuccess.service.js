@@ -65,7 +65,7 @@ const idempotencyCheck = async (razorpayPaymentId) => {
     throw new AppError(
       `Payment already processed for ${order._id}`,
       409,
-      ERROR_CODES.BAD_REQUEST_ERROR,
+      ERROR_CODES.CONFLICT_ERROR,
     );
   }
 };
@@ -80,7 +80,11 @@ const validatePaymentSignatures = (paymentData) => {
     .digest("hex");
 
   if (generatedSignature !== paymentData.razorpaySignature) {
-    throw new AppError("Invalid Payment", 400, ERROR_CODES.BAD_REQUEST_ERROR);
+    throw new AppError(
+      "Invalid Payment",
+      400,
+      ERROR_CODES.INVALID_PAYMENT_SIGNATURE,
+    );
   }
 };
 
@@ -118,25 +122,18 @@ const runTransaction = async (order, userId) => {
       const targetProduct = await ProductModel.findById(item.productId);
 
       // INFO: Edge cases
-      if (!targetProduct)
+      if (!targetProduct || !targetProduct.isActive)
         throw new AppError(
-          `Product (${item.name}) not found`,
+          `${item.name ? item.name + " " : ""}Product not found`,
           404,
           ERROR_CODES.NOT_FOUND_ERROR,
-        );
-
-      if (!targetProduct.isActive)
-        throw new AppError(
-          "Product not available",
-          408,
-          ERROR_CODES.BAD_REQUEST_ERROR,
         );
 
       if (targetProduct.stock < item.quantity)
         throw new AppError(
           `Product (${targetProduct.name}) out of stock`,
-          409,
-          ERROR_CODES.BAD_REQUEST_ERROR,
+          400,
+          ERROR_CODES.OUT_OF_STOCK,
         );
 
       // INFO: Reduce stock

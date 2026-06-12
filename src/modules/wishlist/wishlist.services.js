@@ -40,8 +40,8 @@ export const addItemToWishlist = async (userId, productId) => {
   if (isExists) {
     throw new AppError(
       "Product already exists in the wishlist",
-      400,
-      ERROR_CODES.BAD_REQUEST_ERROR,
+      409,
+      ERROR_CODES.CONFLICT_ERROR,
     );
   }
 
