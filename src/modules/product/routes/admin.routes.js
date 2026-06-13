@@ -24,14 +24,14 @@ export const adminProductRoutes = Router();
 adminProductRoutes.get(
   "/admin/products",
   authenticate,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.ADMIN, ROLES.DEMO_ADMIN]),
   getProductsForAdminController,
 );
 
 adminProductRoutes.get(
   "/admin/products/:id",
   authenticate,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.ADMIN, ROLES.DEMO_ADMIN]),
   getProductForAdminController,
 );
 

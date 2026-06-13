@@ -17,14 +17,14 @@ export const adminOrderRoutes = Router();
 adminOrderRoutes.get(
   "/admin/orders",
   authenticate,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.ADMIN, ROLES.DEMO_ADMIN]),
   getOrdersForAdminController,
 );
 
 adminOrderRoutes.get(
   "/admin/orders/:id",
   authenticate,
-  requireRole([ROLES.ADMIN]),
+  requireRole([ROLES.ADMIN, ROLES.DEMO_ADMIN]),
   getOrderForAdminController,
 );
 

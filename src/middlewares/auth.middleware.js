@@ -3,6 +3,7 @@ import { AppError } from "../errors/AppError.js";
 import { logger } from "../utils/logger.js";
 import { ERROR_CODES } from "../constants/errorCodes.js";
 import { configs } from "../configs/index.js";
+import { ROLES } from "../constants/roles.js";
 
 export const authenticate = async (req, res, next) => {
   if (!req.headers?.authorization?.startsWith("Bearer ")) {
@@ -35,11 +36,11 @@ export const authenticate = async (req, res, next) => {
 export const requireRole = (allowedRoles = []) => {
   return (req, res, next) => {
     if (!allowedRoles.includes(req.user.role)) {
-      throw new AppError(
-        "You are not allowed to access this route",
-        403,
-        ERROR_CODES.FORBIDDEN_ERROR,
-      );
+      const errorMessage =
+        req.user.role === ROLES.DEMO_ADMIN
+          ? "This is a demo account, so edits are disabled to protect the data."
+          : "You are not allowed to perform this operation";
+      throw new AppError(errorMessage, 403, ERROR_CODES.FORBIDDEN_ERROR);
     }
     next();
   };
