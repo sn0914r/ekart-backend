@@ -1,5 +1,10 @@
 import { configs } from "../../configs/index.js";
-import { createUser, loginUser, refreshToken, logoutUser } from "./services/index.js";
+import {
+  createUser,
+  loginUser,
+  refreshToken,
+  logoutUser,
+} from "./services/index.js";
 
 /**
  * @route POST /auth/register
@@ -41,7 +46,13 @@ export const loginUserController = async (req, res) => {
  */
 export const refreshTokenController = async (req, res) => {
   const refreshTokenString = req.cookies.refreshToken;
-  const accessToken = await refreshToken(refreshTokenString);
+  const { accessToken, refreshToken: newRefreshToken } = await refreshToken(refreshTokenString);
+
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: configs.node_env === "production",
+    sameSite: configs.node_env === "production" ? "none" : "lax",
+  });
 
   res.status(200).json({ accessToken });
 };

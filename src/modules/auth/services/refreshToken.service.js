@@ -4,12 +4,15 @@ import UserModel from "../../../models/User.model.js";
 import RefreshTokenModel from "../../../models/RefreshTokens.model.js";
 import { ERROR_CODES } from "../../../constants/errorCodes.js";
 import { AppError } from "../../../errors/AppError.js";
-import { generateAccessToken } from "../utils/generateAuthTokens.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/generateAuthTokens.js";
 import { hashToken } from "../utils/hashToken.js";
 
 /**
  * @param {string} refreshToken
- * @returns {Promise<string>} accessToken
+ * @returns {Promise<{accessToken: string, refreshToken: string}>}
  */
 export const refreshToken = async (refreshToken) => {
   if (!refreshToken) {
@@ -47,6 +50,17 @@ export const refreshToken = async (refreshToken) => {
   const userId = decoded.userId;
   const userDoc = await UserModel.findById(userId);
 
+  const newRefreshToken = generateRefreshToken({
+    sessionId: refreshTokenDoc._id,
+    userId: userId,
+  });
+
+  const hashedNewRefreshToken = hashToken(newRefreshToken);
+
+  await RefreshTokenModel.findByIdAndUpdate(sessionId, {
+    hashedToken: hashedNewRefreshToken,
+  });
+
   const accessToken = generateAccessToken({
     userId: userDoc._id,
     role: userDoc.role,
@@ -54,5 +68,5 @@ export const refreshToken = async (refreshToken) => {
     email: userDoc.email,
   });
 
-  return accessToken;
+  return { accessToken, refreshToken: newRefreshToken };
 };
