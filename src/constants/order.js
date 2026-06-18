@@ -15,6 +15,9 @@ export const SHIPPING_STATUS = {
 export const PAYMENT_STATUS = {
   PENDING: "PENDING",
   PAID: "PAID",
+  FAILED: "FAILED",
+  REFUND_PENDING: "REFUND_PENDING",
+  REFUNDED: "REFUNDED",
 };
 
 export const VALID_ORDER_SORT_FIELDS_FOR_ADMIN_LIST = [
@@ -38,9 +41,9 @@ export const ORDER_TIMELINE_LABELS = {
   PAYMENT: {
     PAID: "Payment received",
     PENDING: "Payment pending",
-    // TODO: Add this in future
-    // FAILED: "Payment failed",
-    // REFUNDED: "Payment refunded",
+    FAILED: "Payment failed",
+    REFUND_PENDING: "Refund initiated",
+    REFUNDED: "Payment refunded",
   },
 
   ORDER: {

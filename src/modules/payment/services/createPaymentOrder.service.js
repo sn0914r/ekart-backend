@@ -20,11 +20,11 @@ export const createPaymentOrder = async (orderId, userId) => {
 
   order.paymentDetails = order.paymentDetails || {};
   order.paymentDetails.razorpayOrderId = razorpayOrderId;
-  order.paymentStatusPaidHistory = {
+  order.paymentStatusHistory.push({
     status: PAYMENT_STATUS.PENDING,
     at: new Date(),
-    by: order.userId,
-  };
+    by: userId,
+  });
 
   await order.save();
   return { razorpayOrderId };

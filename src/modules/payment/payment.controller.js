@@ -1,3 +1,4 @@
+import { handlePaymentFailure } from "./services/handlePaymentFailure.service.js";
 import { createPaymentOrder, handlePaymentSuccess } from "./services/index.js";
 
 /**
@@ -40,5 +41,22 @@ export const paymentSuccessController = async (req, res) => {
     success: true,
     message: "Payment verified successfully",
     data: orderId,
+  });
+};
+
+/**
+ * @route POST /payments/failure
+ * @access Private
+ */
+
+export const paymentFailureController = async (req, res) => {
+  const paymentFailureDetails = req.body;
+  const userId = req.user.userId;
+
+  await handlePaymentFailure(paymentFailureDetails, userId);
+
+  await res.status(200).json({
+    success: true,
+    message: "Payment Failed",
   });
 };

@@ -15,7 +15,7 @@ export const getOrderForAdmin = async (orderId) => {
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
   const timeline = createTimeline(
-    order.paymentStatusPaidHistory,
+    order.paymentStatusHistory,
     order.orderStatusHistory,
     order.shippingStatusHistory,
   );

@@ -9,6 +9,7 @@ import { validate } from "../../middlewares/validation.middleware.js";
 import { orderIdSchema, paymentVerificationSchema } from "./payment.schema.js";
 import {
   createPaymentController,
+  paymentFailureController,
   paymentSuccessController,
 } from "./payment.controller.js";
 import { RATE_LIMIT } from "../../constants/rateLimiter.js";
@@ -39,4 +40,11 @@ paymentRouter.post(
   requireRole([ROLES.USER]),
   validate(paymentVerificationSchema),
   paymentSuccessController,
+);
+
+paymentRouter.post(
+  "/payments/failure",
+  authenticate,
+  requireRole([ROLES.USER]),
+  paymentFailureController,
 );

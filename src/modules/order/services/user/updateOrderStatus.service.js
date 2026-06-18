@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 import { ERROR_CODES } from "../../../../constants/errorCodes.js";
 import { AppError } from "../../../../errors/AppError.js";
 import OrderModel from "../../../../models/Order/Order.model.js";
-import { ORDER_STATUS, SHIPPING_STATUS } from "../../../../constants/order.js";
+import {
+  ORDER_STATUS,
+  PAYMENT_STATUS,
+  SHIPPING_STATUS,
+} from "../../../../constants/order.js";
 import ProductModel from "../../../../models/Product.model.js";
 import { assertOrderStatus } from "../../order.validators.js";
 
@@ -54,10 +58,16 @@ const cancelOrderWithStockReversal = async (orderId, userId) => {
           isStockReverted: true,
           orderStatus: ORDER_STATUS.CANCELLED,
           shippingStatus: SHIPPING_STATUS.CANCELLED,
+          paymentStatus: PAYMENT_STATUS.REFUND_PENDING,
         },
         $push: {
           orderStatusHistory: {
             status: ORDER_STATUS.CANCELLED,
+            at: new Date(),
+            by: userId,
+          },
+          paymentStatusHistory: {
+            status: PAYMENT_STATUS.REFUND_PENDING,
             at: new Date(),
             by: userId,
           },

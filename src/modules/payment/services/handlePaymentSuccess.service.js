@@ -58,6 +58,7 @@ export const handlePaymentSuccess = async (paymentData, userId) => {
 const idempotencyCheck = async (razorpayPaymentId) => {
   const order = await OrderModel.findOne({
     "paymentDetails.razorpayPaymentId": razorpayPaymentId,
+    paymentStatus: PAYMENT_STATUS.PAID,
   })
     .select("_id")
     .lean();
@@ -100,11 +101,14 @@ const updatePaymentStatus = async (
   order.paymentStatus = PAYMENT_STATUS.PAID;
   order.paymentDetails.razorpayPaymentId = razorpayPaymentId;
   order.paymentDetails.razorpaySignature = razorpaySignature;
-  order.paymentStatusPaidHistory = {
+  order.paymentDetails.failureCode = null;
+  order.paymentDetails.failureReason = null;
+  order.paymentDetails.failureDescription = null;
+  order.paymentStatusHistory.push({
     status: PAYMENT_STATUS.PAID,
     at: new Date(),
     by: order.userId,
-  };
+  });
 
   await order.save();
 };
@@ -140,7 +144,7 @@ const runTransaction = async (order, userId) => {
       // INFO: Reduce stock
       targetProduct.stock -= item.quantity;
       await targetProduct.save({ session });
-      
+
       // INFO: Invalidate product cache
       await redisClient.del(`product:${item.productId}`);
     }

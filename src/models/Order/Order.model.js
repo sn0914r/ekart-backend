@@ -47,11 +47,7 @@ const OrderSchema = new Schema(
 
     orderStatusHistory: [StatusHistory],
     shippingStatusHistory: [StatusHistory],
-    paymentStatusPaidHistory: {
-      status: String,
-      at: Date,
-      by: Schema.Types.ObjectId,
-    },
+    paymentStatusHistory: [StatusHistory],
     shippingAddress: ShippingAddressSchema,
   },
   { timestamps: true, versionKey: false },

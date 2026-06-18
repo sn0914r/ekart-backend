@@ -24,8 +24,8 @@ export const getOrder = async (userId, orderId) => {
     shippingStatusHistory: 1,
     shippingAddress: 1,
     createdAt: 1,
-    paymentStatusPaidHistory: 1,
-    "paymentDetails.razorpayPaymentId": 1,
+    paymentStatusHistory: 1,
+    paymentDetails: 1,
   });
 
   if (!order)
@@ -39,14 +39,14 @@ export const getOrder = async (userId, orderId) => {
     );
 
   const timeline = createTimeline(
-    order.paymentStatusPaidHistory,
+    order.paymentStatusHistory,
     order.orderStatusHistory,
     order.shippingStatusHistory,
   );
 
   const {
     _orderStatusHistory,
-    _paymentStatusPaidHistory,
+    _paymentStatusHistory,
     _shippingStatusHistory,
     ...orderResponse
   } = order._doc;
