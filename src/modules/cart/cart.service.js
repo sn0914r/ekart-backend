@@ -1,4 +1,4 @@
-import CartModel from "../../models/Cart.model.js";
+import CartModel from "./cart.model.js";
 import { formatCartList } from "./cart.utils.js";
 
 /**

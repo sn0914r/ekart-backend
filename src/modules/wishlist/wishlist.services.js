@@ -1,4 +1,4 @@
-import WishlistModel from "../../models/WishList.js";
+import WishlistModel from "./wishlist.model.js";
 import { AppError } from "../../errors/AppError.js";
 import { ERROR_CODES } from "../../constants/errorCodes.js";
 import { formattedWishlistItems } from "./utils/formatWishlist.js";

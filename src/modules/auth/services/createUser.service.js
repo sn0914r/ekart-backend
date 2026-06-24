@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import UserModel from "../../../models/User.model.js";
-import RefreshTokenModel from "../../../models/RefreshTokens.model.js";
+import UserModel from "../models/user.model.js";
+import RefreshTokenModel from "../models/refreshTokens.model.js";
 import { ERROR_CODES } from "../../../constants/errorCodes.js";
 import { AppError } from "../../../errors/AppError.js";
 import { ROLES } from "../../../constants/roles.js";
@@ -9,6 +9,7 @@ import {
   generateRefreshToken,
 } from "../utils/generateAuthTokens.js";
 import { hashToken } from "../utils/hashToken.js";
+import { configs } from "../../../configs/index.js";
 
 /**
  * @param {string} name
@@ -51,12 +52,14 @@ export const createUser = async (name, email, password) => {
   const hashedRefreshToken = hashToken(refreshToken);
 
   const expireDate = new Date();
-  // FIXME: get the expire time from the configs (normalize string)
-  expireDate.setDate(expireDate.getDate() + 7);
+  expireDate.setDate(
+    expireDate.getDate() + configs.auth_jwt.refreshTokenExpireTime,
+  );
+
   await RefreshTokenModel.findByIdAndUpdate(refreshTokenDoc._id, {
     hashedToken: hashedRefreshToken,
     expiresAt: expireDate,
   });
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, userId: newUser._id };
 };

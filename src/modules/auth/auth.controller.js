@@ -12,7 +12,11 @@ import {
  */
 export const createUserController = async (req, res) => {
   const { name, email, password } = req.body;
-  const { accessToken, refreshToken } = await createUser(name, email, password);
+  const { accessToken, refreshToken, userId } = await createUser(
+    name,
+    email,
+    password,
+  );
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -20,7 +24,14 @@ export const createUserController = async (req, res) => {
     sameSite: configs.node_env === "production" ? "none" : "lax",
   });
 
-  res.status(201).json({ accessToken });
+  res.status(201).json({
+    success: true,
+    message: "Account created successfully",
+    data: {
+      user: { userId, name, email },
+      accessToken,
+    },
+  });
 };
 
 /**
@@ -29,7 +40,10 @@ export const createUserController = async (req, res) => {
  */
 export const loginUserController = async (req, res) => {
   const { email, password } = req.body;
-  const { accessToken, refreshToken } = await loginUser(email, password);
+  const { accessToken, refreshToken, userId, name } = await loginUser(
+    email,
+    password,
+  );
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -37,7 +51,14 @@ export const loginUserController = async (req, res) => {
     sameSite: configs.node_env === "production" ? "none" : "lax",
   });
 
-  res.status(200).json({ accessToken });
+  res.status(200).json({
+    success: true,
+    message: "Login successful",
+    data: {
+      user: { userId, name, email },
+      accessToken,
+    },
+  });
 };
 
 /**
@@ -46,7 +67,8 @@ export const loginUserController = async (req, res) => {
  */
 export const refreshTokenController = async (req, res) => {
   const refreshTokenString = req.cookies.refreshToken;
-  const { accessToken, refreshToken: newRefreshToken } = await refreshToken(refreshTokenString);
+  const { accessToken, refreshToken: newRefreshToken } =
+    await refreshToken(refreshTokenString);
 
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
@@ -54,7 +76,11 @@ export const refreshTokenController = async (req, res) => {
     sameSite: configs.node_env === "production" ? "none" : "lax",
   });
 
-  res.status(200).json({ accessToken });
+  res.status(200).json({
+    success: true,
+    message: "Token refreshed successfully",
+    data: { accessToken },
+  });
 };
 
 /**
@@ -66,5 +92,8 @@ export const logoutUserController = async (req, res) => {
   await logoutUser(refreshToken);
 
   res.clearCookie("refreshToken");
-  res.status(200).json({ message: "User logged out successfully" });
+  res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
 };

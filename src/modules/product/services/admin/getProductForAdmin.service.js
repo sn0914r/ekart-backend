@@ -1,6 +1,6 @@
 import { ERROR_CODES } from "../../../../constants/errorCodes.js";
 import { AppError } from "../../../../errors/AppError.js";
-import ProductModel from "../../../../models/Product.model.js";
+import ProductModel from "../../product.model.js";
 
 /**
  * @param {string} id - product id

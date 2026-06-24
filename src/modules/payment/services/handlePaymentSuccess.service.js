@@ -1,6 +1,6 @@
 import { AppError } from "../../../errors/AppError.js";
-import OrderModel from "../../../models/Order/Order.model.js";
-import ProductModel from "../../../models/Product.model.js";
+import OrderModel from "../../order/OrderModel/order.model.js";
+import ProductModel from "../../product/product.model.js";
 import { redisClient } from "../../../clients/redis.js";
 import { configs } from "../../../configs/index.js";
 import mongoose from "mongoose";

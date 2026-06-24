@@ -1,4 +1,4 @@
-import OrderModel from "../../../../models/Order/Order.model.js";
+import OrderModel from "../../OrderModel/order.model.js";
 import {
   buildOrderFilter,
   buildOrderPagination,

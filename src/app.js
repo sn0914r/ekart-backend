@@ -51,8 +51,6 @@ app.use(
   }),
 );
 
-app.get("/favicon.ico", (req, res) => res.status(204).end());
-
 app.use("/health", (req, res) => {
   res.status(200).json({ success: true });
 });

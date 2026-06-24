@@ -17,7 +17,7 @@ export const getCartController = async (req, res) => {
   const cart = await getCart(userId);
   return res
     .status(200)
-    .json({ success: true, cart, message: "Cart fetched successfully" });
+    .json({ success: true, data: cart, message: "Cart fetched successfully" });
 };
 
 /**
@@ -31,7 +31,7 @@ export const addToCartController = async (req, res) => {
   const cart = await addToCart(productId, variant, userId);
   return res
     .status(200)
-    .json({ success: true, cart, message: "Item added to cart" });
+    .json({ success: true, data: cart, message: "Item added to cart" });
 };
 
 /**
@@ -45,7 +45,7 @@ export const incQuantityController = async (req, res) => {
   const cart = await incQuantity(productId, userId);
   return res
     .status(200)
-    .json({ success: true, cart, message: "Quantity increased successfully" });
+    .json({ success: true, data: cart, message: "Quantity increased successfully" });
 };
 
 /**
@@ -59,7 +59,7 @@ export const decQuantityController = async (req, res) => {
   const cart = await decQuantity(productId, userId);
   return res
     .status(200)
-    .json({ success: true, cart, message: "Quantity decreased successfully" });
+    .json({ success: true, data: cart, message: "Quantity decreased successfully" });
 };
 
 /**
@@ -73,7 +73,7 @@ export const removeFromCartController = async (req, res) => {
   const cart = await removeFromCart(id, userId);
   return res
     .status(200)
-    .json({ success: true, cart, message: "Item removed successfully" });
+    .json({ success: true, data: cart, message: "Item removed successfully" });
 };
 
 /**
@@ -86,5 +86,5 @@ export const clearCartController = async (req, res) => {
   const cart = await clearCart(userId);
   return res
     .status(200)
-    .json({ success: true, cart, message: "Cart cleared successfully" });
+    .json({ success: true, data: cart, message: "Cart cleared successfully" });
 };

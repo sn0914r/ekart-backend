@@ -1,5 +1,5 @@
 import { redisClient } from "../../../../clients/redis.js";
-import ProductModel from "../../../../models/Product.model.js";
+import ProductModel from "../../product.model.js";
 import {
   buildFilter,
   buildPagination,

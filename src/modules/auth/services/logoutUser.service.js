@@ -1,4 +1,4 @@
-import RefreshTokenModel from "../../../models/RefreshTokens.model.js";
+import RefreshTokenModel from "../models/refreshTokens.model.js";
 import jwt from "jsonwebtoken";
 import { configs } from "../../../configs/index.js";
 

@@ -3,7 +3,7 @@ import {
   ORDER_STATUS,
   PAYMENT_STATUS,
   SHIPPING_STATUS,
-} from "../../constants/order.js";
+} from "../../../constants/order.js";
 import { OrderItemSchema } from "./orderItem.schema.js";
 import { PaymentSchema } from "./payment.schema.js";
 import { StatusHistory } from "./statusHistory.schema.js";

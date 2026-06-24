@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { configs } from "../../../configs/index.js";
-import UserModel from "../../../models/User.model.js";
-import RefreshTokenModel from "../../../models/RefreshTokens.model.js";
+import UserModel from "../models/user.model.js";
+import RefreshTokenModel from "../models/refreshTokens.model.js";
 import { ERROR_CODES } from "../../../constants/errorCodes.js";
 import { AppError } from "../../../errors/AppError.js";
 import {

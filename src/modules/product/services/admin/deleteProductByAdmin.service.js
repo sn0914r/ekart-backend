@@ -1,7 +1,7 @@
 import { redisClient } from "../../../../clients/redis.js";
 import { ERROR_CODES } from "../../../../constants/errorCodes.js";
 import { AppError } from "../../../../errors/AppError.js";
-import ProductModel from "../../../../models/Product.model.js";
+import ProductModel from "../../product.model.js";
 
 /**
  * @param {string} id - product id
@@ -20,6 +20,6 @@ export const deleteProductByAdmin = async (id) => {
   }
   await redisClient.del(`product:${id}`);
   await redisClient.del(`product:colors:${product.name}`);
-  
+
   return product;
 };

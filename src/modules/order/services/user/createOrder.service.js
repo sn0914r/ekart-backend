@@ -1,7 +1,7 @@
 import { AppError } from "../../../../errors/AppError.js";
-import OrderModel from "../../../../models/Order/Order.model.js";
-import ProductModel from "../../../../models/Product.model.js";
-import CartModel from "../../../../models/Cart.model.js";
+import OrderModel from "../../OrderModel/order.model.js";
+import ProductModel from "../../../product/product.model.js";
+import CartModel from "../../../cart/cart.model.js";
 import { ORDER_STATUS } from "../../../../constants/order.js";
 import { ERROR_CODES } from "../../../../constants/errorCodes.js";
 import {

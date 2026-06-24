@@ -1,4 +1,4 @@
-import OrderModel from "../../../models/Order/Order.model.js";
+import OrderModel from "../../order/OrderModel/order.model.js";
 import { AppError } from "../../../errors/AppError.js";
 import { createRazorpayOrder } from "../../../providers/razorpay.js";
 import { ERROR_CODES } from "../../../constants/errorCodes.js";

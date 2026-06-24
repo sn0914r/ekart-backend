@@ -1,5 +1,5 @@
 import { AppError } from "../../../../errors/AppError.js";
-import OrderModel from "../../../../models/Order/Order.model.js";
+import OrderModel from "../../OrderModel/order.model.js";
 import { ERROR_CODES } from "../../../../constants/errorCodes.js";
 import { createTimeline } from "../../utils/createOrderTimeline.js";
 

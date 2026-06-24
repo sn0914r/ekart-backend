@@ -12,9 +12,7 @@ export const logger = {
    * @param {string} message
    */
   info: (message) => {
-    if (!isProd) {
-      console.log(formatMessage("info", message));
-    }
+    console.log(formatMessage("info", message));
   },
 
   /**

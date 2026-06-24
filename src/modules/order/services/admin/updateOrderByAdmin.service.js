@@ -1,7 +1,7 @@
 import { ERROR_CODES } from "../../../../constants/errorCodes.js";
 import { ORDER_STATUS_EMAILS } from "../../../../constants/order.js";
 import { AppError } from "../../../../errors/AppError.js";
-import OrderModel from "../../../../models/Order/Order.model.js";
+import OrderModel from "../../OrderModel/order.model.js";
 import { sendEmail } from "../../../../providers/mailer/sendEmail.js";
 import { orderShippingStatusTemplate } from "../../../../providers/mailer/templates/orderShippingStatus.template.js";
 import { validateShippingStatusTransition } from "../../order.validators.js";
