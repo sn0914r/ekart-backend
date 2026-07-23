@@ -1,5 +1,11 @@
 node_modules
 .vscode
 .env
+.env.dev
+.env.prod
+.env.local
+.env.*.local
 .git
 .DS_Store
+*.log
+dist

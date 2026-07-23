@@ -1,5 +1,10 @@
 node_modules
 .env
+.env.dev
+.env.prod
+.env.local
+.env.*.local
 .DS_Store
-.agent
 .vscode
+*.log
+dist

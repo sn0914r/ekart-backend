@@ -1,0 +1,26 @@
+services:
+  ekart-redis:
+    image: redis:7
+    container_name: ekart-redis
+    volumes:
+      - ekart-redis-volume:/data
+    networks:
+      - ekart-network
+
+  ekart-mongodb:
+    image: mongo:8
+    container_name: ekart-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=sivananda
+      - MONGO_INITDB_ROOT_PASSWORD=sivananda123
+    volumes:
+      - ekart-mongo-volume:/data/db
+    networks:
+      - ekart-network
+
+volumes:
+  ekart-redis-volume:
+  ekart-mongo-volume:
+
+networks:
+  ekart-network:

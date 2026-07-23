@@ -1,0 +1,14 @@
+services:
+  ekart-backend:
+    build:
+      context: .
+      target: production
+    ports:
+      - "3000:3000"
+    env_file: .env
+    networks:
+      - ekart-network
+    restart: unless-stopped
+
+networks:
+  ekart-network:
