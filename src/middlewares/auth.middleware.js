@@ -1,11 +1,10 @@
 import jwt from "jsonwebtoken";
-import { AppError } from "../errors/AppError.js";
-import { logger } from "../utils/logger.js";
-import { ERROR_CODES } from "../constants/errorCodes.js";
-import { configs } from "../configs/index.js";
-import { ROLES } from "../constants/roles.js";
+import { configs } from "#configs/index.js";
+import { AppError } from "#errors/AppError.js";
+import { logger } from "#utils/logger.js";
+import { ROLES, ERROR_CODES } from "#constants/index.js";
 
-export const authenticate = async (req, res, next) => {
+export const authenticate = async (req, _res, next) => {
   if (!req.headers?.authorization?.startsWith("Bearer ")) {
     throw new AppError(
       "Bearer token is missing",
@@ -34,7 +33,7 @@ export const authenticate = async (req, res, next) => {
 };
 
 export const requireRole = (allowedRoles = []) => {
-  return (req, res, next) => {
+  return (req, _res, next) => {
     if (!allowedRoles.includes(req.user.role)) {
       const errorMessage =
         req.user.role === ROLES.DEMO_ADMIN

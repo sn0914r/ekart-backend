@@ -1,8 +1,8 @@
-import { cloudinary } from "../clients/cloudinary.js";
-import { AppError } from "../errors/AppError.js";
+import { cloudinary } from "#clients/cloudinary.js";
+import { AppError } from "#errors/AppError.js";
 import { nanoid } from "nanoid";
-import { logger } from "../utils/logger.js";
-import { ERROR_CODES } from "../constants/errorCodes.js";
+import { logger } from "#utils/logger.js";
+import { ERROR_CODES } from "#constants/index.js";
 
 /**
  * Uploads multiple images to Cloudinary

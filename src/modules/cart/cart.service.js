@@ -1,5 +1,5 @@
 import CartModel from "./cart.model.js";
-import { formatCartList } from "./cart.utils.js";
+import { formatCartList } from "./cart.helpers.js";
 
 /**
  * @typedef {Object} CartItem

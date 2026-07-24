@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
-import { configs } from "../../../configs/index.js";
+import crypto from "crypto";
+import { configs } from "#configs/index.js";
 
 /**
  * @param {{userId: string, role: string, name: string, email: string}} payload
@@ -23,4 +24,13 @@ export const generateRefreshToken = (payload) => {
   });
 
   return refreshToken;
+};
+
+/**
+ * @param {string} token
+ * @returns {string} hashedToken
+ */
+export const hashToken = (token) => {
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+  return hashedToken;
 };

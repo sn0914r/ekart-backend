@@ -1,14 +1,11 @@
 import { Schema, model } from "mongoose";
-import {
-  ORDER_STATUS,
-  PAYMENT_STATUS,
-  SHIPPING_STATUS,
-} from "../../../constants/order.js";
+import { ORDER } from "#constants/order.js";
 import { OrderItemSchema } from "./orderItem.schema.js";
 import { PaymentSchema } from "./payment.schema.js";
 import { StatusHistory } from "./statusHistory.schema.js";
 import { ShippingAddressSchema } from "./address.schema.js";
 
+const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER
 const OrderSchema = new Schema(
   {
     currency: { type: String, default: "INR" },

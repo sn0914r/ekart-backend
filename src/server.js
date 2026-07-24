@@ -1,9 +1,9 @@
 import "dotenv/config";
+import { configs } from "#configs/index.js";
+import { connectMongoDB } from "#clients/mongodb.js";
+import { connectRedis } from "#clients/redis.js";
+import { logger } from "#utils/logger.js";
 import { app } from "./app.js";
-import { configs } from "./configs/index.js";
-import { connectMongoDB } from "./clients/mongodb.js";
-import { logger } from "./utils/logger.js";
-import { connectRedis } from "./clients/redis.js";
 
 const PORT = configs.port;
 

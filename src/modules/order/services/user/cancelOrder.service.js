@@ -1,24 +1,29 @@
 import mongoose from "mongoose";
-import { ERROR_CODES } from "../../../../constants/errorCodes.js";
-import { AppError } from "../../../../errors/AppError.js";
+import { AppError } from "#errors/AppError.js";
+import ProductModel from "#modules/product/product.model.js";
+import { ORDER, ERROR_CODES } from "#constants/index.js";
 import OrderModel from "../../OrderModel/order.model.js";
-import {
-  ORDER_STATUS,
-  PAYMENT_STATUS,
-  SHIPPING_STATUS,
-} from "../../../../constants/order.js";
-import ProductModel from "../../../product/product.model.js";
-import { assertOrderStatus } from "../../order.validators.js";
+import { assertOrderStatus } from "../../helpers/order.validators.js";
+
+const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
 
 /**
- * Updates the User's Order Status
+ * @typedef {object} CancelledOrder
+ * @property {string} _id
+ * @property {string} orderId
+ * @property {string} orderStatus
+ * @property {string} shippingStatus
+ * @property {string} paymentStatus
+ */
+
+/**
+ * Cancels an order and reverts stock
  *
  * @param {string} orderId
  * @param {string} userId
- * @param {object} updates - { orderStatus, shippingAddress }
- * @returns {object} updated order
+ * @returns {Promise<CancelledOrder>} cancelled order
  */
-export const updateOrderStatus = async (orderId, userId) => {
+export const cancelOrder = async (orderId, userId) => {
   const order = await OrderModel.findById(orderId);
 
   if (!order) {

@@ -1,5 +1,5 @@
-import { AppError } from "../errors/AppError.js";
-import { ERROR_CODES } from "../constants/errorCodes.js";
+import { AppError } from "#errors/AppError.js";
+import { ERROR_CODES } from "#constants/errorCodes.js";
 
 export const validate =
   (schema, segment = "body") =>

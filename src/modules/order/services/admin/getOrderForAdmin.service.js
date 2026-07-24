@@ -1,9 +1,9 @@
-import { ERROR_CODES } from "../../../../constants/errorCodes.js";
-import { AppError } from "../../../../errors/AppError.js";
+import { ERROR_CODES } from "#constants/index.js";
+import { AppError } from "#errors/AppError.js";
 import OrderModel from "../../OrderModel/order.model.js";
-import { createTimeline } from "../../utils/createOrderTimeline.js";
+import { createTimeline } from "../../helpers/order.timeline.js";
 
-/** @import {TimelineEntry} from "../../utils/createOrderTimeline.js" */
+/** @import {TimelineEntry} from "../../helpers/order.timeline.js" */
 
 /**
  * @param {string} orderId

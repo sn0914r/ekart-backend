@@ -1,6 +1,6 @@
 import multer from "multer";
-import { AppError } from "../errors/AppError.js";
-import { ERROR_CODES } from "../constants/errorCodes.js";
+import { AppError } from "#errors/AppError.js";
+import { ERROR_CODES } from "#constants/errorCodes.js";
 
 export const upload = multer({
   storage: multer.memoryStorage(),

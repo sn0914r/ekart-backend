@@ -1,18 +1,14 @@
 import { Router } from "express";
-import { rateLimiter } from "../../middlewares/rateLimiter.middleware.js";
-import {
-  authenticate,
-  requireRole,
-} from "../../middlewares/auth.middleware.js";
-import { ROLES } from "../../constants/roles.js";
-import { validate } from "../../middlewares/validation.middleware.js";
+import { rateLimiter } from "#middlewares/rateLimiter.middleware.js";
+import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
+import { validate } from "#middlewares/validation.middleware.js";
+import { ROLES, RATE_LIMIT } from "#constants/index.js";
 import { orderIdSchema, paymentVerificationSchema } from "./payment.schema.js";
 import {
   createPaymentController,
   paymentFailureController,
   paymentSuccessController,
 } from "./payment.controller.js";
-import { RATE_LIMIT } from "../../constants/rateLimiter.js";
 
 export const paymentRouter = Router();
 

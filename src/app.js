@@ -2,19 +2,18 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import { configs } from "./configs/index.js";
-import { errorHandler } from "./middlewares/error.middleware.js";
 import morgan from "morgan";
-import { apiReference } from "@scalar/express-api-reference";
+import { configs } from "#configs/index.js";
+import { errorHandler } from "#middlewares/error.middleware.js";
+import { authRouter } from "#modules/auth/auth.routes.js";
+import { orderRouter } from "#modules/order/order.routes.js";
+import { paymentRouter } from "#modules/payment/payment.routes.js";
+import { productsRouter } from "#modules/product/product.routes.js";
+import { cartRouter } from "#modules/cart/cart.routes.js";
+import { wishlistRouter } from "#modules/wishlist/wishlist.routes.js";
+import { insightsRouter } from "#modules/insights/insights.routes.js";
 import { openApiSpec } from "./configs/openapi.js";
-
-import { authRouter } from "./modules/auth/auth.routes.js";
-import { orderRouter } from "./modules/order/order.routes.js";
-import { paymentRouter } from "./modules/payment/payment.routes.js";
-import { productsRouter } from "./modules/product/product.routes.js";
-import { cartRouter } from "./modules/cart/cart.routes.js";
-import { wishlistRouter } from "./modules/wishlist/wishlist.routes.js";
-import { insightsRouter } from "./modules/insights/insights.routes.js";
+import { apiReference } from "@scalar/express-api-reference";
 
 export const app = express();
 

@@ -3,7 +3,7 @@ import {
   buildFilter,
   buildPagination,
   buildSort,
-} from "../../utils/query.utils.js";
+} from "../../helpers/product.query.js";
 
 /**
  * @param {object} query

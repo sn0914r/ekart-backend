@@ -1,10 +1,12 @@
-import { ERROR_CODES } from "../../../../constants/errorCodes.js";
-import { AppError } from "../../../../errors/AppError.js";
+import { ERROR_CODES } from "#constants/index.js";
+import { AppError } from "#errors/AppError.js";
 import ProductModel from "../../product.model.js";
+
+/** @import {ProductDocument} from '../../product.types.js' */
 
 /**
  * @param {string} id - product id
- * @returns {Promise<object>} product
+ * @returns {Promise<ProductDocument>} product document
  */
 export const getProductForAdmin = async (id) => {
   const product = await ProductModel.findById(id);

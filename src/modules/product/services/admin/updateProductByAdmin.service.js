@@ -1,12 +1,25 @@
-import { redisClient } from "../../../../clients/redis.js";
-import { ERROR_CODES } from "../../../../constants/errorCodes.js";
-import { AppError } from "../../../../errors/AppError.js";
+import { redisClient } from "#clients/redis.js";
+import { ERROR_CODES } from "#constants/index.js";
+import { AppError } from "#errors/AppError.js";
 import ProductModel from "../../product.model.js";
+
+/** @import {ProductDocument} from '../../product.types.js' */
+
+/**
+ * @typedef {object} ProductUpdates
+ * @property {string} [name]
+ * @property {number} [price]
+ * @property {number} [stock]
+ * @property {boolean} [isActive]
+ * @property {string} [category]
+ * @property {string} [description]
+ * @property {{color?: string, size?: string[]}} [attributes]
+ */
 
 /**
  * @param {string} id - product id
- * @param {object} updates
- * @returns {Promise<object>} updated product
+ * @param {ProductUpdates} updates
+ * @returns {Promise<ProductDocument>} updated product
  */
 export const updateProductByAdmin = async (id, updates) => {
   const oldProduct = await ProductModel.findById(id);

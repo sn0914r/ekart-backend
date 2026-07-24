@@ -3,7 +3,7 @@ import {
   buildOrderFilter,
   buildOrderPagination,
   buildSortFilter,
-} from "../../utils/query.utils.js";
+} from "../../helpers/order.query.js";
 
 /**
  * @param {{ page?: number, limit?: number, search?: string, paymentStatus?: string, orderStatus?:string, sort?: string, shippingStatus?: string }} query

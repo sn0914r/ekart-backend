@@ -1,10 +1,24 @@
-import { redisClient } from "../../../../clients/redis.js";
+import { redisClient } from "#clients/redis.js";
+import { uploadImages } from "#providers/cloudinary.js";
 import ProductModel from "../../product.model.js";
-import { uploadImages } from "../../../../providers/cloudinary.js";
+
+/** @import {ProductDocument} from '../../product.types.js' */
 
 /**
- * @param {{files: Array, name: string, price: number, isActive: boolean, stock: number}}
- * @returns {Promise<object>}
+ * @typedef {object} NewProductData
+ * @property {Express.Multer.File[]} files
+ * @property {string} name
+ * @property {number} price
+ * @property {boolean} isActive
+ * @property {number} stock
+ * @property {string} description
+ * @property {string} category
+ * @property {{color: string, size: string[]}} attributes
+ */
+
+/**
+ * @param {NewProductData} productData
+ * @returns {Promise<ProductDocument>} created product
  */
 export const addProductByAdmin = async ({
   files,

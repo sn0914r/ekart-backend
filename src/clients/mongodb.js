@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { configs } from "../configs/index.js";
-import { logger } from "../utils/logger.js";
+import { configs } from "#configs/index.js";
+import { logger } from "#utils/logger.js";
 
 export const connectMongoDB = async () => {
   try {

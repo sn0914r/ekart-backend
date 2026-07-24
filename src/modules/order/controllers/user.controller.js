@@ -2,7 +2,7 @@ import {
   createOrder,
   getOrder,
   getOrders,
-  updateOrderStatus,
+  cancelOrder,
 } from "../services/index.js";
 
 /**
@@ -60,13 +60,13 @@ export const getOrdersController = async (req, res) => {
  * @access Private
  * @desc Updates order status
  */
-export const updateOrderStatusController = async (req, res) => {
+export const cancelOrderController = async (req, res) => {
   const { id: orderId } = req.params;
   const { userId } = req.user;
 
   const orderStatus = req.body?.orderStatus;
 
-  const order = await updateOrderStatus(orderId, userId, { orderStatus });
+  const order = await cancelOrder(orderId, userId, { orderStatus });
 
   res.status(200).json({
     success: true,

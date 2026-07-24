@@ -1,8 +1,21 @@
 import OrderModel from "../../OrderModel/order.model.js";
 
 /**
+ * @typedef {object} OrderListItem
+ * @property {string} _id
+ * @property {string} orderId
+ * @property {object[]} orderSnapshot
+ * @property {object} shippingAddress
+ * @property {string} orderStatus
+ * @property {string} paymentStatus
+ * @property {string} shippingStatus
+ * @property {number} subTotal
+ * @property {Date} createdAt
+ */
+
+/**
  * @param {string} userId
- * @returns {Promise<object[]>}
+ * @returns {Promise<OrderListItem[]>}
  */
 export const getOrders = async (userId) => {
   const orders = await OrderModel.find(

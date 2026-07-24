@@ -1,4 +1,4 @@
-import OrderModel from "../../../order/OrderModel/order.model.js";
+import OrderModel from "#modules/order/OrderModel/order.model.js";
 
 export const monthlyRevenueAggregation = OrderModel.aggregate([
   {

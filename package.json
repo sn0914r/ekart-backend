@@ -12,6 +12,16 @@
   "author": "Sivananda Reddy (https://github.com/sn0914r)",
   "license": "ISC",
   "type": "module",
+  "imports": {
+    "#modules/*": "./src/modules/*",
+    "#configs/*": "./src/configs/*",
+    "#middlewares/*": "./src/middlewares/*",
+    "#utils/*": "./src/utils/*",
+    "#clients/*": "./src/clients/*",
+    "#providers/*": "./src/providers/*",
+    "#constants/*": "./src/constants/*",
+    "#errors/*": "./src/errors/*"
+  },
   "dependencies": {
     "@scalar/express-api-reference": "^0.10.3",
     "bcryptjs": "^3.0.3",

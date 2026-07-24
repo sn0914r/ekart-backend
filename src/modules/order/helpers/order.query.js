@@ -1,9 +1,11 @@
-import {
+import { ORDER } from "#constants/index.js";
+
+const {
   PAYMENT_STATUS,
   ORDER_STATUS,
   SHIPPING_STATUS,
-  VALID_ORDER_SORT_FIELDS_FOR_ADMIN_LIST,
-} from "../../../constants/order.js";
+  VALID_SORT_ORDER_FIELDS,
+} = ORDER;
 
 /**
  * @param {{ page?: number, limit?: number }} query
@@ -30,7 +32,7 @@ export const buildOrderPagination = (query) => {
 
 /**
  * @param {{ search?: string, paymentStatus?: string, orderStatus?: string, shippingStatus?: string }} query
- * @returns {object}
+ * @returns {Record<string, string | {$regex: string, $options: string}>} MongoDB filter object
  */
 export const buildOrderFilter = (query) => {
   const filters = {};
@@ -40,7 +42,6 @@ export const buildOrderFilter = (query) => {
     orderStatus = null,
     shippingStatus = null,
   } = query;
-  console.log(query.search, "is search");
 
   if (search) {
     if (search.toLowerCase().startsWith("ek-")) {
@@ -69,7 +70,7 @@ export const buildOrderFilter = (query) => {
 
 /**
  * @param {{ sort?: string }} query
- * @returns {object}
+ * @returns {Record<string, 1 | -1>} MongoDB sort object
  */
 export const buildSortFilter = (query) => {
   const { sort = null } = query;
@@ -82,7 +83,7 @@ export const buildSortFilter = (query) => {
 
   const allSortFields = sort.split(",");
   const validSortFields = allSortFields.filter((field) =>
-    VALID_ORDER_SORT_FIELDS_FOR_ADMIN_LIST.includes(field),
+    VALID_SORT_ORDER_FIELDS.includes(field),
   );
 
   validSortFields.forEach((e) => {

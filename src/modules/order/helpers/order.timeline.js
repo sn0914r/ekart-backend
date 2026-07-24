@@ -1,4 +1,4 @@
-import { ORDER_TIMELINE_LABELS } from "../../../constants/order.js";
+import { ORDER } from "#constants/index.js";
 
 /**
  * @typedef {Object} TimelineEntry
@@ -27,7 +27,10 @@ export const createTimeline = (
       {
         type: "PAYMENT",
         status: paymentStatusHistory[0].status,
-        label: ORDER_TIMELINE_LABELS.PAYMENT[paymentStatusHistory[0].status],
+        label:
+          ORDER.ORDER_STATUS_EMAIL_LABELS.PAYMENT[
+            paymentStatusHistory[0].status
+          ],
         at: paymentStatusHistory[0].at,
       },
     ];
@@ -35,7 +38,7 @@ export const createTimeline = (
     PaymentTimeline = paymentStatusHistory.splice(1).map((item) => {
       const type = "PAYMENT";
       const status = item.status;
-      const label = ORDER_TIMELINE_LABELS.PAYMENT[item.status];
+      const label = ORDER.ORDER_STATUS_EMAIL_LABELS.PAYMENT[item.status];
       const at = item.at;
 
       return { type, status, label, at };
@@ -45,7 +48,7 @@ export const createTimeline = (
   const OrderTimeline = orderStatusHistory.map((item) => {
     const type = "ORDER";
     const status = item.status;
-    const label = ORDER_TIMELINE_LABELS.ORDER[item.status];
+    const label = ORDER.ORDER_STATUS_EMAIL_LABELS.ORDER[item.status];
     const at = item.at;
 
     return { type, status, label, at };
@@ -54,7 +57,7 @@ export const createTimeline = (
   const shippingStatus = shippingStatusHistory.map((item) => {
     const type = "SHIPPING";
     const status = item.status;
-    const label = ORDER_TIMELINE_LABELS.SHIPPING[item.status];
+    const label = ORDER.ORDER_STATUS_EMAIL_LABELS.SHIPPING[item.status];
     const at = item.at;
 
     return { type, status, label, at };

@@ -1,7 +1,7 @@
-import { AppError } from "../errors/AppError.js";
-import { ERROR_CODES } from "../constants/errorCodes.js";
+import { AppError } from "#errors/AppError.js";
+import { ERROR_CODES } from "#constants/errorCodes.js";
 
-export const parseJsonFields = (field) => (req, res, next) => {
+export const parseJsonFields = (field) => (req, _res, next) => {
   let data = req.body[field];
 
   if (!data)

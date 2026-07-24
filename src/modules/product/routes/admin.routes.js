@@ -1,9 +1,9 @@
 import { Router } from "express";
-import {
-  authenticate,
-  requireRole,
-} from "../../../middlewares/auth.middleware.js";
-import { ROLES } from "../../../constants/roles.js";
+import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
+import { upload } from "#middlewares/upload.middleware.js";
+import { validate, validateFile } from "#middlewares/validation.middleware.js";
+import { parseJsonFields } from "#middlewares/parseJsonFields.middleware.js";
+import { ROLES } from "#constants/index.js";
 import {
   addProductByAdminController,
   deleteProductByAdminController,
@@ -11,12 +11,6 @@ import {
   getProductsForAdminController,
   updateProductByAdminController,
 } from "../controllers/admin.controller.js";
-import { upload } from "../../../middlewares/upload.middleware.js";
-import {
-  validate,
-  validateFile,
-} from "../../../middlewares/validation.middleware.js";
-import { parseJsonFields } from "../../../middlewares/parseJsonFields.middleware.js";
 import { addProductSchema, updateProductSchema } from "../product.schema.js";
 
 export const adminProductRoutes = Router();

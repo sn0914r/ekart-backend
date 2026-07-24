@@ -1,9 +1,7 @@
 import { Router } from "express";
-import {
-  authenticate,
-  requireRole,
-} from "../../middlewares/auth.middleware.js";
-import { ROLES } from "../../constants/roles.js";
+import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
+import { validate } from "#middlewares/validation.middleware.js";
+import { ROLES } from "#constants/index.js";
 import {
   addToCartController,
   clearCartController,
@@ -13,7 +11,6 @@ import {
   removeFromCartController,
 } from "./cart.controller.js";
 import { AddToCartSchema, CartItemProductIdSchema } from "./cart.schema.js";
-import { validate } from "../../middlewares/validation.middleware.js";
 
 export const cartRouter = Router();
 

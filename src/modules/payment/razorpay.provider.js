@@ -1,4 +1,4 @@
-import { razorpay } from "../clients/razorpay.js";
+import { razorpay } from "#clients/razorpay.js";
 /**
  * @param {number} totalAmount - amount in paise
  * @param {string} userId

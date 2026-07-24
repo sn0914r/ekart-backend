@@ -1,18 +1,15 @@
-import { AppError } from "../../../errors/AppError.js";
-import OrderModel from "../../order/OrderModel/order.model.js";
-import ProductModel from "../../product/product.model.js";
-import { redisClient } from "../../../clients/redis.js";
-import { configs } from "../../../configs/index.js";
-import mongoose from "mongoose";
-import { ERROR_CODES } from "../../../constants/errorCodes.js";
 import crypto from "crypto";
-import {
-  ORDER_STATUS,
-  PAYMENT_STATUS,
-  SHIPPING_STATUS,
-} from "../../../constants/order.js";
-import { sendEmail } from "../../../providers/mailer/sendEmail.js";
-import { orderConfirmationTemplate } from "../../../providers/mailer/templates/orderConfirmation.template.js";
+import mongoose from "mongoose";
+import { AppError } from "#errors/AppError.js";
+import OrderModel from "#modules/order/OrderModel/order.model.js";
+import ProductModel from "#modules/product/product.model.js";
+import { redisClient } from "#clients/redis.js";
+import { configs } from "#configs/index.js";
+import { ORDER, ERROR_CODES } from "#constants/index.js";
+import { sendEmail } from "#providers/mailer/sendEmail.js";
+import { orderConfirmationTemplate } from "#providers/mailer/templates/orderConfirmation.template.js";
+
+const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
 
 /**
  * Verifies payment and confirms order
@@ -92,7 +89,7 @@ const validatePaymentSignatures = (paymentData) => {
 
 /**
  * @param {object} order
- * @param {{razorpayPaymentId: string, razorpaySignature: string}}
+ * @param {{razorpayPaymentId: string, razorpaySignature: string}} paymentData - payment id and signature
  */
 const updatePaymentStatus = async (
   order,
@@ -116,7 +113,7 @@ const updatePaymentStatus = async (
 /**
  * Transaction for safe stock reduction
  *
- * @param {object} Order
+ * @param {object} order
  * @param {string} userId
  */
 const runTransaction = async (order, userId) => {

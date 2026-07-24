@@ -1,15 +1,14 @@
 import bcrypt from "bcryptjs";
+import { AppError } from "#errors/AppError.js";
+import { configs } from "#configs/index.js";
+import { ROLES, ERROR_CODES } from "#constants/index.js";
 import UserModel from "../models/user.model.js";
 import RefreshTokenModel from "../models/refreshTokens.model.js";
-import { ERROR_CODES } from "../../../constants/errorCodes.js";
-import { AppError } from "../../../errors/AppError.js";
-import { ROLES } from "../../../constants/roles.js";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../utils/generateAuthTokens.js";
-import { hashToken } from "../utils/hashToken.js";
-import { configs } from "../../../configs/index.js";
+  hashToken,
+} from "../auth.utils.js";
 
 /**
  * @param {string} name

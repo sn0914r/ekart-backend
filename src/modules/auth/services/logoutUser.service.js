@@ -1,6 +1,6 @@
-import RefreshTokenModel from "../models/refreshTokens.model.js";
 import jwt from "jsonwebtoken";
-import { configs } from "../../../configs/index.js";
+import { configs } from "#configs/index.js";
+import RefreshTokenModel from "../models/refreshTokens.model.js";
 
 /**
  * @param {string} refreshToken

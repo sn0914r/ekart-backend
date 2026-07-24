@@ -1,11 +1,10 @@
-import { redisClient } from "../../../../clients/redis.js";
+import { redisClient } from "#clients/redis.js";
 import ProductModel from "../../product.model.js";
 import {
   buildFilter,
   buildPagination,
   buildSort,
-} from "../../utils/query.utils.js";
-
+} from "../../helpers/product.query.js";
 /**
  * @param {object} query - queries for filters
  * @returns {Promise<{

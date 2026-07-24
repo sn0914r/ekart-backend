@@ -1,8 +1,9 @@
-import OrderModel from "../../order/OrderModel/order.model.js";
-import { AppError } from "../../../errors/AppError.js";
-import { createRazorpayOrder } from "../../../providers/razorpay.js";
-import { ERROR_CODES } from "../../../constants/errorCodes.js";
-import { PAYMENT_STATUS } from "../../../constants/order.js";
+import OrderModel from "#modules/order/OrderModel/order.model.js";
+import { AppError } from "#errors/AppError.js";
+import { ORDER, ERROR_CODES } from "#constants/index.js";
+import { createRazorpayOrder } from "../razorpay.provider.js";
+
+const { PAYMENT_STATUS } = ORDER;
 
 /**
  * @param {string} orderId

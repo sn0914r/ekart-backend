@@ -1,16 +1,13 @@
 import { Router } from "express";
-import {
-  authenticate,
-  requireRole,
-} from "../../../middlewares/auth.middleware.js";
-import { ROLES } from "../../../constants/roles.js";
+import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
+import { ROLES } from "#constants/index.js";
+import { validate } from "#middlewares/validation.middleware.js";
 import {
   createOrderController,
   getOrderController,
   getOrdersController,
-  updateOrderStatusController,
+  cancelOrderController,
 } from "../controllers/user.controller.js";
-import { validate } from "../../../middlewares/validation.middleware.js";
 import { createOrderSchema, updateOrderStatusSchema } from "../order.schema.js";
 
 export const userOrderRoutes = Router();
@@ -42,5 +39,5 @@ userOrderRoutes.patch(
   authenticate,
   requireRole([ROLES.USER]),
   validate(updateOrderStatusSchema),
-  updateOrderStatusController,
+  cancelOrderController,
 );

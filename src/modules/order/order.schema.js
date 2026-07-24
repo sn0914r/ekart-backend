@@ -1,5 +1,5 @@
 import joi from "joi";
-import { SHIPPING_STATUS } from "../../constants/order.js";
+import { ORDER } from "#constants/index.js";
 
 export const createOrderSchema = joi.object({
   shippingAddress: joi.object({
@@ -24,6 +24,6 @@ export const updateShippingStatusSchema = joi.object({
   shippingStatus: joi
     .string()
     .uppercase()
-    .valid(...Object.values(SHIPPING_STATUS))
+    .valid(...Object.values(ORDER.SHIPPING_STATUS))
     .optional(),
 });

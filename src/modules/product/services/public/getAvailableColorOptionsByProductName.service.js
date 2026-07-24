@@ -1,5 +1,5 @@
+import { redisClient } from "#clients/redis.js";
 import ProductModel from "../../product.model.js";
-import { redisClient } from "../../../../clients/redis.js";
 
 /**
  * Gets the available colors of a product by its name

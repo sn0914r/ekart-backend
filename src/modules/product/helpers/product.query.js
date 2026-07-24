@@ -1,10 +1,13 @@
-import {
-  PRODUCT_STATUS,
-  SORT,
-  STOCK_STATUS,
-  VALID_SORT_FIELDS_LIST,
-} from "../../../constants/product.js";
+import { PRODUCT } from "#constants/index.js";
 
+const { SORT_PRICE, STOCK_STATUS, VALID_SORT_FIELDS, ACTIVE_STATUS } = PRODUCT;
+
+/**
+ * Parses and normalises pagination query params
+ *
+ * @param {{page?: string | number, limit?: string | number}} query
+ * @returns {{page: number, limit: number, skip: number}}
+ */
 export const buildPagination = (query) => {
   let { page = 1, limit = 10 } = query;
 
@@ -23,6 +26,22 @@ export const buildPagination = (query) => {
   };
 };
 
+/**
+ * @typedef {object} ProductFilterQuery
+ * @property {string} [minPrice]
+ * @property {string} [maxPrice]
+ * @property {string} [search]
+ * @property {string} [category]
+ * @property {string} [status]
+ * @property {string} [stockStatus]
+ */
+
+/**
+ * Builds a MongoDB filter object from query params
+ *
+ * @param {ProductFilterQuery} query
+ * @returns {Record<string, unknown>} MongoDB filter object
+ */
 export const buildFilter = (query) => {
   const {
     minPrice = null,
@@ -55,8 +74,8 @@ export const buildFilter = (query) => {
   }
 
   // INFO: Customer service Fn overrides this value to Active
-  if (status && Object.keys(PRODUCT_STATUS).includes(status)) {
-    filters.isActive = PRODUCT_STATUS[status];
+  if (status && Object.keys(ACTIVE_STATUS).includes(status)) {
+    filters.isActive = ACTIVE_STATUS[status];
   }
 
   // INFO: This filter is used by customers only
@@ -69,6 +88,12 @@ export const buildFilter = (query) => {
   return filters;
 };
 
+/**
+ * Builds a MongoDB sort object from query params
+ *
+ * @param {{sort?: string}} query
+ * @returns {Record<string, 1 | -1>} MongoDB sort object
+ */
 export const buildSort = (query) => {
   const { sort = null } = query;
   let sortOptions = {};
@@ -79,7 +104,7 @@ export const buildSort = (query) => {
 
   const sortedFields = sort.split(",");
   const filteredSortFields = sortedFields.filter((e) =>
-    VALID_SORT_FIELDS_LIST.includes(e),
+    VALID_SORT_FIELDS.includes(e),
   );
 
   filteredSortFields.forEach((field) => {
@@ -90,9 +115,9 @@ export const buildSort = (query) => {
   });
 
   // INFO: Used by customers
-  if (sort === SORT.PRICE_ASC) sortOptions = { price: 1 };
-  if (sort === SORT.PRICE_DESC) sortOptions = { price: -1 };
-  if (sort === SORT.NEWEST) sortOptions = { createdAt: -1 };
+  if (sort === SORT_PRICE.PRICE_ASC) sortOptions = { price: 1 };
+  if (sort === SORT_PRICE.PRICE_DESC) sortOptions = { price: -1 };
+  if (sort === SORT_PRICE.NEWEST) sortOptions = { createdAt: -1 };
 
   if (!sortOptions.createdAt) {
     sortOptions.createdAt = -1;

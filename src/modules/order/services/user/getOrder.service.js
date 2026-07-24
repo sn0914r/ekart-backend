@@ -1,14 +1,30 @@
-import { AppError } from "../../../../errors/AppError.js";
+import { AppError } from "#errors/AppError.js";
+import { ERROR_CODES } from "#constants/index.js";
 import OrderModel from "../../OrderModel/order.model.js";
-import { ERROR_CODES } from "../../../../constants/errorCodes.js";
-import { createTimeline } from "../../utils/createOrderTimeline.js";
+import { createTimeline } from "../../helpers/order.timeline.js";
 
-/** @import {TimelineEntry} from "../../utils/createOrderTimeline.js" */
+/** @import {TimelineEntry} from "../../helpers/order.timeline.js" */
+
+/**
+ * @typedef {object} OrderDetail
+ * @property {string} orderId
+ * @property {string} userId
+ * @property {string} email
+ * @property {object[]} orderSnapshot
+ * @property {number} subTotal
+ * @property {string} orderStatus
+ * @property {string} paymentStatus
+ * @property {string} shippingStatus
+ * @property {object} shippingAddress
+ * @property {Date} createdAt
+ * @property {object} paymentDetails
+ * @property {TimelineEntry[]} timeline
+ */
 
 /**
  * @param {string} userId
  * @param {string} orderId
- * @returns {Promise<object & TimelineEntry[]>}
+ * @returns {Promise<OrderDetail>}
  */
 export const getOrder = async (userId, orderId) => {
   const order = await OrderModel.findById(orderId, {

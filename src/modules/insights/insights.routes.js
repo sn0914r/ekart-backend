@@ -1,9 +1,6 @@
 import { Router } from "express";
-import {
-  authenticate,
-  requireRole,
-} from "../../middlewares/auth.middleware.js";
-import { ROLES } from "../../constants/roles.js";
+import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
+import { ROLES } from "#constants/index.js";
 import {
   getDashboardController,
   getAnalyticsController,

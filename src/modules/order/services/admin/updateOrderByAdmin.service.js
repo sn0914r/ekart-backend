@@ -1,10 +1,9 @@
-import { ERROR_CODES } from "../../../../constants/errorCodes.js";
-import { ORDER_STATUS_EMAILS } from "../../../../constants/order.js";
-import { AppError } from "../../../../errors/AppError.js";
+import { ORDER, ERROR_CODES } from "#constants/index.js";
+import { AppError } from "#errors/AppError.js";
+import { sendEmail } from "#providers/mailer/sendEmail.js";
+import { orderShippingStatusTemplate } from "#providers/mailer/templates/orderShippingStatus.template.js";
 import OrderModel from "../../OrderModel/order.model.js";
-import { sendEmail } from "../../../../providers/mailer/sendEmail.js";
-import { orderShippingStatusTemplate } from "../../../../providers/mailer/templates/orderShippingStatus.template.js";
-import { validateShippingStatusTransition } from "../../order.validators.js";
+import { validateShippingStatusTransition } from "../../helpers/order.validators.js";
 
 /**
  * @param {string} orderId
@@ -31,7 +30,7 @@ export const updateOrderByAdmin = async (orderId, userId, shippingStatus) => {
 
   await order.save();
 
-  const orderStatus = ORDER_STATUS_EMAILS[shippingStatus];
+  const orderStatus = ORDER.ORDER_STATUS_EMAIL_LABELS[shippingStatus];
   if (orderStatus && order.email) {
     await sendEmail(
       order.email,

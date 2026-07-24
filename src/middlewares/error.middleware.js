@@ -1,7 +1,7 @@
-import { configs } from "../configs/index.js";
-import { ERROR_CODES } from "../constants/errorCodes.js";
-import { AppError } from "../errors/AppError.js";
-import { logger } from "../utils/logger.js";
+import { configs } from "#configs/index.js";
+import { ERROR_CODES } from "#constants/index.js";
+import { AppError } from "#errors/AppError.js";
+import { logger } from "#utils/logger.js";
 
 export const errorHandler = (err, _req, res, _next) => {
   const isProd = configs.node_env === "production";

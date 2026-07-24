@@ -1,17 +1,16 @@
-import { AppError } from "../../../../errors/AppError.js";
+import { AppError } from "#errors/AppError.js";
+import { ORDER, ERROR_CODES } from "#constants/index.js";
+import ProductModel from "#modules/product/product.model.js";
+import CartModel from "#modules/cart/cart.model.js";
 import OrderModel from "../../OrderModel/order.model.js";
-import ProductModel from "../../../product/product.model.js";
-import CartModel from "../../../cart/cart.model.js";
-import { ORDER_STATUS } from "../../../../constants/order.js";
-import { ERROR_CODES } from "../../../../constants/errorCodes.js";
 import {
   validateCartItems,
   validateProductsStock,
-} from "../../order.validators.js";
+} from "../../helpers/order.validators.js";
 import {
   buildOrderSnapshot,
   buildProductQtyMapFromCart,
-} from "../../utils/build.utils.js";
+} from "../../helpers/order.builders.js";
 
 /**
  * @param {string} userId
@@ -45,7 +44,7 @@ export const createOrder = async (userId, email, shippingAddress) => {
   );
 
   const orderStatusHistory = [
-    { status: ORDER_STATUS.CREATED, at: new Date(), by: userId },
+    { status: ORDER.ORDER_STATUS.CREATED, at: new Date(), by: userId },
   ];
 
   const order = await OrderModel.create({

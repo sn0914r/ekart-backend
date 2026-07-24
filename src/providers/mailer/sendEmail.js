@@ -1,12 +1,14 @@
-import { transporter } from "../../clients/nodemailer.js";
-import { configs } from "../../configs/index.js";
-import { logger } from "../../utils/logger.js";
+import { transporter } from "#clients/nodemailer.js";
+import { configs } from "#configs/index.js";
+import { logger } from "#utils/logger.js";
 
 /**
+ * Sends an HTML email. If it fails, it just logs the error without crashing the app.
  *
  * @param {string} to
  * @param {string} subject
- * @param {string} template
+ * @param {string} template - HTML string
+ * @returns {Promise<void>}
  */
 export const sendEmail = async (to, subject, template) => {
   try {

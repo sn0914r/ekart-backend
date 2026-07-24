@@ -1,5 +1,5 @@
-import OrderModel from "../../order/OrderModel/order.model.js";
-import ProductModel from "../../product/product.model.js";
+import OrderModel from "#modules/order/OrderModel/order.model.js";
+import ProductModel from "#modules/product/product.model.js";
 
 export const getDashboardData = async () => {
   const [

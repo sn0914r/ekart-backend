@@ -1,11 +1,19 @@
-import { ERROR_CODES } from "../../constants/errorCodes.js";
-import {
+import { ORDER, ERROR_CODES } from "#constants/index.js";
+import { AppError } from "#errors/AppError.js";
+
+const {
   ORDER_STATUS,
   SHIPPING_STATUS,
-  SHIPPING_TRANSITIONS,
-} from "../../constants/order.js";
-import { AppError } from "../../errors/AppError.js";
+  TRANSITIONS_ORDER: { SHIPPING_TRANSITIONS },
+} = ORDER;
 
+/**
+ * Validates that all requested product IDs exist in the DB
+ *
+ * @param {{_id: object}[]} products - products fetched from DB
+ * @param {string[]} productIds - product IDs from the cart
+ * @returns {void}
+ */
 export const validateCartItems = (products, productIds) => {
   const foundIds = new Set(products.map((p) => p._id.toString()));
 
@@ -20,6 +28,13 @@ export const validateCartItems = (products, productIds) => {
   }
 };
 
+/**
+ * Validates that all cart items have sufficient stock
+ *
+ * @param {{_id: object, name: string, stock: number}[]} products
+ * @param {Map<string, number>} productQtyMap - productId → requested quantity
+ * @returns {void}
+ */
 export const validateProductsStock = (products, productQtyMap) => {
   products.forEach((item) => {
     if (item.stock < productQtyMap.get(item._id.toString())) {
@@ -54,10 +69,24 @@ const validateTransition = (transitions, from, to, type = "Status") => {
   }
 };
 
+/**
+ * Validates that the shipping status transition is allowed
+ *
+ * @param {string} from - current shipping status
+ * @param {string} to - target shipping status
+ * @returns {void}
+ */
 export const validateShippingStatusTransition = (from, to) => {
   validateTransition(SHIPPING_TRANSITIONS, from, to);
 };
 
+/**
+ * Asserts that the order is in a cancellable state
+ *
+ * @param {string} orderStatus
+ * @param {string} shippingStatus
+ * @returns {void}
+ */
 export const assertOrderStatus = (orderStatus, shippingStatus) => {
   const isAllowed =
     orderStatus === ORDER_STATUS.CREATED ||

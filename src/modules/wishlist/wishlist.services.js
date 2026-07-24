@@ -1,11 +1,11 @@
+import { AppError } from "#errors/AppError.js";
+import { ERROR_CODES } from "#constants/index.js";
 import WishlistModel from "./wishlist.model.js";
-import { AppError } from "../../errors/AppError.js";
-import { ERROR_CODES } from "../../constants/errorCodes.js";
-import { formattedWishlistItems } from "./utils/formatWishlist.js";
+import { formattedWishlistItems } from "./wishlist.helpers.js";
 
 /**
  * @param {string} userId
- * @returns {Promise<object[]>}
+ * @returns {Promise<{productId: string, name: string, price: number, thumbnail: string}[]>}
  */
 export const getWishlist = async (userId) => {
   const wishlist = await WishlistModel.findOne({ userId }).populate(
@@ -53,6 +53,7 @@ export const addItemToWishlist = async (userId, productId) => {
 /**
  * @param {string} userId
  * @param {string} productId
+ * @returns {void}
  */
 export const deleteItemInWishlist = async (userId, productId) => {
   const wishlist = await WishlistModel.findOne({ userId });
@@ -78,6 +79,7 @@ export const deleteItemInWishlist = async (userId, productId) => {
 
 /**
  * @param {string} userId
+ * @returns {void}
  */
 export const deleteWishlist = async (userId) => {
   const wishlist = await WishlistModel.findOne({ userId });
