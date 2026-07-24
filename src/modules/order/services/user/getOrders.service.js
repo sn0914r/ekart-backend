@@ -1,3 +1,8 @@
+import {
+  buildOrderFilter,
+  buildOrderPagination,
+  buildSortFilter,
+} from "#modules/order/helpers/order.query.js";
 import OrderModel from "../../OrderModel/order.model.js";
 
 /**
@@ -17,7 +22,11 @@ import OrderModel from "../../OrderModel/order.model.js";
  * @param {string} userId
  * @returns {Promise<OrderListItem[]>}
  */
-export const getOrders = async (userId) => {
+export const getOrders = async (userId, query = {}) => {
+  const { page, limit, skip } = buildOrderPagination(query);
+  // const orderFilters = buildOrderFilter(query);
+  const orderSortFilter = buildSortFilter(query);
+
   const orders = await OrderModel.find(
     { userId },
     {
@@ -30,7 +39,20 @@ export const getOrders = async (userId) => {
       subTotal: 1,
       createdAt: 1,
     },
-  ).sort({ createdAt: -1 });
+  )
+    .skip(skip)
+    .limit(limit)
+    .sort(orderSortFilter);
 
-  return orders;
+  const totalDocuments = await OrderModel.countDocuments({ userId });
+
+  return {
+    orders,
+    pagination: {
+      page,
+      limit,
+      totalPages: Math.ceil(totalDocuments / limit),
+      totalOrders: totalDocuments,
+    },
+  };
 };

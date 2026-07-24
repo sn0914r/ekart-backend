@@ -46,7 +46,7 @@ export const getOrderController = async (req, res) => {
 export const getOrdersController = async (req, res) => {
   const { userId } = req.user;
 
-  const orders = await getOrders(userId);
+  const orders = await getOrders(userId, req.query);
 
   return res.status(200).json({
     success: true,
