@@ -18,11 +18,6 @@ export const configs = {
     keySecret: process.env.RAZORPAY_TEST_KEY_SECRET,
   },
 
-  nodemailer: {
-    gmail: process.env.GMAIL,
-    gmailPasswordKey: process.env.GMAIL_PASSWORD_KEY,
-  },
-
   auth_jwt: {
     accessSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
     refreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET,

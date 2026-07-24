@@ -4,6 +4,7 @@ import ProductModel from "#modules/product/product.model.js";
 import { ORDER, ERROR_CODES } from "#constants/index.js";
 import OrderModel from "../../OrderModel/order.model.js";
 import { assertOrderStatus } from "../../helpers/order.validators.js";
+import { emailQueue } from "#queues/email.queue.js";
 
 const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
 
@@ -36,6 +37,19 @@ export const cancelOrder = async (orderId, userId) => {
   await cancelOrderWithStockReversal(orderId, userId);
 
   await order.save();
+
+  const cancelLabel = ORDER.ORDER_STATUS_EMAILS_LABELS.CANCELLED;
+  if (order.email) {
+    await emailQueue.add("order-cancelled-email", {
+      template: "order-cancelled",
+      to: order.email,
+      subject: cancelLabel.subject,
+      payload: {
+        orderId: order.orderId,
+        message: cancelLabel.message,
+      },
+    });
+  }
 
   return order;
 };

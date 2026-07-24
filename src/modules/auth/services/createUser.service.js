@@ -9,6 +9,7 @@ import {
   generateRefreshToken,
   hashToken,
 } from "../auth.utils.js";
+import { emailQueue } from "#queues/email.queue.js";
 
 /**
  * @param {string} name
@@ -58,6 +59,13 @@ export const createUser = async (name, email, password) => {
   await RefreshTokenModel.findByIdAndUpdate(refreshTokenDoc._id, {
     hashedToken: hashedRefreshToken,
     expiresAt: expireDate,
+  });
+
+  await emailQueue.add("welcome-email", {
+    template: "welcome-email",
+    to: email,
+    subject: "Welcome to eKart!",
+    payload: { name: newUser.name },
   });
 
   return { accessToken, refreshToken, userId: newUser._id };

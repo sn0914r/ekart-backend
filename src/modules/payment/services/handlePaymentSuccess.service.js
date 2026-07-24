@@ -6,8 +6,7 @@ import ProductModel from "#modules/product/product.model.js";
 import { redisClient } from "#clients/redis.js";
 import { configs } from "#configs/index.js";
 import { ORDER, ERROR_CODES } from "#constants/index.js";
-import { sendEmail } from "#providers/mailer/sendEmail.js";
-import { orderConfirmationTemplate } from "#providers/mailer/templates/orderConfirmation.template.js";
+import { emailQueue } from "#queues/email.queue.js";
 
 const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
 
@@ -32,14 +31,15 @@ export const handlePaymentSuccess = async (paymentData, userId) => {
   await updatePaymentStatus(order, paymentData);
   await runTransaction(order, userId);
 
-  await sendEmail(
-    order.email,
-    "Order Confirmed",
-    orderConfirmationTemplate({
+  await emailQueue.add("order-confirmation-email", {
+    template: "order-confirmation",
+    to: order.email,
+    subject: "Order Confirmed",
+    payload: {
       orderId: order.orderId,
       totalAmount: order.subTotal,
-    }),
-  );
+    },
+  });
 
   return {
     orderId: order.orderId,
