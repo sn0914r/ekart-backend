@@ -8,7 +8,7 @@ export const openApiSpec = swaggerJSDoc({
       title: "eKart API",
       description: `
 RESTful ecommerce backend supporting authentication, product management, cart, wishlist, orders, payments, and administrative operations.
-Features include JWT authentication, role-based access control, Redis-backed rate limiting, Cloudinary image uploads, and Razorpay payment integration.
+Features include JWT authentication, role-based access control, Redis-backed rate limiting, Cloudinary image uploads, and a custom payment orchestrator integration.
 Built with Node.js, Express.js, MongoDB, Redis, and Docker.
       `,
     },

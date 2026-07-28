@@ -1,2 +1,2 @@
-export { createPaymentOrder } from "./createPaymentOrder.service.js";
-export { handlePaymentSuccess } from "./handlePaymentSuccess.service.js";
+export { initiatePayment } from "./initiatePayment.service.js";
+export { verifyPayment } from "./verifyPayment.service.js";

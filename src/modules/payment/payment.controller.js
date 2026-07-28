@@ -1,16 +1,17 @@
-import { handlePaymentFailure } from "./services/handlePaymentFailure.service.js";
-import { createPaymentOrder, handlePaymentSuccess } from "./services/index.js";
+import { logger } from "#utils/logger.js";
+import { initiatePayment } from "./services/initiatePayment.service.js";
+import { verifyPayment } from "./services/verifyPayment.service.js";
 
 /**
- * @route POST /payments/create
+ * @route POST /payments/initiate
  * @access Private
- * @desc Creates a razorpay payment order
+ * @desc Initiates a new payment session for an order with the payment orchestrator
  */
-export const createPaymentController = async (req, res) => {
-  const { orderId } = req.body;
+export const initiatePaymentController = async (req, res) => {
+  const { orderId, method } = req.body;
   const { userId } = req.user;
 
-  const paymentDetails = await createPaymentOrder(orderId, userId);
+  const paymentDetails = await initiatePayment(orderId, userId, method);
 
   res.status(200).json({
     success: true,
@@ -20,43 +21,11 @@ export const createPaymentController = async (req, res) => {
 };
 
 /**
- * @route POST /payments/success
+ * @route POST /payments/webhook/verify
  * @access Private
- * @desc Verifies the payment and confirms the order
+ * @desc Verifies the payment orchestrator webhook payload and updates order payment status
  */
-export const paymentSuccessController = async (req, res) => {
-  const { razorpayPaymentId, razorpaySignature, razorpayOrderId } = req.body;
-  const { userId } = req.user;
-
-  const orderId = await handlePaymentSuccess(
-    {
-      razorpayOrderId,
-      razorpaySignature,
-      razorpayPaymentId,
-    },
-    userId,
-  );
-
-  res.status(200).json({
-    success: true,
-    message: "Payment verified successfully",
-    data: orderId,
-  });
-};
-
-/**
- * @route POST /payments/failure
- * @access Private
- */
-
-export const paymentFailureController = async (req, res) => {
-  const paymentFailureDetails = req.body;
-  const userId = req.user.userId;
-
-  await handlePaymentFailure(paymentFailureDetails, userId);
-
-  await res.status(200).json({
-    success: true,
-    message: "Payment Failed",
-  });
+export const verifyPaymentController = async (req, res) => {
+  await verifyPayment(req.body);
+  res.status(200).json({ success: true, message: "Webhook processed" });
 };

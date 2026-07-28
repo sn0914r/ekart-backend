@@ -5,7 +5,7 @@ import { PaymentSchema } from "./payment.schema.js";
 import { StatusHistory } from "./statusHistory.schema.js";
 import { ShippingAddressSchema } from "./address.schema.js";
 
-const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER
+const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
 const OrderSchema = new Schema(
   {
     currency: { type: String, default: "INR" },
@@ -46,6 +46,8 @@ const OrderSchema = new Schema(
     shippingStatusHistory: [StatusHistory],
     paymentStatusHistory: [StatusHistory],
     shippingAddress: ShippingAddressSchema,
+
+    idempotencyKey: String,
   },
   { timestamps: true, versionKey: false },
 );

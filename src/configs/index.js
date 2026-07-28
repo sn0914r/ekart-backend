@@ -13,11 +13,6 @@ export const configs = {
     api_secret: process.env.CLOUDINARY_API_SECRET,
   },
 
-  razorpay: {
-    keyId: process.env.RAZORPAY_TEST_API_KEY,
-    keySecret: process.env.RAZORPAY_TEST_KEY_SECRET,
-  },
-
   auth_jwt: {
     accessSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
     refreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -26,4 +21,9 @@ export const configs = {
   },
 
   redisURL: process.env.REDIS_URL,
+
+  paymentService: {
+    Secret: process.env.PAYMENT_SERVICE_SECRET,
+    apiUrl: process.env.PAYMENT_SERVICE_API_URL,
+  },
 };

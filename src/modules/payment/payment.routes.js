@@ -3,17 +3,17 @@ import { rateLimiter } from "#middlewares/rateLimiter.middleware.js";
 import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
 import { validate } from "#middlewares/validation.middleware.js";
 import { ROLES, RATE_LIMIT } from "#constants/index.js";
-import { orderIdSchema, paymentVerificationSchema } from "./payment.schema.js";
+import { initiatePaymentSchema } from "./payment.schema.js";
 import {
-  createPaymentController,
-  paymentFailureController,
-  paymentSuccessController,
+  initiatePaymentController,
+  verifyPaymentController,
 } from "./payment.controller.js";
+import { verifyPOESignature } from "./payment.middleware.js";
 
 export const paymentRouter = Router();
 
 paymentRouter.post(
-  "/payments/create",
+  "/payments/initiate",
   rateLimiter(
     RATE_LIMIT.CREATE_PAYMENT.MAX,
     RATE_LIMIT.CREATE_PAYMENT.ROUTE,
@@ -21,26 +21,12 @@ paymentRouter.post(
   ),
   authenticate,
   requireRole([ROLES.USER]),
-  validate(orderIdSchema),
-  createPaymentController,
+  validate(initiatePaymentSchema),
+  initiatePaymentController,
 );
 
 paymentRouter.post(
-  "/payments/verify",
-  rateLimiter(
-    RATE_LIMIT.VERIFY_PAYMENT.MAX,
-    RATE_LIMIT.VERIFY_PAYMENT.ROUTE,
-    RATE_LIMIT.VERIFY_PAYMENT.WINDOW_MS,
-  ),
-  authenticate,
-  requireRole([ROLES.USER]),
-  validate(paymentVerificationSchema),
-  paymentSuccessController,
-);
-
-paymentRouter.post(
-  "/payments/failure",
-  authenticate,
-  requireRole([ROLES.USER]),
-  paymentFailureController,
+  "/payments/webhook/verify",
+  verifyPOESignature,
+  verifyPaymentController,
 );

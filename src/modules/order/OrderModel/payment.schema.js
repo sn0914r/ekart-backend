@@ -2,9 +2,9 @@ import { Schema } from "mongoose";
 
 export const PaymentSchema = new Schema(
   {
-    razorpayOrderId: { type: String, default: null },
-    razorpayPaymentId: { type: String, default: null },
-    razorpaySignature: { type: String, default: null },
+    poePaymentId: { type: String, default: null },
+    gateway: { type: String, default: null },
+    paymentMethod: { type: String, default: null },
 
     failureCode: { type: String, default: null },
     failureReason: { type: String, default: null },
