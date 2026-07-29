@@ -52,7 +52,7 @@ export const getActiveProducts = async (query) => {
     products,
   };
 
-  await redisClient.setEx(key, 300, JSON.stringify(data));
+  await redisClient.setex(key, 300, JSON.stringify(data));
 
   return data;
 };
