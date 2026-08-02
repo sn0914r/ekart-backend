@@ -1,131 +1,137 @@
 # eKart Backend
 
-REST API backend for handling authentication, products, orders, payments, and admin operations in the eKart ecommerce platform.
+REST API backend for the eKart ecommerce platform, responsible for authentication, product management, orders, inventory, and admin operations. The backend integrates with a standalone Payment Orchestration Engine for payment processing and uses Redis with BullMQ for asynchronous background jobs such as email delivery.
 
 ---
 
-## API Docs
+## Highlights
 
-[https://ekart-backend-s0x7.onrender.com/docs](https://ekart-backend-s0x7.onrender.com/docs)
+- Payment Orchestration Engine integration
+- Modular domain-driven architecture
+- Asynchronous email processing with BullMQ
+- Redis-powered caching and rate limiting
+- Role-Based Access Control (RBAC)
+- MongoDB + Mongoose ODM
+- Dockerized deployment
+
+---
+
+## Architecture
+
+![Project Architecture](images/architecture.png)
+
+The eKart Backend serves as the central application layer, receiving requests from both the customer-facing frontend and the admin dashboard. It persists application data in MongoDB, uses Redis for caching and queue management, stores product images in Cloudinary, and delegates all payment operations to a standalone Payment Orchestration Engine. Background tasks such as email delivery are processed asynchronously by a dedicated BullMQ worker.
+
+---
+
+## Request Flow
+
+### Order & Payment Flow
+
+1. The customer initiates checkout.
+2. The backend validates pricing and creates a snapshot-based order.
+3. The backend requests the Payment Orchestration Engine to create a payment.
+4. The Payment Orchestration Engine communicates with the configured payment gateway (Razorpay or Cashfree).
+5. The client completes the payment using the returned payment details.
+6. The payment gateway asynchronously sends a webhook event to the Payment Orchestration Engine.
+7. The Payment Orchestration Engine verifies the gateway webhook and forwards a success webhook to the eKart backend.
+8. The backend verifies the webhook signature, confirms the order, updates inventory, and queues background tasks.
+
+### Background Job Processing
+
+1. Business events (user registration, successful order, etc.) create email jobs.
+2. The backend pushes jobs into Redis using BullMQ.
+3. The Email Worker processes queued jobs asynchronously.
+4. Emails are delivered without blocking API responses.
+
+---
+
+## API Documentation
+
+Interactive API documentation is available through OpenAPI / Swagger.
+
+- **Live:** https://ekart-backend-s0x7.onrender.com/docs
+- **Local:** http://localhost:3000/docs
 
 ---
 
 ## Related Repositories
 
-- [eKart-frontend](https://github.com/sn0914r/ekart-frontend)
-- [eKart-admin-panel](https://github.com/sn0914r/ekart-admin-panel)
-- [eKart-system](https://github.com/sn0914r/eKart-system)
+- [eKart Frontend](https://github.com/sn0914r/ekart-frontend)
+- [eKart Admin Panel](https://github.com/sn0914r/ekart-admin-panel)
+- [Payment Orchestration Engine](https://github.com/sn0914r/payment-orchestration-engine)
+- [Email Worker Service](https://github.com/sn0914r/email-worker-service)
 
 ---
 
-## Features
+## Core Features
 
 ### Authentication & Authorization
 
-- JWT based authentication with Access and Refresh tokens.
-- Secure refresh token flow using HTTP-only cookies.
-- Role-Based Access Control (RBAC) for User and Admin roles.
-- Protected middleware for route-level authorization.
+- JWT authentication with Access and Refresh Tokens
+- Secure refresh token rotation using HTTP-only cookies
+- Role-Based Access Control (RBAC)
 
-### Product Management
+### Product & Inventory Management
 
-- Full CRUD operations for products (Admin only).
-- Supports filtering, sorting, and pagination for product listings.
-- Inventory tracking with automatic stock reduction upon successful payment.
-- Multi-image uploads integrated with Cloudinary.
+- Product CRUD operations
+- Filtering, sorting, and pagination
+- Inventory management
+- Multi-image uploads with Cloudinary
 
 ### Orders & Payments
 
-- Snapshot-based order items to preserve product data and pricing at purchase time.
-- Razorpay payment gateway integration.
-- Server-side payment signature verification.
-- Transaction-safe order confirmation and stock updates, with stock reversal on cancellation.
-- Idempotency checks to prevent duplicate payment processing.
-- Order status history and timeline tracking.
-- Automated order confirmation emails via Nodemailer.
+- Snapshot-based order storage
+- Integration with the Payment Orchestration Engine
+- Transaction-safe order confirmation and inventory updates
 
-### Admin Insights & Analytics
+### Admin Dashboard
 
-- Revenue analytics with monthly breakdowns.
-- Order status distribution reports.
-- Top-performing products tracking.
-- Low stock alerts for inventory management.
+- Revenue analytics
+- Order statistics
+- Low-stock monitoring
 
-### User Features
+### Infrastructure
 
-- Persistent cart management APIs.
-- Wishlist functionality for saved products.
-- Comprehensive order history for authenticated users.
-
-### Backend Infrastructure
-
-- Modular domain-driven architecture (Auth, Product, Order, etc.).
-- Redis-powered caching layer for improved performance.
-- Joi-based request validation and standardized API responses.
-- Redis-backed API rate limiting on sensitive endpoints.
-- Security headers with Helmet and CORS configuration.
-- Structured request logging middleware.
-- Interactive API documentation via OpenAPI/Swagger.
-- Docker support for consistent development and deployment.
+- Redis caching
+- Redis-backed rate limiting
+- BullMQ background jobs
+- Joi request validation
+- OpenAPI / Swagger documentation
+- Docker support
 
 ---
 
 ## Tech Stack
 
-### Backend
-
-- Node.js
-- Express.js
-
-### Database
-
-- MongoDB
-- Mongoose (ODM)
-
-### Caching
-
-- Redis
-
-### Authentication & Security
-
-- JSON Web Tokens (JWT)
-- bcrypt (Password hashing)
-- Helmet & CORS
-- express-rate-limit
-
-### Payments & Uploads
-
-- Razorpay
-- Cloudinary
-- Multer
-
-### Validation & Utilities
-
-- Joi (Request validation)
-- Nodemailer (Email notifications)
-- NanoID
-
-### Containerization
-
-- Docker
-
-### Documentation
-
-- OpenAPI / Swagger
+| Category | Technology |
+|----------|------------|
+| Runtime | Node.js |
+| Framework | Express.js |
+| Database | MongoDB |
+| ODM | Mongoose |
+| Cache & Queue | Redis, BullMQ |
+| Validation | Joi |
+| Authentication | JWT, bcryptjs |
+| File Storage | Cloudinary |
+| Documentation | Swagger (OpenAPI) |
+| Containerization | Docker |
 
 ---
 
 ## Folder Structure
 
 ```text
+.
 ├── docs/
+├── images/
+│   └── architecture.png
 ├── src/
 │   ├── clients/
 │   ├── configs/
 │   ├── constants/
 │   ├── errors/
 │   ├── middlewares/
-│   ├── models/
 │   ├── modules/
 │   │   ├── auth/
 │   │   ├── cart/
@@ -135,11 +141,16 @@ REST API backend for handling authentication, products, orders, payments, and ad
 │   │   ├── product/
 │   │   └── wishlist/
 │   ├── providers/
+│   ├── queues/
 │   └── utils/
 ├── .dockerignore
 ├── .env.example
 ├── .gitignore
+├── compose.yml
+├── compose.dev.yml
+├── compose.prod.yml
 ├── Dockerfile
+├── eslint.config.mjs
 ├── package.json
 └── README.md
 ```
@@ -148,24 +159,16 @@ REST API backend for handling authentication, products, orders, payments, and ad
 
 ## Environment Variables
 
-The following environment variables are required to run the project. See `.env.example` for details.
-
-```bash
+```env
 PORT=3000
 NODE_ENV=development
 CLIENT_ORIGINS=http://localhost:5173
 
-MONGO_URI=
-
-CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
+CLOUDINARY_CLOUD_NAME=
 
-RAZORPAY_TEST_API_KEY=
-RAZORPAY_TEST_KEY_SECRET=
-
-GMAIL=
-GMAIL_PASSWORD_KEY=
+MONGO_URI=
 
 JWT_ACCESS_TOKEN_SECRET=
 JWT_REFRESH_TOKEN_SECRET=
@@ -173,51 +176,58 @@ JWT_ACCESS_TOKEN_EXPIRES=
 JWT_REFRESH_TOKEN_EXPIRES=
 
 REDIS_URL=
+
+PAYMENT_SERVICE_API_URL=
+PAYMENT_SERVICE_SECRET=
 ```
 
 ---
 
 ## Run with Docker
 
-The backend includes Docker support for consistent development and deployment.
+The project uses Docker Compose with separate configurations for development and production, alongside a base setup for dependencies (MongoDB and Redis).
 
-### Build Image
+### Development Mode
+
+Runs the app with hot-reloading and mounts your local files:
 
 ```bash
-docker build -t ekart-backend .
+docker compose -f compose.yml -f compose.dev.yml up --build
 ```
 
-### Run Container
+### Production Mode
+
+Builds and runs the optimized production image:
 
 ```bash
-docker run -p 3000:3000 --env-file .env ekart-backend
+docker compose -f compose.yml -f compose.prod.yml up -d --build
 ```
 
 ---
 
-## Local Setup (without Docker)
+## Local Setup
 
-1. Clone the repository:
+1. Clone the repository
 
-   ```bash
-   git clone https://github.com/sn0914r/ekart-backend.git
-   ```
+```bash
+git clone https://github.com/sn0914r/ekart-backend.git
+```
 
-2. Install dependencies:
+2. Install dependencies
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-3. Configure environment variables:
-   - Create a `.env` file in the root directory.
-   - Copy contents from `.env.example` and fill in your credentials.
+3. Configure environment variables
 
-4. Start the development server:
+Copy `.env.example` to `.env` and provide the required credentials.
 
-   ```bash
-   npm run dev
-   ```
+4. Start the development server
+
+```bash
+npm run dev
+```
 
 ---
 
@@ -225,67 +235,75 @@ docker run -p 3000:3000 --env-file .env ekart-backend
 
 ### Authentication
 
-- `POST /auth/register`
-- `POST /auth/login`
-- `POST /auth/refresh`
-- `POST /auth/logout`
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | /auth/register | Register a user |
+| POST | /auth/login | Login |
+| POST | /auth/refresh | Refresh access token |
+| POST | /auth/logout | Logout user |
 
 ### Products
 
-- `GET /products`
-- `GET /products/colors`
-- `GET /products/:id`
-- `POST /admin/products`
-- `PATCH /admin/products/:id`
-- `DELETE /admin/products/:id`
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /products | List all products |
+| GET | /products/:id | Get product details |
+| GET | /products/colors | Get available colors |
 
 ### Cart
 
-- `GET /cart`
-- `POST /cart/add`
-- `PATCH /cart/increase`
-- `PATCH /cart/decrease`
-- `DELETE /cart/remove/:id`
-- `DELETE /cart/clear`
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /cart | Retrieve user cart |
+| POST | /cart/add | Add product to cart |
+| PATCH | /cart/increase | Increase item quantity |
+| PATCH | /cart/decrease | Decrease item quantity |
+| DELETE | /cart/remove/:id | Remove item from cart |
+| DELETE | /cart/clear | Clear the entire cart |
 
 ### Wishlist
 
-- `GET /wishlist`
-- `POST /wishlist`
-- `DELETE /wishlist/:productId`
-- `DELETE /wishlist`
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /wishlist | Get user wishlist |
+| POST | /wishlist | Add product to wishlist |
+| DELETE | /wishlist/:productId | Remove product from wishlist |
+| DELETE | /wishlist | Clear wishlist |
 
-### Orders
+### Orders & Payments
 
-- `POST /orders`
-- `GET /orders`
-- `GET /orders/:id`
-- `GET /admin/orders`
-- `PATCH /admin/orders/:id`
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | /orders | Create an order |
+| GET | /orders | Get user orders |
+| GET | /orders/:id | Get order details |
+| PATCH | /orders/:id | Cancel an order |
+| POST | /payments/create | Create a payment |
+| POST | /payments/verify | Verify a payment |
 
-### Payments
+### Admin Operations
 
-- `POST /payments/create`
-- `POST /payments/verify`
-
-### Admin Insights
-
-- `GET /admin/dashboard`
-- `GET /admin/analytics`
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /admin/dashboard | Dashboard metrics |
+| GET | /admin/analytics | Revenue analytics |
+| GET | /admin/products | List all products (Admin) |
+| GET | /admin/products/:id | Get product details (Admin) |
+| POST | /admin/products | Create a product |
+| PATCH | /admin/products/:id | Update a product |
+| DELETE | /admin/products/:id | Delete a product |
+| GET | /admin/orders | List all orders (Admin) |
+| GET | /admin/orders/:id | Get order details (Admin) |
+| PATCH | /admin/orders/:id | Update order status |
 
 ---
 
 ## Security
 
-The backend includes multiple security layers for authentication, authorization, and payment verification:
-
-- **JWT Authentication**: All sensitive routes are protected by JWT verification.
-- **RBAC**: Access to admin functionalities is restricted to users with the `admin` role.
-- **Password Hashing**: User passwords are encrypted using `bcrypt` before storage.
-- **Request Validation**: All incoming request bodies and parameters are validated using Joi schemas.
-- **Razorpay Security**:
-  - All pricing and order amounts are calculated server-side.
-  - Razorpay orders are generated on the server to prevent client-side tampering.
-  - Payment signatures are verified using the `crypto` module before any order is persisted or stock is reduced.
-  - Idempotency checks are performed to prevent duplicate payment processing.
-- **Error Handling**: A centralized error handling middleware prevents sensitive stack traces from being exposed in production.
+- JWT authentication for protected routes
+- Role-Based Access Control (RBAC)
+- Server-side pricing validation
+- Secure integration with the Payment Orchestration Engine
+- Joi request validation
+- Redis-backed API rate limiting
+- Centralized error handling
