@@ -2,6 +2,8 @@ services:
   ekart-redis:
     image: redis:7
     container_name: ekart-redis
+    ports:
+      - "6379:6379"
     volumes:
       - ekart-redis-volume:/data
     networks:

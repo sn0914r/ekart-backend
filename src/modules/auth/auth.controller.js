@@ -1,10 +1,12 @@
 import { configs } from "#configs/index.js";
+import { forgotPassword } from "./services/forgotPassword.service.js";
 import {
   createUser,
   loginUser,
   refreshToken,
   logoutUser,
 } from "./services/index.js";
+import { resetPassword } from "./services/resetPassword.service.js";
 
 /**
  * @route POST /auth/register
@@ -95,5 +97,34 @@ export const logoutUserController = async (req, res) => {
   res.status(200).json({
     success: true,
     message: "User logged out successfully",
+  });
+};
+
+/**
+ * @route POST /auth/forgot-password
+ * @access Public
+ */
+export const forgotPasswordController = async (req, res) => {
+  const { email } = req.body;
+  await forgotPassword(email);
+  res.status(200).json({
+    success: true,
+    message: `Password reset link is sent to ${email}`,
+  });
+};
+
+/**
+ * @route POST /auth/reset-password
+ * @access Public
+ */
+
+export const resetPasswordController = async (req, res) => {
+  const { token } = req.query;
+  const { newPassword } = req.body;
+  await resetPassword(token, newPassword);
+
+  res.status(200).json({
+    success: true,
+    message: "Password Reset successfull, Please Login with new Password",
   });
 };

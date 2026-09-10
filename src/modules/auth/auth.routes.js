@@ -4,14 +4,18 @@ import { rateLimiter } from "#middlewares/rateLimiter.middleware.js";
 import { RATE_LIMIT } from "#constants/rateLimiter.js";
 import {
   createUserController,
+  forgotPasswordController,
   loginUserController,
   logoutUserController,
   refreshTokenController,
+  resetPasswordController,
 } from "./auth.controller.js";
 import {
+  forgotPasswordSchema,
   loginUserSchema,
   refreshTokenSchema,
   registerUserSchema,
+  resetPasswordSchema,
 } from "./auth.schema.js";
 
 export const authRouter = Router();
@@ -45,3 +49,15 @@ authRouter.post(
 );
 
 authRouter.post("/auth/logout", logoutUserController);
+
+authRouter.post(
+  "/auth/forgot-password",
+  validate(forgotPasswordSchema),
+  forgotPasswordController,
+);
+
+authRouter.post(
+  "/auth/reset-password",
+  validate(resetPasswordSchema),
+  resetPasswordController,
+);

@@ -26,4 +26,6 @@ export const configs = {
     Secret: process.env.PAYMENT_SERVICE_SECRET,
     apiUrl: process.env.PAYMENT_SERVICE_API_URL,
   },
+
+  frontendOrigin: process.env.FRONTEND_URL
 };

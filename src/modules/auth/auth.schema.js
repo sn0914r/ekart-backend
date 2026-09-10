@@ -14,3 +14,11 @@ export const loginUserSchema = joi.object({
 export const refreshTokenSchema = joi.object({
   refreshToken: joi.string().required(),
 });
+
+export const forgotPasswordSchema = joi.object({
+  email: joi.string().email().required(),
+});
+
+export const resetPasswordSchema = joi.object({
+  newPassword: joi.string().required(),
+});
