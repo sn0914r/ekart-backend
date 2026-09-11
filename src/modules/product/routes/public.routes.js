@@ -3,11 +3,14 @@ import {
   getActiveProductDetailsController,
   getActiveProductsController,
   getAvailableColorsOptionsByProductNameController,
+  getProductMetaController,
 } from "../controllers/public.controller.js";
 
 export const publicProductRoutes = Router();
 
 publicProductRoutes.get("/products", getActiveProductsController);
+
+publicProductRoutes.get("/products/meta", getProductMetaController);
 
 publicProductRoutes.get(
   "/products/colors",

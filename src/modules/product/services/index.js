@@ -1,6 +1,7 @@
 export { getActiveProducts } from "./public/getActiveProducts.service.js";
 export { getActiveProductDetails } from "./public/getActiveProductDetails.service.js";
 export { getAvailableColorsOptionsByProductName } from "./public/getAvailableColorOptionsByProductName.service.js";
+export { getProductMeta } from "./public/getProductMeta.service.js";
 
 export { addProductByAdmin } from "./admin/addProductByAdmin.service.js";
 export { deleteProductByAdmin } from "./admin/deleteProductByAdmin.service.js";

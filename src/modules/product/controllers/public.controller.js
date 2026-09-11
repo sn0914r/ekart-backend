@@ -2,17 +2,19 @@ import {
   getActiveProducts,
   getActiveProductDetails,
   getAvailableColorsOptionsByProductName,
+  getProductMeta,
 } from "../services/index.js";
+
 
 /**
  * @route GET /products
  * @access Public
- */
+*/
 export const getActiveProductsController = async (req, res) => {
   const query = req.query;
-
+  
   const products = await getActiveProducts(query);
-
+  
   res.status(200).json({
     success: true,
     message: "Products fetched successfully",
@@ -23,12 +25,12 @@ export const getActiveProductsController = async (req, res) => {
 /**
  * @route GET /products/:id
  * @access Public
- */
+*/
 export const getActiveProductDetailsController = async (req, res) => {
   const { id } = req.params;
-
+  
   const product = await getActiveProductDetails(id);
-
+  
   res.status(200).json({
     success: true,
     message: "Product fetched successfully",
@@ -39,7 +41,7 @@ export const getActiveProductDetailsController = async (req, res) => {
 /**
  * @route GET /products/colors?name=productName
  * @access Public
- */
+*/
 export const getAvailableColorsOptionsByProductNameController = async (
   req,
   res,
@@ -50,5 +52,19 @@ export const getAvailableColorsOptionsByProductNameController = async (
     success: true,
     message: "Available colors fetched successfully",
     data: colors,
+  });
+};
+
+/**
+ * @route GET /products/meta
+ * @access Public
+ */
+export const getProductMetaController = async (req, res) => {
+  const meta = await getProductMeta();
+
+  res.status(200).json({
+    success: true,
+    message: "Product metadata fetched successfully",
+    data: meta,
   });
 };
