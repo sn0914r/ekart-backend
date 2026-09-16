@@ -21,7 +21,7 @@ export const uploadImages = async (files) => {
         { folder: "eKart", public_id: nanoid() },
         (err, result) => {
           if (err) {
-            logger.error(err);
+            logger.error("Cloudinary image upload failed", err);
             return reject(
               new AppError(err.message, 500, ERROR_CODES.IMAGE_UPLOAD_FAILED),
             );

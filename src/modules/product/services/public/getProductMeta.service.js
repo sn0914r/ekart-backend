@@ -47,7 +47,7 @@ export const getProductMeta = async () => {
     .filter(Boolean)
     .sort()
     .map((cat) => ({
-      label: cat,
+      label: cat.charAt(0).toUpperCase() + cat.slice(1),
       value: cat,
     }));
 

@@ -25,13 +25,30 @@ export const logger = {
 
   /**
    *
-   * @param {string} message
-   * @param {string} error
+   * @param {string | Error} message
+   * @param {Error} [error]
    */
   error: (message, error) => {
-    console.error(formatMessage("error", message));
-    if (!isProd && error instanceof Error && error.stack) {
-      console.error(error.stack);
+    const errObj = message instanceof Error ? message : error;
+    const msgText =
+      message instanceof Error
+        ? message.message || message.name || "Unknown Error"
+        : message;
+
+    console.error(formatMessage("error", msgText));
+
+    if (errObj instanceof Error && !isProd) {
+      if (errObj.stack) {
+        console.error(errObj.stack);
+      }
+      if (errObj.errors && Array.isArray(errObj.errors)) {
+        errObj.errors.forEach((innerErr, idx) => {
+          console.error(
+            `  [Inner Error ${idx + 1}]:`,
+            innerErr?.stack || innerErr?.message || innerErr,
+          );
+        });
+      }
     }
   },
 };
