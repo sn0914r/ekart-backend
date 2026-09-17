@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { configs } from "#configs/index.js";
 import { errorHandler } from "#middlewares/error.middleware.js";
 import { authRouter } from "#modules/auth/auth.routes.js";
+import { userRouter } from "#modules/user/user.routes.js";
 import { orderRouter } from "#modules/order/order.routes.js";
 import { paymentRouter } from "#modules/payment/payment.routes.js";
 import { productsRouter } from "#modules/product/product.routes.js";
@@ -34,6 +35,7 @@ app.use(
 
 app.use(morgan("dev"));
 app.use(authRouter);
+app.use(userRouter);
 app.use(orderRouter);
 app.use(paymentRouter);
 app.use(productsRouter);
