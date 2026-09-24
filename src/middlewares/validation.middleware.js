@@ -13,7 +13,12 @@ export const validate =
 
     if (error) throw error;
 
-    req[segment] = value;
+    Object.defineProperty(req, segment, {
+      value,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
     next();
   };
 

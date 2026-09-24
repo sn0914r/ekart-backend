@@ -31,6 +31,9 @@ export const createUser = async (name, email, password) => {
     email,
     password: hashedPassword,
     role: ROLES.USER,
+    isActive: true,
+    isDeleted: false,
+    deletedAt: null,
   });
 
   const refreshTokenDoc = await RefreshTokenModel.create({

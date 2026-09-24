@@ -50,6 +50,14 @@ export const refreshToken = async (refreshToken) => {
   const userId = decoded.userId;
   const userDoc = await UserModel.findById(userId);
 
+  if (!userDoc || userDoc.isDeleted || !userDoc.isActive) {
+    throw new AppError(
+      "Your account is inactive or not found",
+      401,
+      ERROR_CODES.UNAUTHORIZED_ERROR,
+    );
+  }
+
   const newRefreshToken = generateRefreshToken({
     sessionId: refreshTokenDoc._id,
     userId: userId,

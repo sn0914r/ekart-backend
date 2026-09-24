@@ -1,4 +1,3 @@
-import { logger } from "#utils/logger.js";
 import { initiatePayment } from "./services/initiatePayment.service.js";
 import { verifyPayment } from "./services/verifyPayment.service.js";
 

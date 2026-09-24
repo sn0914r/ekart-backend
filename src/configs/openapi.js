@@ -23,6 +23,8 @@ Built with Node.js, Express.js, MongoDB, Redis, and Docker.
       { name: "Orders (Admin)" },
       { name: "Payment (User)" },
       { name: "Insights (Admin)" },
+      { name: "Users (User)" },
+      { name: "Users (Admin)" },
     ],
 
     servers: [

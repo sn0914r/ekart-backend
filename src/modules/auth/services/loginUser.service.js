@@ -21,6 +21,14 @@ export const loginUser = async (email, password) => {
     throw new AppError("User not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
   }
 
+  if (user.isDeleted || !user.isActive) {
+    throw new AppError(
+      "Your account has been deactivated. Please contact support.",
+      403,
+      ERROR_CODES.FORBIDDEN_ERROR,
+    );
+  }
+
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
