@@ -1,5 +1,6 @@
 import { initiatePayment } from "./services/initiatePayment.service.js";
 import { verifyPayment } from "./services/verifyPayment.service.js";
+import { logger } from "#utils/logger.js";
 
 /**
  * @route POST /payments/initiate
@@ -25,6 +26,8 @@ export const initiatePaymentController = async (req, res) => {
  * @desc Verifies the payment orchestrator webhook payload and updates order payment status
  */
 export const verifyPaymentController = async (req, res) => {
+  logger.info(`WEBHOOK RECEIVED: ${JSON.stringify(req.body)}`);
   await verifyPayment(req.body);
+  logger.info(`WEBHOOK PROCESSED for orderId: ${req.body?.orderId}`);
   res.status(200).json({ success: true, message: "Webhook processed" });
 };

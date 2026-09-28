@@ -67,5 +67,12 @@ export const initiatePayment = async (orderId, userId, method) => {
   logger.info("PAYMENT INITIATED");
   logger.info(JSON.stringify(paymentDetails));
 
-  return paymentDetails;
+  const resolvedKey = paymentDetails.keyId || paymentDetails.key;
+
+  return {
+    ...paymentDetails,
+    key: resolvedKey,
+    keyId: resolvedKey,
+    razorpayKeyId: resolvedKey,
+  };
 };

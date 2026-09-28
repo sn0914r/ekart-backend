@@ -5,6 +5,7 @@ import { ORDER, ERROR_CODES } from "#constants/index.js";
 import OrderModel from "../../OrderModel/order.model.js";
 import { assertOrderStatus } from "../../helpers/order.validators.js";
 import { emailQueue } from "#queues/email.queue.js";
+import { redisClient } from "#clients/redis.js";
 
 const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
 
@@ -18,7 +19,7 @@ const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
  */
 
 /**
- * Cancels an order and reverts stock
+ * Cancels an order and reverts stock if paid
  *
  * @param {string} orderId
  * @param {string} userId
@@ -34,24 +35,22 @@ export const cancelOrder = async (orderId, userId) => {
   const { orderStatus, shippingStatus } = order;
   assertOrderStatus(orderStatus, shippingStatus);
 
-  await cancelOrderWithStockReversal(orderId, userId);
-
-  await order.save();
+  const cancelledOrder = await cancelOrderWithStockReversal(orderId, userId);
 
   const cancelLabel = ORDER.ORDER_STATUS_EMAILS_LABELS.CANCELLED;
-  if (order.email) {
+  if (cancelledOrder.email) {
     await emailQueue.add("order-cancelled-email", {
       template: "order-cancelled",
-      to: order.email,
+      to: cancelledOrder.email,
       subject: cancelLabel.subject,
       payload: {
-        orderId: order.orderId,
+        orderId: cancelledOrder.orderId,
         message: cancelLabel.message,
       },
     });
   }
 
-  return order;
+  return cancelledOrder;
 };
 
 /**
@@ -63,21 +62,40 @@ const cancelOrderWithStockReversal = async (orderId, userId) => {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const order = await OrderModel.findOneAndUpdate(
-      {
-        _id: orderId,
-        isStockReverted: false,
-        orderStatus: {
-          $in: [ORDER_STATUS.CREATED, ORDER_STATUS.CONFIRMED],
-        },
-        shippingStatus: SHIPPING_STATUS.PENDING,
+
+    const existingOrder = await OrderModel.findOne({
+      _id: orderId,
+      isStockReverted: false,
+      orderStatus: {
+        $in: [ORDER_STATUS.CREATED, ORDER_STATUS.CONFIRMED],
       },
+      shippingStatus: SHIPPING_STATUS.PENDING,
+    }).session(session);
+
+    if (!existingOrder) {
+      throw new AppError(
+        "Order not found or cannot be cancelled",
+        404,
+        ERROR_CODES.NOT_FOUND_ERROR,
+      );
+    }
+
+    const isPaid =
+      existingOrder.paymentStatus === PAYMENT_STATUS.PAID ||
+      existingOrder.orderStatus === ORDER_STATUS.CONFIRMED;
+
+    const targetPaymentStatus = isPaid
+      ? PAYMENT_STATUS.REFUNDED
+      : PAYMENT_STATUS.CANCELLED;
+
+    const cancelledOrder = await OrderModel.findByIdAndUpdate(
+      orderId,
       {
         $set: {
           isStockReverted: true,
           orderStatus: ORDER_STATUS.CANCELLED,
           shippingStatus: SHIPPING_STATUS.CANCELLED,
-          paymentStatus: PAYMENT_STATUS.REFUND_PENDING,
+          paymentStatus: targetPaymentStatus,
         },
         $push: {
           orderStatusHistory: {
@@ -86,7 +104,7 @@ const cancelOrderWithStockReversal = async (orderId, userId) => {
             by: userId,
           },
           paymentStatusHistory: {
-            status: PAYMENT_STATUS.REFUND_PENDING,
+            status: targetPaymentStatus,
             at: new Date(),
             by: userId,
           },
@@ -98,27 +116,28 @@ const cancelOrderWithStockReversal = async (orderId, userId) => {
       },
     );
 
-    if (!order)
-      throw new AppError(
-        "Order not found or cannot be cancelled",
-        404,
-        ERROR_CODES.NOT_FOUND_ERROR,
-      );
-
-    const bulkOperations = order.orderSnapshot.map((item) => ({
-      updateOne: {
-        filter: { _id: item.productId },
-        update: {
-          $inc: { stock: item.quantity },
+    if (isPaid) {
+      const bulkOperations = cancelledOrder.orderSnapshot.map((item) => ({
+        updateOne: {
+          filter: { _id: item.productId },
+          update: {
+            $inc: { stock: item.quantity },
+          },
         },
-      },
-    }));
+      }));
 
-    await ProductModel.bulkWrite(bulkOperations, { session });
+      await ProductModel.bulkWrite(bulkOperations, { session });
+    }
 
     await session.commitTransaction();
 
-    return order;
+    if (isPaid) {
+      for (const item of cancelledOrder.orderSnapshot) {
+        await redisClient.del(`product:${item.productId}`).catch(() => {});
+      }
+    }
+
+    return cancelledOrder;
   } catch (error) {
     await session.abortTransaction();
 

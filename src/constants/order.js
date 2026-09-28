@@ -19,6 +19,7 @@ export const ORDER = {
     FAILED: "FAILED",
     REFUND_PENDING: "REFUND PENDING",
     REFUNDED: "REFUNDED",
+    CANCELLED: "CANCELLED",
   },
 
   VALID_SORT_ORDER_FIELDS: [
@@ -45,6 +46,7 @@ export const ORDER = {
       FAILED: "Payment failed",
       REFUND_PENDING: "Refund initiated",
       REFUNDED: "Payment refunded",
+      CANCELLED: "Payment cancelled",
     },
 
     ORDER: {
