@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ORDER, ERROR_CODES } from "#constants/index.js";
-import OrderModel from "#modules/order/OrderModel/order.model.js";
+import OrderModel from "#modules/order/order.model.js";
 import ProductModel from "#modules/product/product.model.js";
 import { AppError } from "#errors/AppError.js";
 import { mapPoeStatusToEkartStatus } from "../payment.helpers.js";

@@ -1,5 +1,6 @@
-import OrderModel from "#modules/order/OrderModel/order.model.js";
+import OrderModel from "#modules/order/order.model.js";
 import ProductModel from "#modules/product/product.model.js";
+import { ORDER } from "#constants/index.js";
 
 export const getDashboardData = async () => {
   const [
@@ -9,13 +10,12 @@ export const getDashboardData = async () => {
     lowStockCount,
     recentOrders,
     lowStockItems,
-    recentActivity,
   ] = await Promise.all([
     // INFO: Total Revenue
     OrderModel.aggregate([
       {
         $match: {
-          paymentStatus: "PAID",
+          paymentStatus: ORDER.PAYMENT_STATUS.PAID,
         },
       },
       {
@@ -33,7 +33,7 @@ export const getDashboardData = async () => {
 
     // INFO: Pending Orders
     OrderModel.countDocuments({
-      orderStatus: "CREATED",
+      orderStatus: ORDER.ORDER_STATUS.CREATED,
     }),
 
     // INFO: Low Stock Count
@@ -51,15 +51,18 @@ export const getDashboardData = async () => {
     })
       .select("name stock category images")
       .limit(5),
-
-    // INFO: Recent Activity
-    OrderModel.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("orderStatus paymentStatus createdAt subTotal"),
   ]);
 
   const totalRevenue = totalRevenueResult[0]?.total || 0;
+
+  // INFO: Derive recent activity from recent orders (first 5) without an extra DB round-trip
+  const recentActivity = recentOrders.slice(0, 5).map((order) => ({
+    _id: order._id,
+    orderStatus: order.orderStatus,
+    paymentStatus: order.paymentStatus,
+    createdAt: order.createdAt,
+    subTotal: order.subTotal,
+  }));
 
   return {
     stats: {

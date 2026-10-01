@@ -22,7 +22,7 @@ export const validate =
     next();
   };
 
-export const validateFile = (req, res, next) => {
+export const validateFile = (req, _res, next) => {
   if (!req.files || req.files.length === 0) {
     throw new AppError("file not uploaded", 400, ERROR_CODES.VALIDATION_ERROR);
   }

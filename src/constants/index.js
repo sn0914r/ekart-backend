@@ -1,6 +1,6 @@
 export { ERROR_CODES } from "./errorCodes.js";
-export { ORDER } from "./order.js";
-export { PRODUCT } from "./product.js";
 export { RATE_LIMIT } from "./rateLimiter.js";
 export { ROLES } from "./roles.js";
-export { USER } from "./user.js";
+export { ORDER } from "#modules/order/order.constants.js";
+export { PRODUCT } from "#modules/product/product.constants.js";
+export { USER } from "#modules/user/user.constants.js";

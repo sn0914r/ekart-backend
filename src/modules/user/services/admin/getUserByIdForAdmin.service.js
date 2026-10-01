@@ -1,5 +1,5 @@
 import UserModel from "#modules/auth/models/user.model.js";
-import OrderModel from "#modules/order/OrderModel/order.model.js";
+import OrderModel from "#modules/order/order.model.js";
 import CartModel from "#modules/cart/cart.model.js";
 import WishlistModel from "#modules/wishlist/wishlist.model.js";
 import { AppError } from "#errors/AppError.js";

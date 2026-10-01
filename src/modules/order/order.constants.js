@@ -1,4 +1,6 @@
-export const ORDER = {
+import { deepFreeze } from "#utils/deepFreeze.js";
+
+export const ORDER = deepFreeze({
   ORDER_STATUS: {
     CREATED: "CREATED",
     CONFIRMED: "CONFIRMED",
@@ -101,6 +103,6 @@ export const ORDER = {
       SHIPPED: ["DELIVERED"],
       DELIVERED: [],
       CANCELLED: [],
-    }
-  }
-}
+    },
+  },
+});

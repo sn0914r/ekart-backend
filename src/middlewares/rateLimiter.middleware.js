@@ -5,7 +5,6 @@ import { AppError } from "#errors/AppError.js";
 export const rateLimiter = (maxAttempts, route, timeInSeconds = 300) => {
   return async (req, _res, next) => {
     const key = `ratelimit:${route}:${req.ip}`;
-    console.log("Request from " + key);
 
     const count = await redisClient.incr(key);
 

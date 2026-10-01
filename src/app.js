@@ -13,7 +13,7 @@ import { productsRouter } from "#modules/product/product.routes.js";
 import { cartRouter } from "#modules/cart/cart.routes.js";
 import { wishlistRouter } from "#modules/wishlist/wishlist.routes.js";
 import { insightsRouter } from "#modules/insights/insights.routes.js";
-import { openApiSpec } from "./configs/openapi.js";
+import { openApiSpec } from "#configs/openapi.js";
 import { apiReference } from "@scalar/express-api-reference";
 
 export const app = express();

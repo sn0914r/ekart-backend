@@ -1,13 +1,13 @@
-import { monthlyRevenueAggregation } from "./monthlyRevenue.js";
-import { orderStatusDistributionAggregation } from "./orderStatusDistribution.js";
-import { topProductsAggregation } from "./topProducts.js";
+import { monthlyRevenueAggregation } from "./queries/monthlyRevenue.query.js";
+import { orderStatusDistributionAggregation } from "./queries/orderStatusDistribution.query.js";
+import { topProductsAggregation } from "./queries/topProducts.query.js";
 
 export const getAnalyticsData = async () => {
   const [monthlyRevenue, orderStatusDistribution, topProducts] =
     await Promise.all([
-      monthlyRevenueAggregation,
-      orderStatusDistributionAggregation,
-      topProductsAggregation,
+      monthlyRevenueAggregation(),
+      orderStatusDistributionAggregation(),
+      topProductsAggregation(),
     ]);
 
   const totalRevenue = monthlyRevenue.reduce(

@@ -1,4 +1,6 @@
-export const PRODUCT = {
+import { deepFreeze } from "#utils/deepFreeze.js";
+
+export const PRODUCT = deepFreeze({
   SORT_PRICE: {
     PRICE_ASC: "price_asc",
     PRICE_DESC: "price_desc",
@@ -23,12 +25,11 @@ export const PRODUCT = {
     "createdAt",
     "-createdAt",
     "category",
-    "-category"
+    "-category",
   ],
   CATEGORIES: {
     TOPWEAR: "topwear",
     BOTTOMWEAR: "bottomwear",
-    FOOTWEAR:"footwear"
-  }
-}
-
+    FOOTWEAR: "footwear",
+  },
+});

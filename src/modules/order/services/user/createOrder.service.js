@@ -2,7 +2,7 @@ import { AppError } from "#errors/AppError.js";
 import { ORDER, ERROR_CODES } from "#constants/index.js";
 import ProductModel from "#modules/product/product.model.js";
 import CartModel from "#modules/cart/cart.model.js";
-import OrderModel from "../../OrderModel/order.model.js";
+import OrderModel from "../../order.model.js";
 import {
   validateCartItems,
   validateProductsStock,

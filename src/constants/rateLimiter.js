@@ -1,4 +1,6 @@
-export const RATE_LIMIT = {
+import { deepFreeze } from "#utils/deepFreeze.js";
+
+export const RATE_LIMIT = deepFreeze({
   CREATE_PAYMENT: {
     WINDOW_MS: 600,
     MAX: 10,
@@ -12,11 +14,11 @@ export const RATE_LIMIT = {
   LOGIN: {
     WINDOW_MS: 300,
     MAX: 10,
-    ROUTE: "/auth/register",
+    ROUTE: "/auth/login",
   },
   REGISTER: {
     WINDOW_MS: 300,
     MAX: 10,
-    ROUTE: "/auth/login",
+    ROUTE: "/auth/register",
   },
-};
+});

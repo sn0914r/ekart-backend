@@ -1,4 +1,4 @@
-import OrderModel from "../../OrderModel/order.model.js";
+import OrderModel from "../../order.model.js";
 import {
   buildOrderFilter,
   buildOrderPagination,
@@ -22,27 +22,30 @@ export const getOrdersForAdmin = async (query) => {
   const orderFilters = buildOrderFilter(query);
   const orderSortFilter = buildSortFilter(query);
 
-  const orders = await OrderModel.find(orderFilters, {
-    orderId: 1,
-    email: 1,
-    subTotal: 1,
-    paymentStatus: 1,
-    shippingStatus: 1,
-    orderStatus: 1,
-    createdAt: 1,
-  })
-    .skip(skip)
-    .limit(limit)
-    .sort(orderSortFilter);
+  const [orders, totalDocuments] = await Promise.all([
+    OrderModel.find(orderFilters, {
+      orderId: 1,
+      email: 1,
+      subTotal: 1,
+      paymentStatus: 1,
+      shippingStatus: 1,
+      orderStatus: 1,
+      createdAt: 1,
+    })
+      .skip(skip)
+      .limit(limit)
+      .sort(orderSortFilter)
+      .lean(),
 
-  const totalDocuments = await OrderModel.countDocuments(orderFilters);
+    OrderModel.countDocuments(orderFilters),
+  ]);
 
   return {
     orders,
     pagination: {
       page,
       limit,
-      totalPages: Math.ceil(totalDocuments / limit),
+      totalPages: Math.ceil(totalDocuments / limit) || 1,
       totalOrders: totalDocuments,
     },
   };

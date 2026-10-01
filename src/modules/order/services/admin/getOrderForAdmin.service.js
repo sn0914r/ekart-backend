@@ -1,6 +1,6 @@
 import { ERROR_CODES } from "#constants/index.js";
 import { AppError } from "#errors/AppError.js";
-import OrderModel from "../../OrderModel/order.model.js";
+import OrderModel from "../../order.model.js";
 import { createTimeline } from "../../helpers/order.timeline.js";
 
 /** @import {TimelineEntry} from "../../helpers/order.timeline.js" */
@@ -10,7 +10,7 @@ import { createTimeline } from "../../helpers/order.timeline.js";
  * @returns {Promise<object & {timeline: TimelineEntry[]}>}
  */
 export const getOrderForAdmin = async (orderId) => {
-  const order = await OrderModel.findById(orderId);
+  const order = await OrderModel.findById(orderId).lean();
   if (!order)
     throw new AppError("Order not found", 404, ERROR_CODES.NOT_FOUND_ERROR);
 
@@ -20,5 +20,5 @@ export const getOrderForAdmin = async (orderId) => {
     order.shippingStatusHistory,
   );
 
-  return { ...order._doc, timeline };
+  return { ...order, timeline };
 };

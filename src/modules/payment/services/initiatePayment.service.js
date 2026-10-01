@@ -2,8 +2,8 @@ import { nanoid } from "nanoid";
 import { ERROR_CODES } from "#constants/errorCodes.js";
 import { ORDER } from "#constants/index.js";
 import { AppError } from "#errors/AppError.js";
-import OrderModel from "#modules/order/OrderModel/order.model.js";
-import { createPOEOrder } from "../paymentOrchestrator.provider.js";
+import OrderModel from "#modules/order/order.model.js";
+import { createPOEOrder } from "#providers/paymentOrchestrator.provider.js";
 import { logger } from "#utils/logger.js";
 
 /**
@@ -16,8 +16,6 @@ import { logger } from "#utils/logger.js";
  */
 export const initiatePayment = async (orderId, userId, method) => {
   const order = await OrderModel.findOne({ _id: orderId, userId });
-
-  console.log({ orderId, userId });
 
   if (!order) {
     throw new AppError(

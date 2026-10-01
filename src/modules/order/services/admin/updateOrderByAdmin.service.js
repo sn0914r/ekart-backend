@@ -1,7 +1,7 @@
 import { ORDER, ERROR_CODES } from "#constants/index.js";
 import { AppError } from "#errors/AppError.js";
 import { emailQueue } from "#queues/email.queue.js";
-import OrderModel from "../../OrderModel/order.model.js";
+import OrderModel from "../../order.model.js";
 import { validateShippingStatusTransition } from "../../helpers/order.validators.js";
 
 /**

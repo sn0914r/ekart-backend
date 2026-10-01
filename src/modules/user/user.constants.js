@@ -1,4 +1,6 @@
-export const USER = {
+import { deepFreeze } from "#utils/deepFreeze.js";
+
+export const USER = deepFreeze({
   VALID_SORT_FIELDS: [
     "createdAt",
     "-createdAt",
@@ -9,4 +11,4 @@ export const USER = {
     "role",
     "-role",
   ],
-};
+});

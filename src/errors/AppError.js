@@ -4,5 +4,7 @@ export class AppError extends Error {
     this.statusCode = statusCode;
     this.errorCode = errorCode;
     this.errors = errors;
+
+    Object.setPrototypeOf(this, AppError.prototype)
   }
 }

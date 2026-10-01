@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { AppError } from "#errors/AppError.js";
 import ProductModel from "#modules/product/product.model.js";
 import { ORDER, ERROR_CODES } from "#constants/index.js";
-import OrderModel from "../../OrderModel/order.model.js";
+import OrderModel from "../../order.model.js";
 import { assertOrderStatus } from "../../helpers/order.validators.js";
 import { emailQueue } from "#queues/email.queue.js";
 import { redisClient } from "#clients/redis.js";
