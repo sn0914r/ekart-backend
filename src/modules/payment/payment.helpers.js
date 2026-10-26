@@ -17,6 +17,10 @@ export const mapPoeStatusToEkartStatus = (poeStatus) => {
       return PAYMENT_STATUS.PAID;
     case "failed":
       return PAYMENT_STATUS.FAILED;
+    case "partially_refunded":
+      return PAYMENT_STATUS.PARTIALLY_REFUNDED;
+    case "refunded":
+      return PAYMENT_STATUS.REFUNDED;
     default:
       // INFO: Fallback to PENDING if we receive an unknown status
       return PAYMENT_STATUS.PENDING;

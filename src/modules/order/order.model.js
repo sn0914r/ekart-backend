@@ -15,11 +15,24 @@ const OrderItemSchema = new Schema(
   { _id: false },
 );
 
+const RefundSchema = new Schema(
+  {
+    refundId: { type: String, required: true },
+    gatewayRefundId: { type: String, default: null },
+    amountInRupees: { type: Number, required: true },
+    status: { type: String, default: "processed" },
+    reason: { type: String, default: null },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
 const PaymentSchema = new Schema(
   {
     poePaymentId: { type: String, default: null },
     gateway: { type: String, default: null },
     paymentMethod: { type: String, default: null },
+    refunds: { type: [RefundSchema], default: [] },
 
     failureCode: { type: String, default: null },
     failureReason: { type: String, default: null },

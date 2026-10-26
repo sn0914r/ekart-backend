@@ -6,6 +6,8 @@ import OrderModel from "../../order.model.js";
 import { assertOrderStatus } from "../../helpers/order.validators.js";
 import { emailQueue } from "#queues/email.queue.js";
 import { redisClient } from "#clients/redis.js";
+import { createPOERefund } from "#providers/paymentOrchestrator.provider.js";
+import { logger } from "#utils/logger.js";
 
 const { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS } = ORDER;
 
@@ -59,34 +61,71 @@ export const cancelOrder = async (orderId, userId) => {
  * @param {string} userId
  */
 const cancelOrderWithStockReversal = async (orderId, userId) => {
+  const existingOrder = await OrderModel.findOne({
+    _id: orderId,
+    isStockReverted: false,
+    orderStatus: {
+      $in: [ORDER_STATUS.CREATED, ORDER_STATUS.CONFIRMED],
+    },
+    shippingStatus: SHIPPING_STATUS.PENDING,
+  });
+
+  if (!existingOrder) {
+    throw new AppError(
+      "Order not found or cannot be cancelled",
+      404,
+      ERROR_CODES.NOT_FOUND_ERROR,
+    );
+  }
+
+  const isPaid =
+    existingOrder.paymentStatus === PAYMENT_STATUS.PAID ||
+    existingOrder.orderStatus === ORDER_STATUS.CONFIRMED;
+
+  let refundData = null;
+  if (isPaid && existingOrder.paymentDetails?.poePaymentId) {
+    logger.info(`Triggering automated refund for order ${orderId} with POE payment ${existingOrder.paymentDetails.poePaymentId}`);
+    const idempotencyKey = `cancel_refund_${orderId}`;
+
+    refundData = await createPOERefund({
+      paymentId: existingOrder.paymentDetails.poePaymentId,
+      amountInRupees: existingOrder.subTotal,
+      reason: "Order cancelled by customer",
+      idempotencyKey,
+    });
+  }
+
+  const targetPaymentStatus = isPaid
+    ? PAYMENT_STATUS.REFUNDED
+    : PAYMENT_STATUS.CANCELLED;
+
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
 
-    const existingOrder = await OrderModel.findOne({
-      _id: orderId,
-      isStockReverted: false,
-      orderStatus: {
-        $in: [ORDER_STATUS.CREATED, ORDER_STATUS.CONFIRMED],
+    const pushUpdates = {
+      orderStatusHistory: {
+        status: ORDER_STATUS.CANCELLED,
+        at: new Date(),
+        by: userId,
       },
-      shippingStatus: SHIPPING_STATUS.PENDING,
-    }).session(session);
+      paymentStatusHistory: {
+        status: targetPaymentStatus,
+        at: new Date(),
+        by: userId,
+      },
+    };
 
-    if (!existingOrder) {
-      throw new AppError(
-        "Order not found or cannot be cancelled",
-        404,
-        ERROR_CODES.NOT_FOUND_ERROR,
-      );
+    if (refundData) {
+      pushUpdates["paymentDetails.refunds"] = {
+        refundId: refundData.refundId,
+        gatewayRefundId: refundData.gatewayRefundId,
+        amountInRupees: refundData.amountInRupees,
+        status: refundData.status,
+        reason: refundData.reason || "Order cancelled by customer",
+        createdAt: refundData.createdAt || new Date(),
+      };
     }
-
-    const isPaid =
-      existingOrder.paymentStatus === PAYMENT_STATUS.PAID ||
-      existingOrder.orderStatus === ORDER_STATUS.CONFIRMED;
-
-    const targetPaymentStatus = isPaid
-      ? PAYMENT_STATUS.REFUNDED
-      : PAYMENT_STATUS.CANCELLED;
 
     const cancelledOrder = await OrderModel.findByIdAndUpdate(
       orderId,
@@ -97,18 +136,7 @@ const cancelOrderWithStockReversal = async (orderId, userId) => {
           shippingStatus: SHIPPING_STATUS.CANCELLED,
           paymentStatus: targetPaymentStatus,
         },
-        $push: {
-          orderStatusHistory: {
-            status: ORDER_STATUS.CANCELLED,
-            at: new Date(),
-            by: userId,
-          },
-          paymentStatusHistory: {
-            status: targetPaymentStatus,
-            at: new Date(),
-            by: userId,
-          },
-        },
+        $push: pushUpdates,
       },
       {
         new: true,

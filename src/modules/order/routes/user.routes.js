@@ -7,6 +7,7 @@ import {
   getOrderController,
   getOrdersController,
   cancelOrderController,
+  getOrderRefundsController,
 } from "../controllers/user.controller.js";
 import { createOrderSchema, updateOrderStatusSchema } from "../order.schema.js";
 
@@ -17,6 +18,13 @@ userOrderRoutes.get(
   authenticate,
   requireRole([ROLES.USER]),
   getOrdersController,
+);
+
+userOrderRoutes.get(
+  "/orders/:id/refunds",
+  authenticate,
+  requireRole([ROLES.USER, ROLES.ADMIN, ROLES.DEMO_ADMIN]),
+  getOrderRefundsController,
 );
 
 userOrderRoutes.get(

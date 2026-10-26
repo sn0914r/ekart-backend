@@ -3,6 +3,7 @@ import {
   getOrder,
   getOrders,
   cancelOrder,
+  getOrderRefunds,
 } from "../services/index.js";
 
 /**
@@ -72,5 +73,23 @@ export const cancelOrderController = async (req, res) => {
     success: true,
     message: "Order updated successfully",
     data: order,
+  });
+};
+
+/**
+ * @route GET /orders/:id/refunds
+ * @access Private
+ * @desc Get refund details for an order
+ */
+export const getOrderRefundsController = async (req, res) => {
+  const { id: orderId } = req.params;
+  const user = req.user;
+
+  const refundDetails = await getOrderRefunds(orderId, user);
+
+  return res.status(200).json({
+    success: true,
+    message: "Order refunds fetched successfully",
+    data: refundDetails,
   });
 };
