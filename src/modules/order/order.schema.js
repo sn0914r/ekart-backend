@@ -27,3 +27,13 @@ export const updateShippingStatusSchema = joi.object({
     .valid(...Object.values(ORDER.SHIPPING_STATUS))
     .optional(),
 });
+
+export const orderIdParamSchema = joi.object({
+  id: joi
+    .alternatives()
+    .try(
+      joi.string().hex().length(24),
+      joi.string().pattern(/^EK-[A-Z0-9]{6}$/i),
+    )
+    .required(),
+});

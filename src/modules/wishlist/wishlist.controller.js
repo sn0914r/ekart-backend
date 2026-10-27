@@ -1,71 +1,70 @@
-import {
-  addItemToWishlist,
-  deleteItemInWishlist,
-  deleteWishlist,
-  getWishlist,
-} from "./wishlist.services.js";
+import { WishlistService } from "./wishlist.service.js";
 
-/**
- * @route GET /wishlist
- * @access Private
- */
-export const getWishListController = async (req, res) => {
-  const { userId } = req.user;
+export class WishlistController {
+  /**
+   * @route GET /wishlist
+   * @access Private
+   */
+  static async getWishlist(req, res) {
+    const { userId } = req.user;
 
-  const wishlist = await getWishlist(userId);
+    const wishlist = await WishlistService.getUserWishlist(userId);
 
-  return res.status(200).json({
-    success: true,
-    message: "Wishlist fetched successfully",
-    data: wishlist,
-  });
-};
+    return res.status(200).json({
+      success: true,
+      message: "Wishlist fetched successfully",
+      data: wishlist,
+    });
+  }
 
-/**
- * @route POST /wishlist
- * @access Private
- */
-export const addItemToWishListController = async (req, res) => {
-  const { userId } = req.user;
-  const { productId } = req.body;
+  /**
+   * @route POST /wishlist
+   * @access Private
+   */
+  static async addProductToWishlist(req, res) {
+    const { userId } = req.user;
+    const { productId } = req.body;
 
-  const wishlist = await addItemToWishlist(userId, productId);
+    const result = await WishlistService.addProductToWishlist(
+      userId,
+      productId,
+    );
 
-  return res.status(200).json({
-    success: true,
-    message: "Product added to wishlist successfully",
-    data: wishlist,
-  });
-};
+    return res.status(201).json({
+      success: true,
+      message: "Product added to wishlist successfully",
+      data: result,
+    });
+  }
 
-/**
- * @route DELETE /wishlist/:productId
- * @access Private
- */
-export const deleteItemInWishListController = async (req, res) => {
-  const { userId } = req.user;
-  const { productId } = req.params;
+  /**
+   * @route DELETE /wishlist/:productId
+   * @access Private
+   */
+  static async removeProductFromWishlist(req, res) {
+    const { userId } = req.user;
+    const { productId } = req.params;
 
-  const wishlist = await deleteItemInWishlist(userId, productId);
+    await WishlistService.removeProductFromWishlist(userId, productId);
 
-  return res.status(200).json({
-    success: true,
-    message: "Product deleted from wishlist successfully",
-    data: wishlist,
-  });
-};
+    return res.status(200).json({
+      success: true,
+      message: "Product deleted from wishlist successfully",
+    });
+  }
 
-/**
- * @route DELETE /wishlist
- * @access Private
- */
-export const deleteWishListController = async (req, res) => {
-  const { userId } = req.user;
+  /**
+   * @route DELETE /wishlist
+   * @access Private
+   */
+  static async clearWishlist(req, res) {
+    const { userId } = req.user;
 
-  await deleteWishlist(userId);
+    await WishlistService.clearUserWishlist(userId);
 
-  return res.status(200).json({
-    success: true,
-    message: "Wishlist deleted successfully",
-  });
-};
+    return res.status(200).json({
+      success: true,
+      message: "Wishlist deleted successfully",
+    });
+  }
+}

@@ -2,15 +2,12 @@ import { Router } from "express";
 import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
 import { validate } from "#middlewares/validation.middleware.js";
 import { ROLES } from "#constants/index.js";
+import { CartController } from "./cart.controller.js";
 import {
-  addToCartController,
-  clearCartController,
-  decQuantityController,
-  getCartController,
-  incQuantityController,
-  removeFromCartController,
-} from "./cart.controller.js";
-import { AddToCartSchema, CartItemProductIdSchema } from "./cart.schema.js";
+  AddToCartSchema,
+  CartItemProductIdSchema,
+  RemoveCartItemParamSchema,
+} from "./cart.schema.js";
 
 export const cartRouter = Router();
 
@@ -18,7 +15,7 @@ cartRouter.get(
   "/cart",
   authenticate,
   requireRole([ROLES.USER]),
-  getCartController,
+  CartController.getCart,
 );
 
 cartRouter.post(
@@ -26,7 +23,7 @@ cartRouter.post(
   authenticate,
   requireRole([ROLES.USER]),
   validate(AddToCartSchema),
-  addToCartController,
+  CartController.addProductToCart,
 );
 
 cartRouter.patch(
@@ -34,24 +31,28 @@ cartRouter.patch(
   authenticate,
   requireRole([ROLES.USER]),
   validate(CartItemProductIdSchema),
-  incQuantityController,
+  CartController.increaseProductQuantity,
 );
+
 cartRouter.patch(
   "/cart/decrease",
   authenticate,
   requireRole([ROLES.USER]),
   validate(CartItemProductIdSchema),
-  decQuantityController,
+  CartController.decreaseProductQuantity,
 );
+
 cartRouter.delete(
   "/cart/remove/:id",
   authenticate,
   requireRole([ROLES.USER]),
-  removeFromCartController,
+  validate(RemoveCartItemParamSchema, "params"),
+  CartController.removeProductFromCart,
 );
+
 cartRouter.delete(
   "/cart/clear",
   authenticate,
   requireRole([ROLES.USER]),
-  clearCartController,
+  CartController.clearCart,
 );

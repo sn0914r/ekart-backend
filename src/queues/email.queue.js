@@ -1,7 +1,8 @@
 import { Queue } from "bullmq";
 import Redis from "ioredis";
+import { configs } from "#configs/index.js";
 
-const redisConnection = new Redis(process.env.REDIS_URL, {
+const redisConnection = new Redis(configs.redisURL, {
   maxRetriesPerRequest: null,
 });
 

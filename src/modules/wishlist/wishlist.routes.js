@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { ROLES } from "#constants/index.js";
 import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
+import { validate } from "#middlewares/validation.middleware.js";
+import { WishlistController } from "./wishlist.controller.js";
 import {
-  addItemToWishListController,
-  deleteItemInWishListController,
-  deleteWishListController,
-  getWishListController,
-} from "./wishlist.controller.js";
+  addWishlistItemSchema,
+  wishlistItemParamSchema,
+} from "./wishlist.schemas.js";
 
 export const wishlistRouter = Router();
 
@@ -14,26 +14,28 @@ wishlistRouter.get(
   "/wishlist",
   authenticate,
   requireRole([ROLES.USER]),
-  getWishListController,
+  WishlistController.getWishlist,
 );
 
 wishlistRouter.post(
   "/wishlist",
   authenticate,
   requireRole([ROLES.USER]),
-  addItemToWishListController,
+  validate(addWishlistItemSchema, "body"),
+  WishlistController.addProductToWishlist,
 );
 
 wishlistRouter.delete(
   "/wishlist/:productId",
   authenticate,
   requireRole([ROLES.USER]),
-  deleteItemInWishListController,
+  validate(wishlistItemParamSchema, "params"),
+  WishlistController.removeProductFromWishlist,
 );
 
 wishlistRouter.delete(
   "/wishlist",
   authenticate,
   requireRole([ROLES.USER]),
-  deleteWishListController,
+  WishlistController.clearWishlist,
 );

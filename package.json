@@ -21,7 +21,8 @@
     "#providers/*": "./src/providers/*",
     "#constants/*": "./src/constants/*",
     "#errors/*": "./src/errors/*",
-    "#queues/*": "./src/queues/*"
+    "#queues/*": "./src/queues/*",
+    "#db/*": "./src/db/*"
   },
   "dependencies": {
     "@scalar/express-api-reference": "^0.10.3",

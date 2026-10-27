@@ -18,7 +18,7 @@ REST API backend for the eKart ecommerce platform, responsible for authenticatio
 
 ## Architecture
 
-![Project Architecture](images/architecture.png)
+![Project Architecture](docs/architecture.png)
 
 The eKart Backend serves as the central application layer, receiving requests from both the customer-facing frontend and the admin dashboard. It persists application data in MongoDB, uses Redis for caching and queue management, stores product images in Cloudinary, and delegates all payment operations to a standalone Payment Orchestration Engine. Background tasks such as email delivery are processed asynchronously by a dedicated BullMQ worker.
 
@@ -124,7 +124,6 @@ Interactive API documentation is available through OpenAPI / Swagger.
 ```text
 .
 ├── docs/
-├── images/
 │   └── architecture.png
 ├── src/
 │   ├── clients/

@@ -4,10 +4,7 @@ import { authenticate, requireRole } from "#middlewares/auth.middleware.js";
 import { validate } from "#middlewares/validation.middleware.js";
 import { ROLES, RATE_LIMIT } from "#constants/index.js";
 import { initiatePaymentSchema } from "./payment.schema.js";
-import {
-  initiatePaymentController,
-  verifyPaymentController,
-} from "./payment.controller.js";
+import { PaymentController } from "./payment.controller.js";
 import { verifyPOESignature } from "./payment.middleware.js";
 
 export const paymentRouter = Router();
@@ -22,11 +19,11 @@ paymentRouter.post(
   authenticate,
   requireRole([ROLES.USER]),
   validate(initiatePaymentSchema),
-  initiatePaymentController,
+  PaymentController.initiatePayment,
 );
 
 paymentRouter.post(
   "/payments/webhook/verify",
   verifyPOESignature,
-  verifyPaymentController,
+  PaymentController.verifyPaymentWebhook,
 );

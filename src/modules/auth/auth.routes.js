@@ -2,14 +2,7 @@ import { Router } from "express";
 import { validate } from "#middlewares/validation.middleware.js";
 import { rateLimiter } from "#middlewares/rateLimiter.middleware.js";
 import { RATE_LIMIT } from "#constants/rateLimiter.js";
-import {
-  createUserController,
-  forgotPasswordController,
-  loginUserController,
-  logoutUserController,
-  refreshTokenController,
-  resetPasswordController,
-} from "./auth.controller.js";
+import { AuthController } from "./auth.controller.js";
 import {
   forgotPasswordSchema,
   loginUserSchema,
@@ -28,7 +21,7 @@ authRouter.post(
     RATE_LIMIT.REGISTER.WINDOW_MS,
   ),
   validate(registerUserSchema, "body"),
-  createUserController,
+  AuthController.register,
 );
 
 authRouter.post(
@@ -39,25 +32,25 @@ authRouter.post(
     RATE_LIMIT.LOGIN.WINDOW_MS,
   ),
   validate(loginUserSchema, "body"),
-  loginUserController,
+  AuthController.login,
 );
 
 authRouter.post(
   "/auth/refresh",
   validate(refreshTokenSchema, "cookies"),
-  refreshTokenController,
+  AuthController.refresh,
 );
 
-authRouter.post("/auth/logout", logoutUserController);
+authRouter.post("/auth/logout", AuthController.logout);
 
 authRouter.post(
   "/auth/forgot-password",
   validate(forgotPasswordSchema),
-  forgotPasswordController,
+  AuthController.forgotPassword,
 );
 
 authRouter.post(
   "/auth/reset-password",
   validate(resetPasswordSchema),
-  resetPasswordController,
+  AuthController.resetPassword,
 );

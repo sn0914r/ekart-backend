@@ -40,3 +40,16 @@ export const updateProductSchema = joi
       .optional(),
   })
   .min(1);
+
+export const productIdParamSchema = joi.object({
+  id: joi.string().hex().length(24).required().messages({
+    "string.length": "Invalid product ID format",
+    "string.hex": "Invalid product ID format",
+  }),
+});
+
+export const productColorQuerySchema = joi.object({
+  name: joi.string().trim().required().messages({
+    "any.required": "Product name is required",
+  }),
+});

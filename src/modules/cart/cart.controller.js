@@ -1,90 +1,103 @@
-import {
-  getCart,
-  addToCart,
-  incQuantity,
-  decQuantity,
-  removeFromCart,
-  clearCart,
-} from "./cart.service.js";
+import { CartService } from "./cart.service.js";
 
-/**
- * @route GET /cart
- * @access Private
- */
-export const getCartController = async (req, res) => {
-  const { userId } = req.user;
+export class CartController {
+  /**
+   * @route GET /cart
+   * @access Private
+   */
+  static async getCart(req, res) {
+    const { userId } = req.user;
 
-  const cart = await getCart(userId);
-  return res
-    .status(200)
-    .json({ success: true, data: cart, message: "Cart fetched successfully" });
-};
+    const cart = await CartService.getUserCart(userId);
 
-/**
- * @route POST /cart/add
- * @access Private
- */
-export const addToCartController = async (req, res) => {
-  const { userId } = req.user;
-  const { productId, variant } = req.body;
+    return res.status(200).json({
+      success: true,
+      data: cart,
+      message: "Cart fetched successfully",
+    });
+  }
 
-  const cart = await addToCart(productId, variant, userId);
-  return res
-    .status(200)
-    .json({ success: true, data: cart, message: "Item added to cart" });
-};
+  /**
+   * @route POST /cart/add
+   * @access Private
+   */
+  static async addProductToCart(req, res) {
+    const { userId } = req.user;
+    const { productId, variant } = req.body;
 
-/**
- * @route PATCH /cart/increase
- * @access Private
- */
-export const incQuantityController = async (req, res) => {
-  const { userId } = req.user;
-  const { productId } = req.body;
+    const cart = await CartService.addProductToCart(userId, productId, variant);
 
-  const cart = await incQuantity(productId, userId);
-  return res
-    .status(200)
-    .json({ success: true, data: cart, message: "Quantity increased successfully" });
-};
+    return res.status(200).json({
+      success: true,
+      data: cart,
+      message: "Item added to cart",
+    });
+  }
 
-/**
- * @route PATCH /cart/decrease
- * @access Private
- */
-export const decQuantityController = async (req, res) => {
-  const { userId } = req.user;
-  const { productId } = req.body;
+  /**
+   * @route PATCH /cart/increase
+   * @access Private
+   */
+  static async increaseProductQuantity(req, res) {
+    const { userId } = req.user;
+    const { productId } = req.body;
 
-  const cart = await decQuantity(productId, userId);
-  return res
-    .status(200)
-    .json({ success: true, data: cart, message: "Quantity decreased successfully" });
-};
+    const cart = await CartService.increaseProductQuantity(userId, productId);
 
-/**
- * @route DELETE /cart/remove
- * @access Private
- */
-export const removeFromCartController = async (req, res) => {
-  const { userId } = req.user;
-  const { id } = req.params;
+    return res.status(200).json({
+      success: true,
+      data: cart,
+      message: "Quantity increased successfully",
+    });
+  }
 
-  const cart = await removeFromCart(id, userId);
-  return res
-    .status(200)
-    .json({ success: true, data: cart, message: "Item removed successfully" });
-};
+  /**
+   * @route PATCH /cart/decrease
+   * @access Private
+   */
+  static async decreaseProductQuantity(req, res) {
+    const { userId } = req.user;
+    const { productId } = req.body;
 
-/**
- * @route DELETE /cart/clear
- * @access Private
- */
-export const clearCartController = async (req, res) => {
-  const { userId } = req.user;
+    const cart = await CartService.decreaseProductQuantity(userId, productId);
 
-  const cart = await clearCart(userId);
-  return res
-    .status(200)
-    .json({ success: true, data: cart, message: "Cart cleared successfully" });
-};
+    return res.status(200).json({
+      success: true,
+      data: cart,
+      message: "Quantity decreased successfully",
+    });
+  }
+
+  /**
+   * @route DELETE /cart/remove/:id
+   * @access Private
+   */
+  static async removeProductFromCart(req, res) {
+    const { userId } = req.user;
+    const { id: productId } = req.params;
+
+    const cart = await CartService.removeProductFromCart(userId, productId);
+
+    return res.status(200).json({
+      success: true,
+      data: cart,
+      message: "Item removed successfully",
+    });
+  }
+
+  /**
+   * @route DELETE /cart/clear
+   * @access Private
+   */
+  static async clearCart(req, res) {
+    const { userId } = req.user;
+
+    const cart = await CartService.clearUserCart(userId);
+
+    return res.status(200).json({
+      success: true,
+      data: cart,
+      message: "Cart cleared successfully",
+    });
+  }
+}
