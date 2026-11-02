@@ -158,6 +158,111 @@ paths:
                     type: string
                     example: User logged out successfully
 
+  # ==========================================
+  # Forgot Password Route
+  # ==========================================
+  /auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Forgot password
+      description: Send a password reset email link to the specified user email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        "200":
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Password reset link is sent to user@example.com
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
+  # Reset Password Route
+  # ==========================================
+  /auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: Reset user password using the token received in email.
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Password reset token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newPassword
+              properties:
+                newPassword:
+                  type: string
+                  minLength: 6
+                  example: newSecretPassword123
+      responses:
+        "200":
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Password Reset successfull, Please Login with new Password
+        "400":
+          description: Validation error or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
+          description: User not found or token expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 # ==========================================
 # Components & Schemas
 # ==========================================

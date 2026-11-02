@@ -80,6 +80,64 @@ paths:
                           $ref: "#/components/schemas/ProductSummary"
 
   # ==========================================
+  # Get Products Metadata (Public)
+  # ==========================================
+  /products/meta:
+    get:
+      tags:
+        - Products (Public)
+      summary: Get product catalog metadata
+      description: Fetch categories, price range, sort options, and stock statuses for client filter controls. Cached in Redis.
+      responses:
+        "200":
+          description: Product metadata fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product metadata fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            label:
+                              type: string
+                              example: Electronics
+                            value:
+                              type: string
+                              example: electronics
+                      priceRange:
+                        type: object
+                        properties:
+                          min:
+                            type: number
+                            example: 100
+                          max:
+                            type: number
+                            example: 99999
+                      sortOptions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            label:
+                              type: string
+                              example: Newest
+                            value:
+                              type: string
+                              example: newest
+
+  # ==========================================
   # Get Available Colors by Product Name (Public)
   # ==========================================
   /products/colors:

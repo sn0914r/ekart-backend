@@ -216,6 +216,55 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   # ==========================================
+  # Get Order Refunds
+  # ==========================================
+  /orders/{id}/refunds:
+    get:
+      tags:
+        - Orders (User)
+      summary: Get order refund details
+      description: Retrieve refund transaction details from the Payment Orchestration Engine (POE) for an order.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Order ID
+      responses:
+        "200":
+          description: Order refunds fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Order refunds fetched successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==========================================
   # Get All Orders (Admin)
   # ==========================================
   /admin/orders:
